@@ -46,6 +46,7 @@ installApplication () {
     if [[ ${INST_STATE} == "running" ]]; then
       sleep 5
     else
+      echo ""
       echo "Final installation state: "${INST_STATE}
       break
     fi
@@ -66,9 +67,11 @@ verifyInstalledApplication () {
 
 
 #==========================================
+echo "*************************************"
+echo "*** WfPS Application Installation ***"
+echo "*************************************"
+echo "Using config file: "${CONFIG_FILE}" for application: "${APPLICATION_FILE}
 
-echo "Using config file: "${CONFIG_FILE}
-echo "Using application file: "${APPLICATION_FILE}
 source ${CONFIG_FILE}
 
 verifyAllParams

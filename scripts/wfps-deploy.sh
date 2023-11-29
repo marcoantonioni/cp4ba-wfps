@@ -55,8 +55,11 @@ EOF
 }
 
 #==========================================
-
+echo "*************************************"
+echo "****** WfPS Runtime Deployment ******"
+echo "*************************************"
 echo "Using config file: "${CONFIG_FILE}
+
 source ${CONFIG_FILE}
 
 verifyAllParams
