@@ -83,3 +83,5 @@ else
   echo ${WFPS_NAME}" is operated through the folowing URLs using '${WFPS_ADMINUSER}' credentials"
   showWfPSUrls ${WFPS_NAMESPACE} ${WFPS_NAME}
 fi
+
+exit 0
