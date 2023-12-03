@@ -20,6 +20,13 @@ export CONFIG_FILE=${_CFG}
 
 source ./oc-utils.sh
 
+
+#--------------------------------------------------------
+getAdminInfo () {
+  WFPS_ADMINUSER=$(oc get secrets ${WFPS_NAMESPACE} platform-auth-idp-credentials -o jsonpath='{.data.admin_username}' | base64 -d)
+  WFPS_ADMINPASSWORD=$(oc get secrets ${WFPS_NAMESPACE} platform-auth-idp-credentials -o jsonpath='{.data.admin_password}' | base64 -d)
+}
+
 #--------------------------------------------------------
 deployWfPSRuntime () {
 
@@ -73,6 +80,7 @@ fi
 resourceExist ${WFPS_NAMESPACE} wfps ${WFPS_NAME}
 if [ $? -eq 0 ]; then
   echo "Ready to install..."
+  getAdminInfo
   deployWfPSRuntime
   waitForResourceCreated ${WFPS_NAMESPACE} wfps ${WFPS_NAME} 60
 else

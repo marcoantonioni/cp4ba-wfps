@@ -22,6 +22,12 @@ export APPLICATION_FILE=${_APP}
 
 source ./oc-utils.sh
 
+#--------------------------------------------------------
+getAdminInfo () {
+  WFPS_ADMINUSER=$(oc get secrets ${WFPS_NAMESPACE} platform-auth-idp-credentials -o jsonpath='{.data.admin_username}' | base64 -d)
+  WFPS_ADMINPASSWORD=$(oc get secrets ${WFPS_NAMESPACE} platform-auth-idp-credentials -o jsonpath='{.data.admin_password}' | base64 -d)
+}
+
 #------------------------------------------
 installApplication () {
 # $1 admin user
@@ -82,6 +88,7 @@ else
   echo "File "${APPLICATION_FILE}" not found."
 fi
 
+getAdminInfo
 getWfPSUrls ${WFPS_NAMESPACE} ${WFPS_NAME}
 getCsrfToken ${WFPS_ADMINUSER} ${WFPS_ADMINPASSWORD} ${WFPS_URL_OPS}
 

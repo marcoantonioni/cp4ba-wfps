@@ -113,18 +113,6 @@ verifyAllParams () {
       exit 1
   fi
 
-  isParamSet ${WFPS_ADMINUSER}
-  if [ $? -eq 0 ]; then
-      echo "ERROR: WFPS_ADMINUSER not set"
-      exit 1
-  fi
-
-  isParamSet ${WFPS_ADMINPASSWORD}
-  if [ $? -eq 0 ]; then
-      echo "ERROR: WFPS_ADMINPASSWORD not set"
-      exit 1
-  fi
-
   isParamSet ${WFPS_APP_VER}
   if [ $? -eq 0 ]; then
       echo "ERROR: WFPS_APP_VER not set"
