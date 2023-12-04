@@ -36,6 +36,7 @@ oc get secrets ${WFPS_NAMESPACE} platform-auth-idp-credentials -o jsonpath='{.da
 
 ```
 source ./configs/wfps1.properties
+echo "WfPS target namespace: "${WFPS_NAMESPACE}
 
 # set target namespace
 export CP4BA_AUTO_NAMESPACE=${WFPS_NAMESPACE}
@@ -61,10 +62,14 @@ EOF
 oc adm policy add-scc-to-user anyuid -z ibm-cp4ba-anyuid -n ${CP4BA_AUTO_NAMESPACE}
 ./cp4a-clusteradmin-setup.sh
 
-
 # wait for operators ready
 
-CP4BA_CLUSTER_NAME=icp4deploy-wfps
+# before, 12 operators v23
+oc get ClusterServiceVersion --no-headers
+oc get ClusterServiceVersion --no-headers | wc -l
+
+
+CP4BA_CLUSTER_NAME=${WFPS_NAMESPACE}
 CP4BA_PLATFORM=OCP
 cat <<EOF | oc create -f -
 apiVersion: icp4a.ibm.com/v1
@@ -96,5 +101,9 @@ spec:
     replica_size: 1
 EOF
 
-# wait for Zen operator and others ready
+# before, 16 operators v23
+oc get ClusterServiceVersion --no-headers
+oc get ClusterServiceVersion --no-headers | wc -l
+
+# wait for all operators in state: Succeeded
 ```
