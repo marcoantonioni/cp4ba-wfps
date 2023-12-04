@@ -136,6 +136,7 @@ getCsrfToken() {
   echo -n "Getting csrf token"
   until CSRF_TOKEN=$(curl -ks -X POST ${CRED} -H 'accept: application/json' -H 'Content-Type: application/json' ${LOGIN_URI} -d '{}' | jq .csrf_token | sed 's/"//g') && [[ -n "$CSRF_TOKEN" ]]
   do
+  echo $CSRF_TOKEN
     echo -n "."
     sleep 1
   done
@@ -143,6 +144,7 @@ getCsrfToken() {
   export WFPS_CSRF_TOKEN=${CSRF_TOKEN}
 }
 
+# ????
 getUserPasswordFromLocalLdif () {
 
   TNS=cp4ba

@@ -3,12 +3,12 @@
 
 ## Simple Deploy - new instance of WfPS with a dedicated PostgreSQL database
 ```
-./wfps-deploy.sh -c ./configs/wfps1.properties
+time ./wfps-deploy.sh -c ./configs/wfps1.properties
 ```
 
 ## Install application
 ```
-./wfps-install-application.sh -c ./configs/wfps1.properties -a ../apps/SimpleDemoWfPS.zip
+time ./wfps-install-application.sh -c ./configs/wfps1.properties -a ../apps/SimpleDemoWfPS.zip
 ```
 
 ## Example of REST services invocations usin curl
@@ -36,10 +36,10 @@ oc get secrets ${WFPS_NAMESPACE} platform-auth-idp-credentials -o jsonpath='{.da
 
 ```
 source ./configs/wfps1.properties
-echo "WfPS target namespace: "${WFPS_NAMESPACE}
 
 # set target namespace
 export CP4BA_AUTO_NAMESPACE=${WFPS_NAMESPACE}
+echo "WfPS target namespace: "${CP4BA_AUTO_NAMESPACE}
 
 export CP4BA_AUTO_PLATFORM="OCP"
 export CP4BA_AUTO_ALL_NAMESPACES="No"
@@ -106,7 +106,7 @@ spec:
     replica_size: 1
 EOF
 
-# before, 16 operators v23
+# after, 16 operators v23
 oc get ClusterServiceVersion --no-headers
 oc get ClusterServiceVersion --no-headers | wc -l
 
