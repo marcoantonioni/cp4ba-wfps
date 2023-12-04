@@ -69,8 +69,13 @@ oc get ClusterServiceVersion --no-headers
 oc get ClusterServiceVersion --no-headers | wc -l
 
 
+# create minimal cp4ba deployment
+
 CP4BA_CLUSTER_NAME=${WFPS_NAMESPACE}
 CP4BA_PLATFORM=OCP
+CP4BA_AUTO_STORAGE_CLASS_FAST_ROKS="managed-nfs-storage"
+CP4BA_AUTO_STORAGE_CLASS_BLOCK=thin-csi
+
 cat <<EOF | oc create -f -
 apiVersion: icp4a.ibm.com/v1
 kind: ICP4ACluster
