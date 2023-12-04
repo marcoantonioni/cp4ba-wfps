@@ -81,6 +81,9 @@ resourceExist ${WFPS_NAMESPACE} wfps ${WFPS_NAME}
 if [ $? -eq 0 ]; then
   echo "Ready to install..."
   getAdminInfo
+  if [[ -z "${WFPS_ADMINUSER}" ]]; then
+    WFPS_ADMINUSER=cpadmin
+  fi
   deployWfPSRuntime
   waitForResourceCreated ${WFPS_NAMESPACE} wfps ${WFPS_NAME} 60
 else
