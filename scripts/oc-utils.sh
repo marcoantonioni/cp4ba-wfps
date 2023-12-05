@@ -127,6 +127,21 @@ verifyAllParams () {
 
 }
 
+#--------------------------------------------------------
+getAdminInfo () {
+  WFPS_ADMINUSER=$(oc get secrets -n ${WFPS_NAMESPACE} platform-auth-idp-credentials -o jsonpath='{.data.admin_username}' | base64 -d)
+  WFPS_ADMINPASSWORD=$(oc get secrets -n ${WFPS_NAMESPACE} platform-auth-idp-credentials -o jsonpath='{.data.admin_password}' | base64 -d)
+  if [[ -z "${WFPS_ADMINUSER}" ]]; then
+    echo "ERROR cannot get admin user name from secret"
+    exit 1
+  fi
+  if [[ -z "${WFPS_ADMINPASSWORD}" ]]; then
+    echo "ERROR cannot get admin password from secret"
+    exit 1
+  fi
+}
+
+#--------------------------------------------------------
 getCsrfToken() {
 # $1 admin user
 # $2 admin password

@@ -11,7 +11,7 @@ time ./wfps-deploy.sh -c ./configs/wfps1.properties
 time ./wfps-install-application.sh -c ./configs/wfps1.properties -a ../apps/SimpleDemoWfPS.zip
 ```
 
-## Example of REST services invocations usin curl
+## Example of REST services invocations using curl
 ```
 # 
 ./exportWfPSEnvVars.sh -c ./configs/wfps1.properties && source ./exp.vars
@@ -32,6 +32,7 @@ oc get secrets ${WFPS_NAMESPACE} platform-auth-idp-credentials -o jsonpath='{.da
 oc get secrets ${WFPS_NAMESPACE} platform-auth-idp-credentials -o jsonpath='{.data.admin_password}' | base64 -d && echo
 
 
+./exportWfPSEnvVars.sh -c ./configs/wfps1.properties && source ./exp.vars
 oc rsh -n ${WFPS_NAMESPACE} ${WFPS_NAME}-wfps-runtime-server-0 tail -n 1000 -f /logs/application/${WFPS_NAME}-wfps-runtime-server-0/liberty-message.log
 
 ```

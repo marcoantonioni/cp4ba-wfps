@@ -20,13 +20,6 @@ export CONFIG_FILE=${_CFG}
 
 source ./oc-utils.sh
 
-
-#--------------------------------------------------------
-getAdminInfo () {
-  WFPS_ADMINUSER=$(oc get secrets -n ${WFPS_NAMESPACE} platform-auth-idp-credentials -o jsonpath='{.data.admin_username}' | base64 -d)
-  WFPS_ADMINPASSWORD=$(oc get secrets -n ${WFPS_NAMESPACE} platform-auth-idp-credentials -o jsonpath='{.data.admin_password}' | base64 -d)
-}
-
 #--------------------------------------------------------
 deployWfPSRuntime () {
 
