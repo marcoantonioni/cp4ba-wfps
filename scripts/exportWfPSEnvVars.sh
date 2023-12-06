@@ -26,7 +26,7 @@ getAdminInfo
 getWfPSUrls ${WFPS_NAMESPACE} ${WFPS_NAME}
 getCsrfToken ${WFPS_ADMINUSER} ${WFPS_ADMINPASSWORD} ${WFPS_URL_OPS}
 
-OUT_FILE=./exp.vars
+OUT_FILE=./exp-${WFPS_NAME}.vars
 echo "Generating env vars in file: "${OUT_FILE}
 echo "export WFPS_NAME=${WFPS_NAME}" > ${OUT_FILE}
 echo "export WFPS_NAMESPACE=${WFPS_NAMESPACE}" >> ${OUT_FILE}
@@ -38,5 +38,6 @@ echo "export WFPS_URL_EXPLORER=${WFPS_URL_EXPLORER}" >> ${OUT_FILE}
 echo "export WFPS_URL_WORKPLACE=${WFPS_URL_WORKPLACE}" >> ${OUT_FILE}
 echo "export WFPS_URL_PROCESSADMIN=${WFPS_URL_PROCESSADMIN}" >> ${OUT_FILE}
 echo "export WFPS_CSRF_TOKEN=${WFPS_CSRF_TOKEN}" >> ${OUT_FILE}
+echo "Env vars for [${WFPS_NAME}] in file "${OUT_FILE}
 cat ${OUT_FILE}
 

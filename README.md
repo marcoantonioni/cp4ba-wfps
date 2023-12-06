@@ -1,20 +1,42 @@
 # cp4ba-wfps-utils
 
+TTD
+- import certificato per servizi esterni
 
 ## Simple Deploy - new instance of WfPS with a dedicated PostgreSQL database
 ```
+# simple deploy
 time ./wfps-deploy.sh -c ./configs/wfps1.properties
+
+# deploy using trusted certificates
+time ./addSecretsForTrustedCertificates -c ./configs/wfps1.properties -t ./configs/trusted-certs.properties
+time ./wfps-deploy.sh -c ./configs/wfps1.properties -t ./configs/trusted-certs.properties
+
+# deploy
+time ./wfps-deploy.sh -c ./configs/wfps2.properties
+time ./wfps-deploy.sh -c ./configs/wfps3.properties
+time ./wfps-deploy.sh -c ./configs/wfps4.properties
+time ./wfps-deploy.sh -c ./configs/wfps5.properties
+time ./wfps-deploy.sh -c ./configs/wfps6.properties
+time ./wfps-deploy.sh -c ./configs/wfps7.properties
+time ./wfps-deploy.sh -c ./configs/wfps8.properties
+time ./wfps-deploy.sh -c ./configs/wfps9.properties
+time ./wfps-deploy.sh -c ./configs/wfps10.properties
+
 ```
 
 ## Install application
 ```
 time ./wfps-install-application.sh -c ./configs/wfps1.properties -a ../apps/SimpleDemoWfPS.zip
+
+time ./wfps-install-application.sh -c ./configs/wfps2.properties -a ../apps/SimpleDemoStraightThroughProcessingWfPS.zip
 ```
 
 ## Example of REST services invocations using curl
 ```
 # 
-./exportWfPSEnvVars.sh -c ./configs/wfps1.properties && source ./exp.vars
+./exportWfPSEnvVars.sh -c ./configs/wfps1.properties 
+source ./exp-wfps-t1.vars
 
 curl -sk -u ${WFPS_ADMINUSER}:${WFPS_ADMINPASSWORD} -H 'accept: application/json' -H 'content-type: application/json' -H 'BPMCSRFToken: '${WFPS_CSRF_TOKEN} -X POST ${WFPS_EXTERNAL_BASE_URL}/automationservices/rest/SDWPS/SimpleDemoREST/startService -d '{"request": {"name":"Marco", "counter": 10, "flag": true}}' | jq .
 
@@ -31,9 +53,22 @@ oc get sc
 oc get secrets ${WFPS_NAMESPACE} platform-auth-idp-credentials -o jsonpath='{.data.admin_username}' | base64 -d && echo
 oc get secrets ${WFPS_NAMESPACE} platform-auth-idp-credentials -o jsonpath='{.data.admin_password}' | base64 -d && echo
 
+# export variables for wfps server
+./exportWfPSEnvVars.sh -c ./configs/wfps1.properties 
+source ./exp-wfps-t1.vars
 
-./exportWfPSEnvVars.sh -c ./configs/wfps1.properties && source ./exp.vars
 oc rsh -n ${WFPS_NAMESPACE} ${WFPS_NAME}-wfps-runtime-server-0 tail -n 1000 -f /logs/application/${WFPS_NAME}-wfps-runtime-server-0/liberty-message.log
+
+
+# test STP demo
+USER=cp4admin
+PASSWORD=XSMV5A8mc2rnyRBCeW8R
+EXTERNAL_BASE_URL=https://cpd-cp4ba.apps.654892a90ae5f40017a3834c.cloud.techzone.ibm.com/bas
+curl -sk -u ${USER}:${PASSWORD} -H 'accept: application/json' -H 'content-type: application/json' -X POST ${EXTERNAL_BASE_URL}/automationservices/rest/SDSTPWP/ServiceSTP/startProcess -d '{"request": {"contextId":"ctx1", "counter": 3, "delayMillisecs": 100}}' | jq .
+
+USER=cpadmin
+PASSWORD=7zn6e2DJBRrEd4kH5ZHBqt51Aai3X2Mz
+curl -sk -u ${USER}:${PASSWORD} -H 'accept: application/json' -H 'content-type: application/json' -X POST ${WFPS_EXTERNAL_BASE_URL}/automationservices/rest/SDSTPWP/ServiceSTP/startProcess -d '{"request": {"contextId":"ctx1", "counter": 3, "delayMillisecs": 100}}' | jq .
 
 ```
 
