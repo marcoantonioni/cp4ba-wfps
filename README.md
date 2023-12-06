@@ -1,7 +1,8 @@
 # cp4ba-wfps-utils
 
 TTD
-- import certificato per servizi esterni
+- config jdbc datasource
+- test kafka services
 
 ## Simple Deploy - new instance of WfPS with a dedicated PostgreSQL database
 ```
