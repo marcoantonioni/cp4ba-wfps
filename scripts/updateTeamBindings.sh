@@ -54,8 +54,8 @@ updateTB () {
           UPDATED_LIST=${UPDATED_LIST}","
         fi
       done
-    _CONTENT_TO_SET=${UPDATED_LIST}
-  fi
+      _CONTENT_TO_SET=${UPDATED_LIST}
+    fi
   else
     _CONTENT_TO_SET="\""${TB_CONTENT}"\""
   fi
