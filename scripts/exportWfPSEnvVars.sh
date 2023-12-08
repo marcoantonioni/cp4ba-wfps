@@ -38,6 +38,7 @@ echo "export WFPS_URL_EXPLORER=${WFPS_URL_EXPLORER}" >> ${OUT_FILE}
 echo "export WFPS_URL_WORKPLACE=${WFPS_URL_WORKPLACE}" >> ${OUT_FILE}
 echo "export WFPS_URL_PROCESSADMIN=${WFPS_URL_PROCESSADMIN}" >> ${OUT_FILE}
 echo "export WFPS_CSRF_TOKEN=${WFPS_CSRF_TOKEN}" >> ${OUT_FILE}
+echo "export WFPS_PAK_BASE_URL=${WFPS_PAK_BASE_URL}" >> ${OUT_FILE}
 echo "Env vars for [${WFPS_NAME}] in file "${OUT_FILE}
 cat ${OUT_FILE}
 

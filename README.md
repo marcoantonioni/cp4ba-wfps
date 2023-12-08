@@ -1,9 +1,22 @@
 # cp4ba-wfps-utils
 
 TTD
-- user onboarding in pak
+- activate/default/deactivate applicazione
 - config jdbc datasource
 - test kafka services
+
+# default app
+POST
+https://cpd-cp4ba-wfps-runtime1.apps.654892a90ae5f40017a3834c.cloud.techzone.ibm.com/wfps-t1-wfps/ops/std/bpm/containers/SDWPS/versions/0.5/make_default
+
+# deactivate
+POST
+https://cpd-cp4ba-wfps-runtime1.apps.654892a90ae5f40017a3834c.cloud.techzone.ibm.com/wfps-t1-wfps/ops/std/bpm/containers/SDWPS/versions/0.4/deactivate
+
+# app list
+GET
+https://cpd-cp4ba-wfps-runtime1.apps.654892a90ae5f40017a3834c.cloud.techzone.ibm.com/wfps-t1-wfps/ops/std/bpm/installedVersions?filter=All&sortType=Name&sortOrder=ASC&offset=0&limit=10&includeStateAndPossibleActions=true&includeBranchTipVersions=false
+
 
 ## Simple Deploy - new instance of WfPS with a dedicated PostgreSQL database
 ```

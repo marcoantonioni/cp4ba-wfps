@@ -80,6 +80,7 @@ getWfPSUrls() {
     export WFPS_EXTERNAL_BASE_URL=$(echo ${WFPS_URL_OPS} | sed 's/\/ops//g')
     export WFPS_URL_WORKPLACE=$(oc get wfps -n $1 $2 -o jsonpath="{.status.endpoints}" | jq ".[].uri" | grep Workplace | sed 's/\"//g')
     export WFPS_URL_PROCESSADMIN=$(echo ${WFPS_URL_WORKPLACE} | sed 's/Workplace/ProcessAdmin/g')
+    export WFPS_PAK_BASE_URL=$(echo ${WFPS_EXTERNAL_BASE_URL} | sed 's/\/'${WFPS_NAME}'-wfps//g')
 }
 
 #-------------------------------
@@ -90,6 +91,7 @@ showWfPSUrls() {
     echo "  Workplace url: "${WFPS_URL_WORKPLACE}
     echo "  ProcessAdmin url: "${WFPS_URL_PROCESSADMIN}
     echo "  REST url: "${WFPS_EXTERNAL_BASE_URL}
+    echo "  Pak console url: "${WFPS_PAK_BASE_URL}
 }
 
 #-------------------------------
