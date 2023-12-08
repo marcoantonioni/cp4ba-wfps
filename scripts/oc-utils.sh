@@ -139,6 +139,7 @@ getAdminInfo () {
     echo "ERROR cannot get admin password from secret"
     exit 1
   fi
+  getWfPSUrls ${WFPS_NAMESPACE} ${WFPS_NAME}
 }
 
 #--------------------------------------------------------

@@ -153,3 +153,24 @@ oc get ClusterServiceVersion --no-headers | wc -l
 
 # wait for all operators in state: Succeeded
 ```
+
+## Update Team Bindings
+```
+WFPS_TB_APP_ACRONYM=SDWPS
+WFPS_TB_SNAP_NAME=0.4
+
+# team binding name
+WFPS_TB_NAME_1=Requestors
+# list of LDAP Users to be associated to TB
+WFPS_TB_NAME_1_USERS=vuxuser1dom1,vuxuser2dom1,vuxuser3dom1
+# list of LDAP Goups and/or Server Groups (eg: tw_allusers) to be associated to TB
+WFPS_TB_NAME_1_GROUPS=
+
+# team binding name
+WFPS_TB_NAME_2=Validators
+# list of LDAP Users to be associated to TB
+WFPS_TB_NAME_2_USERS=
+# list of LDAP Goups and/or Server Groups (eg: tw_allusers) to be associated to TB
+WFPS_TB_NAME_2_GROUPS=Group3Dom1
+
+```

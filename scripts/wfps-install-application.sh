@@ -83,7 +83,6 @@ else
 fi
 
 getAdminInfo
-getWfPSUrls ${WFPS_NAMESPACE} ${WFPS_NAME}
 getCsrfToken ${WFPS_ADMINUSER} ${WFPS_ADMINPASSWORD} ${WFPS_URL_OPS}
 
 # echo ${WFPS_CSRF_TOKEN}
