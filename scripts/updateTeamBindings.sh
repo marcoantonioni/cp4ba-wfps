@@ -177,6 +177,10 @@ echo "Using team bindings file: "${TEAM_BINDINGS_FILE}
 source ${CONFIG_FILE}
 source ${TEAM_BINDINGS_FILE}
 
+echo ""
+echo "Working on acronym ["${WFPS_TB_APP_ACRONYM}"] snapshot["${WFPS_TB_SNAP_NAME}"]"
+echo ""
+
 verifyAllParams
 updateTeamBindings
 

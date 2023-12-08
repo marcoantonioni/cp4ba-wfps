@@ -1,6 +1,7 @@
 # cp4ba-wfps-utils
 
 TTD
+- user onboarding in pak
 - config jdbc datasource
 - test kafka services
 
@@ -33,9 +34,19 @@ time ./wfps-install-application.sh -c ./configs/wfps1.properties -a ../apps/Simp
 time ./wfps-install-application.sh -c ./configs/wfps2.properties -a ../apps/SimpleDemoStraightThroughProcessingWfPS.zip
 ```
 
+## Configure application Team Bindings
+```
+# For team bindings configuration see file 'configs/team-bindings-app-1.properties'
+
+# parameters:
+# -c path to wfps configuration file
+# -t path to team bindings configuration file
+# -r [optional] remove actual team binding configuration 
+./updateTeamBindings.sh -c ./configs/wfps1.properties -t ./configs/team-bindings-app-1.properties -r
+```
+
 ## Example of REST services invocations using curl
 ```
-# 
 ./exportWfPSEnvVars.sh -c ./configs/wfps1.properties 
 source ./exp-wfps-t1.vars
 
@@ -54,6 +65,7 @@ oc get sc
 oc get secrets ${WFPS_NAMESPACE} platform-auth-idp-credentials -o jsonpath='{.data.admin_username}' | base64 -d && echo
 oc get secrets ${WFPS_NAMESPACE} platform-auth-idp-credentials -o jsonpath='{.data.admin_password}' | base64 -d && echo
 
+# server's log
 # export variables for wfps server
 ./exportWfPSEnvVars.sh -c ./configs/wfps1.properties 
 source ./exp-wfps-t1.vars
@@ -154,23 +166,3 @@ oc get ClusterServiceVersion --no-headers | wc -l
 # wait for all operators in state: Succeeded
 ```
 
-## Update Team Bindings
-```
-WFPS_TB_APP_ACRONYM=SDWPS
-WFPS_TB_SNAP_NAME=0.4
-
-# team binding name
-WFPS_TB_NAME_1=Requestors
-# list of LDAP Users to be associated to TB
-WFPS_TB_NAME_1_USERS=vuxuser1dom1,vuxuser2dom1,vuxuser3dom1
-# list of LDAP Goups and/or Server Groups (eg: tw_allusers) to be associated to TB
-WFPS_TB_NAME_1_GROUPS=
-
-# team binding name
-WFPS_TB_NAME_2=Validators
-# list of LDAP Users to be associated to TB
-WFPS_TB_NAME_2_USERS=
-# list of LDAP Goups and/or Server Groups (eg: tw_allusers) to be associated to TB
-WFPS_TB_NAME_2_GROUPS=Group3Dom1
-
-```

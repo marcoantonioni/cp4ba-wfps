@@ -149,14 +149,14 @@ getCsrfToken() {
 # $3 url ops
   CRED="-u $1:$2"
   LOGIN_URI="$3/system/login"
-  echo -n "Getting csrf token"
+  # echo -n "Getting csrf token"
   until CSRF_TOKEN=$(curl -ks -X POST ${CRED} -H 'accept: application/json' -H 'Content-Type: application/json' ${LOGIN_URI} -d '{}' | jq .csrf_token | sed 's/"//g') && [[ -n "$CSRF_TOKEN" ]]
   do
   echo $CSRF_TOKEN
-    echo -n "."
+    # echo -n "."
     sleep 1
   done
-  echo ""
+  # echo ""
   export WFPS_CSRF_TOKEN=${CSRF_TOKEN}
 }
 
