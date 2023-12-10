@@ -40,7 +40,7 @@ waitForResourceCreated () {
   echo -n "Wait for resource '$3' in namespace '$1' created"
   while [ true ]
   do
-      resourceExist $1 $2 $3 $4
+      resourceExist $1 $2 $3
       if [ $? -eq 0 ]; then
           echo -n "."
           sleep $4
@@ -131,6 +131,7 @@ verifyAllParams () {
 
 #--------------------------------------------------------
 getAdminInfo () {
+  # $1: boolean skip urls 
   WFPS_ADMINUSER=$(oc get secrets -n ${WFPS_NAMESPACE} platform-auth-idp-credentials -o jsonpath='{.data.admin_username}' | base64 -d)
   WFPS_ADMINPASSWORD=$(oc get secrets -n ${WFPS_NAMESPACE} platform-auth-idp-credentials -o jsonpath='{.data.admin_password}' | base64 -d)
   if [[ -z "${WFPS_ADMINUSER}" ]]; then
@@ -141,7 +142,14 @@ getAdminInfo () {
     echo "ERROR cannot get admin password from secret"
     exit 1
   fi
-  getWfPSUrls ${WFPS_NAMESPACE} ${WFPS_NAME}
+  if [[ ! "$1" = "true" ]]; then
+    resourceExist ${WFPS_NAMESPACE} wfps ${WFPS_NAME}
+    if [ $? -eq 1 ]; then
+      getWfPSUrls ${WFPS_NAMESPACE} ${WFPS_NAME}
+    else
+      echo "WARNING: wfps '${WFPS_NAME}' not present in namespace '${WFPS_NAMESPACE}'"
+    fi
+  fi
 }
 
 #--------------------------------------------------------
