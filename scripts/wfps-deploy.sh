@@ -105,7 +105,7 @@ if [ $? -eq 0 ]; then
     WFPS_ADMINUSER=cpadmin
   fi
   deployWfPSRuntime
-  waitForResourceCreated ${WFPS_NAMESPACE} wfps ${WFPS_NAME} 10
+  waitForResourceCreated ${WFPS_NAMESPACE} wfps ${WFPS_NAME} 5
 else
   echo ${WFPS_NAME}" already installed..."
 fi

@@ -58,6 +58,25 @@ time ./wfps-install-application.sh -c ./configs/wfps2.properties -a ../apps/Simp
 ./updateTeamBindings.sh -c ./configs/wfps1.properties -t ./configs/team-bindings-app-1.properties -r
 ```
 
+## Federate WfPS
+```
+spec: 
+
+  capabilities: 
+    fullTextSearch: 
+      enable: true 
+      esStorage:
+        storageClassName: thin-csi
+        size: 10Gi
+      esSnapshotStorage:
+        storageClassName: thin-csi
+        size: 2Gi
+    federate:
+      enable: true
+
+```
+
+
 ## Example of REST services invocations using curl
 ```
 ./exportWfPSEnvVars.sh -c ./configs/wfps1.properties 
