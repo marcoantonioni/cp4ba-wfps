@@ -24,11 +24,10 @@ https://cpd-cp4ba-wfps-runtime1.apps.654892a90ae5f40017a3834c.cloud.techzone.ibm
 time ./wfps-deploy.sh -c ./configs/wfps1.properties
 
 # deploy using trusted certificates
-time ./addSecretsForTrustedCertificates -c ./configs/wfps1.properties -t ./configs/trusted-certs.properties
-time ./wfps-deploy.sh -c ./configs/wfps1.properties -t ./configs/trusted-certs.properties
+time ./addSecretsForTrustedCertificates.sh -c ./configs/wfps2.properties -t ./configs/trusted-certs.properties
+time ./wfps-deploy.sh -c ./configs/wfps2.properties -t ./configs/trusted-certs.properties
 
 # deploy
-time ./wfps-deploy.sh -c ./configs/wfps2.properties
 time ./wfps-deploy.sh -c ./configs/wfps3.properties
 time ./wfps-deploy.sh -c ./configs/wfps4.properties
 time ./wfps-deploy.sh -c ./configs/wfps5.properties

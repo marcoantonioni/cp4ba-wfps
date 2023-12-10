@@ -25,25 +25,7 @@ fi
 source ./oc-utils.sh
 
 #--------------------------------------------------------
-deployWfPSRuntime () {
-
-if [[ ! -z "${TRUST_CERTS_FILE}" ]]; then
-  CERTS_LIST=""
-  for i in {1..10}
-  do
-    _CRT="TCERT_SECRET_NAME_"$i
-    if [[ ! -z "${!_CRT}" ]]; then
-      if [[ -z "${CERTS_LIST}" ]]; then
-        CERTS_LIST="["
-      fi
-      CERTS_LIST=${CERTS_LIST}"${!_CRT},"
-    fi
-  done
-  if [[ ! -z "${CERTS_LIST}" ]]; then
-    CERTS_LIST=${CERTS_LIST}"]"
-  fi
-fi
-
+deployWfPSRuntimeWithCerts () {
 cat <<EOF | oc create -f -
 apiVersion: icp4a.ibm.com/v1
 kind: WfPSRuntime
@@ -58,7 +40,7 @@ spec:
   persistent:
     storageClassName: ${WFPS_STORAGE_CLASS}
   tls:
-    serverTrustCertificateList: ${CERTS_LIST}
+    serverTrustCertificateList: $1
   appVersion: ${WFPS_APP_VER}
   image:
     imagePullPolicy: IfNotPresent
@@ -74,6 +56,65 @@ spec:
         cpu: ${WFPS_REQS_CPU}
         memory: ${WFPS_REQS_MEMORY}
 EOF
+
+}
+#--------------------------------------------------------
+deployWfPSRuntimeWithoutCerts () {
+cat <<EOF | oc create -f -
+apiVersion: icp4a.ibm.com/v1
+kind: WfPSRuntime
+metadata:
+  name: ${WFPS_NAME}
+  namespace: ${WFPS_NAMESPACE}
+spec:
+  admin:
+    username: ${WFPS_ADMINUSER}
+  license:
+    accept: true
+  persistent:
+    storageClassName: ${WFPS_STORAGE_CLASS}
+  appVersion: ${WFPS_APP_VER}
+  image:
+    imagePullPolicy: IfNotPresent
+    repository: cp.icr.io/cp/cp4a/workflow-ps/workflow-ps-server
+    tag: ${WFPS_APP_TAG}
+  deploymentLicense: production
+  node:
+    resources:
+      limits:
+        cpu: ${WFPS_LIMITS_CPU}
+        memory: ${WFPS_LIMITS_MEMORY}
+      requests:
+        cpu: ${WFPS_REQS_CPU}
+        memory: ${WFPS_REQS_MEMORY}
+EOF
+
+}
+#--------------------------------------------------------
+deployWfPSRuntime () {
+
+  if [[ ! -z "${TRUST_CERTS_FILE}" ]]; then
+    CERTS_LIST=""
+    for i in {1..10}
+    do
+      _CRT="TCERT_SECRET_NAME_"$i
+      if [[ ! -z "${!_CRT}" ]]; then
+        if [[ -z "${CERTS_LIST}" ]]; then
+          CERTS_LIST="["
+        fi
+        CERTS_LIST=${CERTS_LIST}"${!_CRT},"
+      fi
+    done
+    if [[ ! -z "${CERTS_LIST}" ]]; then
+      CERTS_LIST=${CERTS_LIST}"]"
+    fi
+  fi
+
+  if [[ -z "${CERTS_LIST}" ]]; then
+    deployWfPSRuntimeWithoutCerts
+  else
+    deployWfPSRuntimeWithCerts ${CERTS_LIST}
+  fi
 
 }
 
