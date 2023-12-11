@@ -27,6 +27,17 @@ time ./wfps-deploy.sh -c ./configs/wfps1.properties
 time ./addSecretsForTrustedCertificates.sh -c ./configs/wfps2.properties -t ./configs/trusted-certs.properties
 time ./wfps-deploy.sh -c ./configs/wfps2.properties -t ./configs/trusted-certs.properties
 
+# deploy sandbox
+time ./wfps-deploy.sh -c ./configs/wfps-sandbox1.properties
+time ./addSecretsForTrustedCertificates.sh -c ./configs/wfps-sandbox2.properties -t ./configs/trusted-certs.properties
+time ./wfps-deploy.sh -c ./configs/wfps-sandbox2.properties -t ./configs/trusted-certs.properties
+
+# deploy federated
+time ./wfps-deploy.sh -c ./configs/wfps-federated1.properties
+time ./addSecretsForTrustedCertificates.sh -c ./configs/wfps-federated2.properties -t ./configs/trusted-certs.properties
+time ./wfps-deploy.sh -c ./configs/wfps-federated2.properties -t ./configs/trusted-certs.properties
+
+
 # deploy
 time ./wfps-deploy.sh -c ./configs/wfps3.properties
 time ./wfps-deploy.sh -c ./configs/wfps4.properties
@@ -44,6 +55,13 @@ time ./wfps-deploy.sh -c ./configs/wfps10.properties
 time ./wfps-install-application.sh -c ./configs/wfps1.properties -a ../apps/SimpleDemoWfPS.zip
 
 time ./wfps-install-application.sh -c ./configs/wfps2.properties -a ../apps/SimpleDemoStraightThroughProcessingWfPS.zip
+
+time ./wfps-install-application.sh -c ./configs/wfps-sandbox1.properties -a ../apps/SimpleDemoWfPS.zip
+time ./wfps-install-application.sh -c ./configs/wfps-sandbox2.properties -a ../apps/SimpleDemoStraightThroughProcessingWfPS.zip
+
+time ./wfps-install-application.sh -c ./configs/wfps-federated1.properties -a ../apps/SimpleDemoWfPS.zip
+time ./wfps-install-application.sh -c ./configs/wfps-federated2.properties -a ../apps/SimpleDemoStraightThroughProcessingWfPS.zip
+
 ```
 
 ## Configure application Team Bindings
@@ -55,6 +73,11 @@ time ./wfps-install-application.sh -c ./configs/wfps2.properties -a ../apps/Simp
 # -t path to team bindings configuration file
 # -r [optional] remove actual team binding configuration 
 ./updateTeamBindings.sh -c ./configs/wfps1.properties -t ./configs/team-bindings-app-1.properties -r
+
+./updateTeamBindings.sh -c ./configs/wfps-sandbox1.properties -t ./configs/team-bindings-app-1.properties -r
+
+./updateTeamBindings.sh -c ./configs/wfps-federated1.properties -t ./configs/team-bindings-app-1.properties -r
+
 ```
 
 ## Federate WfPS
@@ -95,6 +118,9 @@ oc get sc
 # get Zen admin user name and password
 oc get secrets ${WFPS_NAMESPACE} platform-auth-idp-credentials -o jsonpath='{.data.admin_username}' | base64 -d && echo
 oc get secrets ${WFPS_NAMESPACE} platform-auth-idp-credentials -o jsonpath='{.data.admin_password}' | base64 -d && echo
+
+# delete all wfps
+oc get wfps --no-headers | awk '{print $1}' | xargs oc delete wfps
 
 # server's log
 # export variables for wfps server

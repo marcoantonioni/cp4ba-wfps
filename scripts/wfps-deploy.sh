@@ -2,13 +2,16 @@
 
 _me=$(basename "$0")
 
+_NOWAIT=false
+
 #--------------------------------------------------------
 # read command line params
-while getopts c:t: flag
+while getopts c:t:n flag
 do
     case "${flag}" in
         c) _CFG=${OPTARG};;
         t) _TRUST=${OPTARG};;
+        n) _NOWAIT=true;;
     esac
 done
 
@@ -37,6 +40,9 @@ spec:
     username: ${WFPS_ADMINUSER}
   license:
     accept: true
+  capabilities: 
+    federate:
+      enable: ${WFPS_FEDERATE}
   persistent:
     storageClassName: ${WFPS_STORAGE_CLASS}
   tls:
@@ -71,6 +77,9 @@ spec:
     username: ${WFPS_ADMINUSER}
   license:
     accept: true
+  capabilities: 
+    federate:
+      enable: ${WFPS_FEDERATE}
   persistent:
     storageClassName: ${WFPS_STORAGE_CLASS}
   appVersion: ${WFPS_APP_VER}
@@ -108,6 +117,10 @@ deployWfPSRuntime () {
     if [[ ! -z "${CERTS_LIST}" ]]; then
       CERTS_LIST=${CERTS_LIST}"]"
     fi
+  fi
+
+  if [[ -z "${WFPS_FEDERATE}" ]]; then
+    WFPS_FEDERATE=false
   fi
 
   if [[ -z "${CERTS_LIST}" ]]; then
@@ -151,12 +164,16 @@ else
   echo ${WFPS_NAME}" already installed..."
 fi
 
-waitForWfPSReady ${WFPS_NAMESPACE} ${WFPS_NAME} 5
-if [ $? -eq 0 ]; then
-  echo ${WFPS_NAME}" is not ready"
+if [[ "${_NOWAIT}" = "false" ]]; then
+  waitForWfPSReady ${WFPS_NAMESPACE} ${WFPS_NAME} 5
+  if [ $? -eq 0 ]; then
+    echo ${WFPS_NAME}" is not ready"
+  else
+    echo "Success, "${WFPS_NAME}" is operated through the folowing URLs using '${WFPS_ADMINUSER}' credentials"
+    showWfPSUrls ${WFPS_NAMESPACE} ${WFPS_NAME}
+  fi
 else
-  echo ${WFPS_NAME}" is operated through the folowing URLs using '${WFPS_ADMINUSER}' credentials"
-  showWfPSUrls ${WFPS_NAMESPACE} ${WFPS_NAME}
+  echo "Success, ${WFPS_NAME} is building, you may check its status rerunning this command without -n parameter"
 fi
 
 exit 0
