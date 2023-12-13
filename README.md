@@ -37,6 +37,7 @@ time ./wfps-deploy.sh -c ./configs/wfps-federated1.properties
 time ./addSecretsForTrustedCertificates.sh -c ./configs/wfps-federated2.properties -t ./configs/trusted-certs.properties
 time ./wfps-deploy.sh -c ./configs/wfps-federated2.properties -t ./configs/trusted-certs.properties
 
+time ./wfps-deploy.sh -c ./configs/wfps-federated3.properties -t ./configs/trusted-certs.properties
 
 # deploy
 time ./wfps-deploy.sh -c ./configs/wfps3.properties
@@ -181,10 +182,21 @@ oc get ClusterServiceVersion --no-headers | wc -l
 
 # create minimal cp4ba deployment
 
+source ./configs/wfps1.properties
+source ./configs/wfps-federated1.properties
+
+
 CP4BA_CLUSTER_NAME=${WFPS_NAMESPACE}
 CP4BA_PLATFORM=OCP
 CP4BA_AUTO_STORAGE_CLASS_FAST_ROKS="managed-nfs-storage"
 CP4BA_AUTO_STORAGE_CLASS_BLOCK=thin-csi
+
+# senza federazione PFS
+OPT_COMPS=""
+
+# con federazione PFS
+OPT_COMPS="sc_optional_components: elasticsearch"
+
 
 cat <<EOF | oc create -f -
 apiVersion: icp4a.ibm.com/v1
@@ -201,6 +213,7 @@ spec:
   appVersion: 23.0.1
   ibm_license: "accept"
   shared_configuration:
+    ${OPT_COMPS}
     show_sensitive_log: true
     sc_deployment_license: production
     sc_deployment_type: custom

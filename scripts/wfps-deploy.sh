@@ -3,6 +3,7 @@
 _me=$(basename "$0")
 
 _NOWAIT=false
+_TAG_ES=""
 
 #--------------------------------------------------------
 # read command line params
@@ -43,6 +44,7 @@ spec:
   capabilities: 
     federate:
       enable: ${WFPS_FEDERATE}
+    ${_TAG_ES}
   persistent:
     storageClassName: ${WFPS_STORAGE_CLASS}
   tls:
@@ -80,6 +82,7 @@ spec:
   capabilities: 
     federate:
       enable: ${WFPS_FEDERATE}
+    ${_TAG_ES}
   persistent:
     storageClassName: ${WFPS_STORAGE_CLASS}
   appVersion: ${WFPS_APP_VER}
@@ -121,6 +124,19 @@ deployWfPSRuntime () {
 
   if [[ -z "${WFPS_FEDERATE}" ]]; then
     WFPS_FEDERATE=false
+  fi
+  
+  if [[ "${WFPS_FEDERATE}" = "true" ]]; then
+    _TAG_ES="fullTextSearch:
+      enable: true
+      esStorage:
+        storageClassName: thin-csi
+        size: 10Gi
+      esSnapshotStorage:
+        storageClassName: thin-csi
+        size: 2Gi
+"
+
   fi
 
   if [[ -z "${CERTS_LIST}" ]]; then
