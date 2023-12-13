@@ -1,10 +1,5 @@
 # cp4ba-wfps-utils
 
-TTD
-- activate/default/deactivate applicazione
-- config jdbc datasource
-- test kafka services
-
 # default app
 POST
 https://cpd-cp4ba-wfps-runtime1.apps.654892a90ae5f40017a3834c.cloud.techzone.ibm.com/wfps-t1-wfps/ops/std/bpm/containers/SDWPS/versions/0.5/make_default
