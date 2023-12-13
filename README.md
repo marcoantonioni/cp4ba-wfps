@@ -1,39 +1,30 @@
 # cp4ba-wfps-utils
 
-# default app
-POST
-https://cpd-cp4ba-wfps-runtime1.apps.654892a90ae5f40017a3834c.cloud.techzone.ibm.com/wfps-t1-wfps/ops/std/bpm/containers/SDWPS/versions/0.5/make_default
-
-# deactivate
-POST
-https://cpd-cp4ba-wfps-runtime1.apps.654892a90ae5f40017a3834c.cloud.techzone.ibm.com/wfps-t1-wfps/ops/std/bpm/containers/SDWPS/versions/0.4/deactivate
-
-# app list
-GET
-https://cpd-cp4ba-wfps-runtime1.apps.654892a90ae5f40017a3834c.cloud.techzone.ibm.com/wfps-t1-wfps/ops/std/bpm/installedVersions?filter=All&sortType=Name&sortOrder=ASC&offset=0&limit=10&includeStateAndPossibleActions=true&includeBranchTipVersions=false
-
 
 ## Simple Deploy - new instance of WfPS with a dedicated PostgreSQL database
 ```
+#-----------------------
 # simple deploy
 time ./wfps-deploy.sh -c ./configs/wfps1.properties
 
+#-----------------------
 # deploy using trusted certificates
 time ./addSecretsForTrustedCertificates.sh -c ./configs/wfps2.properties -t ./configs/trusted-certs.properties
 time ./wfps-deploy.sh -c ./configs/wfps2.properties -t ./configs/trusted-certs.properties
 
+#-----------------------
 # deploy sandbox
 time ./wfps-deploy.sh -c ./configs/wfps-sandbox1.properties
 time ./addSecretsForTrustedCertificates.sh -c ./configs/wfps-sandbox2.properties -t ./configs/trusted-certs.properties
 time ./wfps-deploy.sh -c ./configs/wfps-sandbox2.properties -t ./configs/trusted-certs.properties
 
+#-----------------------
 # deploy federated
 time ./wfps-deploy.sh -c ./configs/wfps-federated1.properties
 time ./addSecretsForTrustedCertificates.sh -c ./configs/wfps-federated2.properties -t ./configs/trusted-certs.properties
 time ./wfps-deploy.sh -c ./configs/wfps-federated2.properties -t ./configs/trusted-certs.properties
 
-time ./wfps-deploy.sh -c ./configs/wfps-federated3.properties -t ./configs/trusted-certs.properties
-
+#-----------------------
 # deploy
 time ./wfps-deploy.sh -c ./configs/wfps3.properties
 time ./wfps-deploy.sh -c ./configs/wfps4.properties
@@ -48,13 +39,15 @@ time ./wfps-deploy.sh -c ./configs/wfps10.properties
 
 ## Install application
 ```
+#-----------------------
 time ./wfps-install-application.sh -c ./configs/wfps1.properties -a ../apps/SimpleDemoWfPS.zip
-
 time ./wfps-install-application.sh -c ./configs/wfps2.properties -a ../apps/SimpleDemoStraightThroughProcessingWfPS.zip
 
+#-----------------------
 time ./wfps-install-application.sh -c ./configs/wfps-sandbox1.properties -a ../apps/SimpleDemoWfPS.zip
 time ./wfps-install-application.sh -c ./configs/wfps-sandbox2.properties -a ../apps/SimpleDemoStraightThroughProcessingWfPS.zip
 
+#-----------------------
 time ./wfps-install-application.sh -c ./configs/wfps-federated1.properties -a ../apps/SimpleDemoWfPS.zip
 time ./wfps-install-application.sh -c ./configs/wfps-federated2.properties -a ../apps/SimpleDemoStraightThroughProcessingWfPS.zip
 
@@ -79,7 +72,6 @@ time ./wfps-install-application.sh -c ./configs/wfps-federated2.properties -a ..
 ## Federate WfPS
 ```
 spec: 
-
   capabilities: 
     fullTextSearch: 
       enable: true 
@@ -91,6 +83,15 @@ spec:
         size: 2Gi
     federate:
       enable: true
+
+_FEDERATE=true|false
+
+WFPS_STORAGE_CLASS_BLOCK="thin-csi"
+WFPS_FEDERATE_TEXTSEARCH=true|false
+WFPS_FEDERATE_TEXTSEARCH_SIZE="10Gi"
+WFPS_FEDERATE_TEXTSEARCHSIZE_SNAP="2Gi"
+oc patch -n ${} wfps --type='merge' -p '{"spec": {"capabilities":{"federate":{"enable": ${WFPS_FEDERATE}}}}}'
+oc patch -n ${} wfps --type='merge' -p '{"spec": {"capabilities":{"fullTextSearch":{"enable": ${WFPS_FEDERATE_TEXTSEARCH},"esStorage":{"storageClassName":"${WFPS_STORAGE_CLASS_BLOCK}","size":"${WFPS_FEDERATE_TEXTSEARCH_SIZE}"},"esSnapshotStorage":{"storageClassName":"${WFPS_STORAGE_CLASS_BLOCK}","size":"${WFPS_FEDERATE_TEXTSEARCHSIZE_SNAP}"}}}}}'
 
 ```
 
