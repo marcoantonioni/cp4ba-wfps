@@ -69,30 +69,10 @@ time ./wfps-install-application.sh -c ./configs/wfps-federated2.properties -a ..
 
 ```
 
-## Federate WfPS
+## Federate/Unfederate WfPS
 ```
-spec: 
-  capabilities: 
-    fullTextSearch: 
-      enable: true 
-      esStorage:
-        storageClassName: thin-csi
-        size: 10Gi
-      esSnapshotStorage:
-        storageClassName: thin-csi
-        size: 2Gi
-    federate:
-      enable: true
-
-_FEDERATE=true|false
-
-WFPS_STORAGE_CLASS_BLOCK="thin-csi"
-WFPS_FEDERATE_TEXTSEARCH=true|false
-WFPS_FEDERATE_TEXTSEARCH_SIZE="10Gi"
-WFPS_FEDERATE_TEXTSEARCHSIZE_SNAP="2Gi"
-oc patch -n ${} wfps --type='merge' -p '{"spec": {"capabilities":{"federate":{"enable": ${WFPS_FEDERATE}}}}}'
-oc patch -n ${} wfps --type='merge' -p '{"spec": {"capabilities":{"fullTextSearch":{"enable": ${WFPS_FEDERATE_TEXTSEARCH},"esStorage":{"storageClassName":"${WFPS_STORAGE_CLASS_BLOCK}","size":"${WFPS_FEDERATE_TEXTSEARCH_SIZE}"},"esSnapshotStorage":{"storageClassName":"${WFPS_STORAGE_CLASS_BLOCK}","size":"${WFPS_FEDERATE_TEXTSEARCHSIZE_SNAP}"}}}}}'
-
+# federate or unfederate an existing wfps instance (see WFPS_FEDERATE var)
+time ./wfps-federate.sh -c ./configs/wfps-federated1.properties
 ```
 
 
