@@ -170,6 +170,78 @@ getCsrfToken() {
   export WFPS_CSRF_TOKEN=${CSRF_TOKEN}
 }
 
+#----------------------------------
+getContainerStatus () {
+# $1 namespace
+# $2 pod-name
+# $3 container-name
+# $4 status
+# $5 true|false (show message)
+
+  resourceExist $1 pod $2
+  if [ $? -eq 1 ]; then
+
+    CTR_PHASE=$(oc get pod -n $1 $2 -o jsonpath='{.status.phase}')
+    if [[ "$5" = "true" ]]; then
+      echo "Pod phase: "$CTR_PHASE
+    fi
+    if [[ "${CTR_PHASE}" = "Running" ]]; then
+      CTR_STATUSES=$(oc get pod -n $1 $2 -o jsonpath='{.status.containerStatuses}')
+      _STATE=$(echo $CTR_STATUSES | jq '.[] | select(.name | IN("'$3'"))' | jq .$4)
+      if [[ -z "${_STATE}" ]]; then
+          return 2
+      else
+        if [[ "${_STATE}" = "true" ]]; then
+          return 1
+        else
+          return 0
+        fi
+      fi
+    else
+      return 3
+    fi
+  else
+    return 0
+  fi
+
+}
+
+#----------------------------------
+waitContainerStatus () {
+# $1 namespace
+# $2 pod-name
+# $3 container-name
+# $4 status
+# $5 true|false (show message)
+# $6 delay in seconds
+
+  _RESULT=0
+  while [ $_RESULT -ne 1 ] 
+  do
+    getContainerStatus $1 $2 $3 $4 $5
+    _RESULT=$?
+    if [ $_RESULT -eq 1 ]; then
+      _SUFFIX="is $4"
+    else
+      if [ $_RESULT -eq 0 ]; then
+        _SUFFIX="is NOT $4"
+      else
+        if [ $_RESULT -eq 3 ]; then
+          _SUFFIX="is NOT running"
+        else
+          _SUFFIX="not found"
+        fi
+      fi
+    fi
+    if [[ "$5" = "true" ]]; then
+      echo "Container '$3' of pod '$2' "${_SUFFIX}
+    fi
+    if [ $_RESULT -ne 1 ]; then
+      sleep $6
+    fi 
+  done
+}
+
 # ????
 getUserPasswordFromLocalLdif () {
 

@@ -77,6 +77,7 @@ applicationInfo () {
   fi
 }
 
+
 #==========================================
 echo "*************************************"
 echo "*** WfPS Application Informations ***"
