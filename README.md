@@ -1,10 +1,32 @@
 # cp4ba-wfps-utils
 
+This repository contains a series of examples and tools for creating and configuring Workflow Process Service (WfPS) in IBM Cloud Pak for Business Automation deployment.
+
+Two scenarios are described, one with non-federated servers and one with federated servers and use of Application Engine via Workplace dashboard.
+
+For ease of demonstration, Starter type CP4BA deployments with automatically created PostgreSQL server db are used.
+
+<b>**WARNING**</b>:
+
+++++++++++++++++++++++++++++++++++++++++++++++++
+<br>
+<i>
+This software and the configurations contained in the repository MUST be considered as examples for educational purposes.
+<br>
+Do not use in a production environment without making your own necessary modifications.
+</i>
+<br>
+++++++++++++++++++++++++++++++++++++++++++++++++
+
+
 See 'Prerequisites' section before deploying WfPS servers
 
 If you want run a WFPS environment federated using 'Process Federation Server' in container (same namespace) you must configure a PFS server, use guidance and tools from repository [https://github.com/marcoantonioni/cp4ba-process-federation-server](https://github.com/marcoantonioni/cp4ba-process-federation-server)
 
 You may deploy non-federated WfPS into same namespace of federated WfPS server.
+
+
+<b>WARNING</b>: before run any command please update configuration files with your values
 
 
 ## 1. Simple WfPS deploy - new instance of WfPS with a dedicated PostgreSQL database
