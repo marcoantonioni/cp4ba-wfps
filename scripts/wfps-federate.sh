@@ -101,6 +101,11 @@ federateWfPSServer () {
   if [[ -z "${WFPS_FEDERATE}" ]]; then
     WFPS_FEDERATE=false
   fi
+  if [[ "${WFPS_FEDERATE}" = "true" ]]; then
+    echo "Federate ${WFPS_NAME}..."
+  else
+    echo "Unfederate ${WFPS_NAME}..."
+  fi
   
   oc patch -n ${WFPS_NAMESPACE} wfps ${WFPS_NAME} --type='merge' -p '{"spec": {"capabilities":{"federate":{"enable": '${WFPS_FEDERATE}'}}}}'
   oc patch -n ${WFPS_NAMESPACE} wfps ${WFPS_NAME} --type='merge' -p '{"spec": {"capabilities":{"fullTextSearch":{"enable": '${WFPS_FEDERATE_TEXTSEARCH}',"esStorage":{"storageClassName":"'${WFPS_STORAGE_CLASS_BLOCK}'","size":"'${WFPS_FEDERATE_TEXTSEARCH_SIZE}'"},"esSnapshotStorage":{"storageClassName":"'${WFPS_STORAGE_CLASS_BLOCK}'","size":"'${WFPS_FEDERATE_TEXTSEARCHSIZE_SNAP}'"}}}}}'
@@ -110,7 +115,7 @@ federateWfPSServer () {
 #==========================================
 echo ""
 echo "**********************************************"
-echo "****** WfPS Federate Runtime Deployment ******"
+echo "****** WfPS Runtime Deployment Federation ****"
 echo "**********************************************"
 echo "Using config file: "${CONFIG_FILE}
 
@@ -126,7 +131,7 @@ fi
 
 resourceExist ${WFPS_NAMESPACE} wfps ${WFPS_NAME}
 if [ $? -eq 1 ]; then
-  echo "Ready to federate..."
+  echo "Ready to federate/unfederate..."
   getAdminInfo true
   if [[ -z "${WFPS_ADMINUSER}" ]]; then
     WFPS_ADMINUSER=cpadmin

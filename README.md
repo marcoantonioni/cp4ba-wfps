@@ -59,6 +59,7 @@ time ./addSecretsForTrustedCertificates.sh -c ./configs/wfps-federated2.properti
 
 time ./wfps-deploy.sh -c ./configs/wfps-federated2.properties -t ./configs/trusted-certs.properties
 
+time ./wfps-deploy.sh -c ./configs/wfps-bastudio-federated1.properties
 ```
 
 ## 2. Install application
@@ -78,6 +79,9 @@ time ./wfps-install-application.sh -c ./configs/wfps-federated1.properties -a ..
 
 time ./wfps-install-application.sh -c ./configs/wfps-federated2.properties -a ../apps/SimpleDemoStraightThroughProcessingWfPS.zip
 
+#-----------------------
+time ./wfps-install-application.sh -c ./configs/wfps-bastudio-federated1.properties -a ../apps/SimpleDemoWfPS.zip
+
 ```
 
 ## 3. Configure application Team Bindings
@@ -94,6 +98,8 @@ time ./wfps-install-application.sh -c ./configs/wfps-federated2.properties -a ..
 
 ./updateTeamBindings.sh -c ./configs/wfps-federated1.properties -t ./configs/team-bindings-app-1.properties -r
 
+./updateTeamBindings.sh -c ./configs/wfps-federated1.properties -t ./configs/team-bindings-app-1-devenv.properties -r
+
 ```
 
 ## Misc.
@@ -102,6 +108,8 @@ time ./wfps-install-application.sh -c ./configs/wfps-federated2.properties -a ..
 ```
 # federate or unfederate an existing wfps instance (see WFPS_FEDERATE var)
 time ./wfps-federate.sh -c ./configs/wfps-federated1.properties
+
+time ./wfps-federate.sh -c ./configs/wfps-bastudio-federated1.properties
 ```
 
 
@@ -145,6 +153,7 @@ curl -sk -u ${USER}:${PASSWORD} -H 'accept: application/json' -H 'content-type: 
 USER=cpadmin
 PASSWORD=7zn6e2DJBRrEd4kH5ZHBqt51Aai3X2Mz
 curl -sk -u ${USER}:${PASSWORD} -H 'accept: application/json' -H 'content-type: application/json' -X POST ${WFPS_EXTERNAL_BASE_URL}/automationservices/rest/SDSTPWP/ServiceSTP/startProcess -d '{"request": {"contextId":"ctx1", "counter": 3, "delayMillisecs": 100}}' | jq .
+
 
 ```
 
@@ -274,6 +283,8 @@ WARNING: Install in a different namespace, repeat step 2 using export CP4BA_AUTO
 # federated WfPS environment (with Applications Workplace)
 # create minimal cp4ba deployment
 
+export CP4BA_AUTO_NAMESPACE=cp4ba-demo-federated-wfps
+
 
 APP_VERSION="23.0.2"
 DEPL_LIC="non-production"
@@ -334,5 +345,10 @@ EOF
 
 Use guidance and tools from repository [https://github.com/marcoantonioni/cp4ba-idp-ldap](https://github.com/marcoantonioni/cp4ba-idp-ldap)
 
-Now you are ready to deploy your WfPS servers.
+Now you are ready to deploy your WfPS servers, see section '1. Simple WfPS deploy...'
 
+# References
+
+Installing a CP4BA Workflow Process Service production deployment [https://www.ibm.com/docs/en/cloud-paks/cp-biz-automation/23.0.2?topic=deployments-installing-cp4ba-workflow-process-service-production-deployment](https://www.ibm.com/docs/en/cloud-paks/cp-biz-automation/23.0.2?topic=deployments-installing-cp4ba-workflow-process-service-production-deployment)
+
+Federating IBM Business Automation Workflow on containers [https://www.ibm.com/docs/en/cloud-paks/cp-biz-automation/23.0.2?topic=deployment-federating-business-automation-workflow-containers](https://www.ibm.com/docs/en/cloud-paks/cp-biz-automation/23.0.2?topic=deployment-federating-business-automation-workflow-containers)
