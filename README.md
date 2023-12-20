@@ -6,6 +6,10 @@ Two scenarios are described, one with non-federated servers and one with federat
 
 For ease of demonstration, Starter type CP4BA deployments with automatically created PostgreSQL server db are used.
 
+
+TO BE INVESTIGATED
+- application_engine: https://cpd-cp4ba-application.apps.656d73e8eb178100111c14ac.cloud.techzone.ibm.com/ae-workspace/v2/applications
+
 <b>**WARNING**</b>:
 
 ++++++++++++++++++++++++++++++++++++++++++++++++
@@ -200,9 +204,13 @@ export CP4BA_AUTO_FIPS_CHECK=No
 export CP4BA_AUTO_PRIVATE_CATALOG=No
 export CP4BA_AUTO_PLATFORM="OCP"
 export CP4BA_AUTO_ALL_NAMESPACES="No"
-export CP4BA_AUTO_DEPLOYMENT_TYPE="starter"
 
-export CP4BA_AUTO_NAMESPACE=cp4ba-demo-non-federated-wfps
+#export CP4BA_AUTO_DEPLOYMENT_TYPE="starter"
+export CP4BA_AUTO_DEPLOYMENT_TYPE="production"
+
+# CHANGE IT !!!
+#export CP4BA_AUTO_NAMESPACE=cp4ba-non-federated-wfps
+export CP4BA_AUTO_NAMESPACE=cp4ba-federated-wfps
 
 oc new-project ${CP4BA_AUTO_NAMESPACE}
 
@@ -234,10 +242,15 @@ oc adm policy add-scc-to-user anyuid -z ibm-cp4ba-anyuid -n ${CP4BA_AUTO_NAMESPA
 # NON federated WfPS environment (no Applications Workplace)
 # create minimal cp4ba deployment
 
+export CP4BA_AUTO_NAMESPACE=cp4ba-non-federated-wfps
 
 APP_VERSION="23.0.2"
-DEPL_LIC="non-production"
-#DEPL_LIC="production"
+
+#DEPL_LIC="non-production"
+DEPL_LIC="production"
+
+#DEPL_TYPE="starter"
+DEPL_TYPE="production"
 
 # deploy CR for ICP4ACluster
 cat <<EOF | oc create -n ${CP4BA_AUTO_NAMESPACE} -f -
@@ -256,7 +269,7 @@ spec:
   shared_configuration:
     show_sensitive_log: true
     sc_deployment_license: ${DEPL_LIC}
-    sc_deployment_type: custom
+    sc_deployment_type: ${DEPL_TYPE}
     storage_configuration:
       sc_block_storage_classname: ${CP4BA_AUTO_STORAGE_CLASS_BLOCK}
       sc_dynamic_storage_classname: ${CP4BA_AUTO_STORAGE_CLASS_FAST_ROKS}
@@ -283,19 +296,36 @@ WARNING: Install in a different namespace, repeat step 2 using export CP4BA_AUTO
 # federated WfPS environment (with Applications Workplace)
 # create minimal cp4ba deployment
 
-export CP4BA_AUTO_NAMESPACE=cp4ba-demo-federated-wfps
+export CP4BA_AUTO_NAMESPACE=cp4ba-federated-wfps
 
+
+oc delete secret -n ${CP4BA_AUTO_NAMESPACE} my-ldap-credentials
+oc create secret -n ${CP4BA_AUTO_NAMESPACE} generic my-ldap-credentials \
+  --from-literal=ldapUsername="cn=admin,dc=vuxprod,dc=net" \
+  --from-literal=ldapPassword="passw0rd"
+
+MY_LDAP_BASE_DN="dc=vuxprod,dc=net"
 
 APP_VERSION="23.0.2"
+
 DEPL_LIC="non-production"
 #DEPL_LIC="production"
 
+#DEPL_TYPE="starter"
+DEPL_TYPE="production"
+#DEPL_TYPE="custom"
+
+
+# TBV application_engine_configuration section
+# ??? credenziali db in icp4adeploy-federated-workspace-aae-app-engine-admin-secret (AE_DATABASE_USER, AE_DATABASE_PWD)
+
 # deploy CR for ICP4ACluster
-cat <<EOF | oc create -n ${CP4BA_AUTO_NAMESPACE} -f -
+cat <<EOF | oc create -f -
 apiVersion: icp4a.ibm.com/v1
 kind: ICP4ACluster
 metadata:
-  name: icp4adeploy-federated
+  name: icp4adeploy-federated-2
+  namespace: ${CP4BA_AUTO_NAMESPACE}
   labels:
     app.kubernetes.io/instance: ibm-dba
     app.kubernetes.io/managed-by: ibm-dba
@@ -304,17 +334,25 @@ metadata:
 spec:
   appVersion: ${APP_VERSION}
   ibm_license: accept
+
+  application_engine_configuration:
+    - admin_secret_name: '{{ meta.name }}-workspace-aae-app-engine-admin-secret'
+      admin_user: cpadmin
+      name: workspace
+      session:
+        use_external_store: false
+
   shared_configuration:
     enable_fips: false
-    sc_deployment_type: Starter
-    sc_optional_components: baw_authoring,elasticsearch
+    sc_deployment_type: ${DEPL_TYPE}
+    sc_optional_components: elasticsearch
     sc_iam:
       default_admin_username: ''
     sc_drivers_url: null
     image_pull_secrets:
       - ibm-entitlement-key
     trusted_certificate_list: []
-    sc_deployment_patterns: 'application,workflow-workstreams'
+    sc_deployment_patterns: 'application,workflow'
     sc_deployment_baw_license: ${DEPL_LIC}
     storage_configuration:
       sc_block_storage_classname: thin-csi
@@ -335,6 +373,201 @@ spec:
     sc_image_repository: cp.icr.io
     sc_deployment_platform: OCP
     sc_deployment_fncm_license: ${DEPL_LIC}
+
+  ldap_configuration:
+    lc_selected_ldap_type: "IBM Security Directory Server"
+    lc_ldap_server: "vuxprod-ldap.${CP4BA_AUTO_NAMESPACE}.svc.cluster.local"
+    lc_ldap_port: "389"
+    lc_bind_secret: my-ldap-credentials
+    lc_ldap_base_dn: "${MY_LDAP_BASE_DN}"
+    lc_ldap_ssl_enabled: false
+    lc_ldap_ssl_secret_name: ""
+    lc_ldap_user_name_attribute: "*:cn"
+    lc_ldap_user_display_name_attr: "cn"
+    lc_ldap_group_base_dn: "${MY_LDAP_BASE_DN}"
+    lc_ldap_group_name_attribute: "*:cn"
+    lc_ldap_group_display_name_attr: "cn"
+    lc_ldap_group_membership_search_filter: "(&(cn=%v)(objectclass=groupOfNames))"
+    lc_ldap_group_member_id_map: "memberof:member"
+    tds:
+      lc_user_filter: "(&(cn=%v)(objectclass=person))"
+      lc_group_filter: "(&(cn=%v)(objectclass=groupOfNames))"
+
+EOF
+
+# wait for config map 'icp4adeploy-federated-cp4ba-access-info' creation, it contains URLs and cp4admin credentials
+
+
+#----------------------------------------------------------------------
+# SOLO FOUNDATION + LDAP
+# create minimal cp4ba deployment
+
+export CP4BA_AUTO_NAMESPACE=cp4ba-federated-wfps
+
+#---------------------------------------------------
+!!! DEPLOY LDAP - NO IDP
+
+#--------------------------------------------------------
+!!! DEPLOY POSTGRESQL per BAN
+
+export ICN_HOST_NAME=????
+export ICN_HOST_PORT=????
+export ICN_DB_TS_SCHEMA=????
+export ICN_DB_TS_NAME=????
+export ICN_DB_NAME="ICNDB"
+
+seguire punti:
+https://www.ibm.com/docs/en/cloud-paks/cp-biz-automation/23.0.2?topic=ban-creating-databases-without-running-provided-scripts
+  3. Create a table space in your database.
+  The FileNet Content Manager documentation provides some information on creating table spaces, on Db2, Oracle, and Microsoft SQL Server. Note that for Navigator, the sizing requirements are less than other uses, such as object stores. When you create the table space for Navigator, use "REGULAR" as the type or size.
+  
+  4. Create a database user.
+  You can choose to use your dbadmin user, or create another database user for your Navigator database.
+  For details about the kind of privileges this user needs, see Creating database accounts.
+
+  This user that you create is included in the Business Automation Navigator secret as the navigatorDBUsername.
+
+  5. Optionally create a schema.
+  The operator can detect whether a schema exists in the database and creates one if a schema does not exist. If you want to select a schema name in advance, specify the name of your schema in the custom resource file in the icn_production_setting.icn_schema parameter. If you plan to use Task Manager, the schema name must be ICNDB.
+  If you don't specify a value for the icn_production_setting.icn_schema parameter, the operator creates the following schema name:
+  Oracle database: The schema is named the same as the navigatorDBUsername from the Business Automation Navigator secret.
+  All other databases: The schema keeps the default name, ICNDB.
+
+
+
+
+  (no volumes...?? ... https://www.ibm.com/docs/en/cloud-paks/cp-biz-automation/23.0.2?topic=ban-creating-volumes-folders-deployment-kubernetes)
+
+# utenze differenti da cpadmin devono essere in LDAP
+oc delete secret -n ${CP4BA_AUTO_NAMESPACE} ibm-ban-secret
+oc create secret -n ${CP4BA_AUTO_NAMESPACE} generic ibm-ban-secret \
+  --from-literal=navigatorDBUsername="banadmin" \
+  --from-literal=navigatorDBPassword="dem0s" \
+  --from-literal=appLoginUsername="banadmin" \
+  --from-literal=appLoginPassword="dem0s" \
+  --from-literal=keystorePassword="changeit" \
+  --from-literal=ltpaPassword="changeit"
+
+
+
+#------------------------------------------------------------------------
+oc delete secret -n ${CP4BA_AUTO_NAMESPACE} my-ldap-credentials
+oc create secret -n ${CP4BA_AUTO_NAMESPACE} generic my-ldap-credentials \
+  --from-literal=ldapUsername="cn=admin,dc=vuxprod,dc=net" \
+  --from-literal=ldapPassword="passw0rd"
+
+# https://www.ibm.com/docs/en/cloud-paks/cp-biz-automation/23.0.2?topic=parameters-ldap-configuration
+# quando molteplici LDAP o se usato attributo 'lc_ldap_id', es: 'lc_ldap_id: myldap'
+# allora utenza e password devono avere formato <ldap><valore-lc-ldap-id><Username|Password>
+#  --from-literal=ldapmyldapUsername="cn=admin,dc=vuxprod,dc=net" \
+#  --from-literal=ldapmyldapPassword="passw0rd"
+
+# differenze
+#   lc_selected_ldap_type: "Custom" oppure "IBM Security Directory Server"
+    tds:
+      lc_user_filter: "(&(cn=%v)(objectclass=person))"
+      lc_group_filter: "(&(cn=%v)(objectclass=groupOfNames))"
+    custom:
+      lc_user_filter: "(&(cn=%v)(objectclass=person))"
+      lc_group_filter: "(&(cn=%v)(objectclass=groupOfNames))"
+
+
+
+MY_LDAP_BASE_DN="dc=vuxprod,dc=net"
+
+APP_VERSION="23.0.2"
+
+DEPL_LIC="non-production"
+#DEPL_LIC="production"
+
+#DEPL_TYPE="starter"
+DEPL_TYPE="production"
+#DEPL_TYPE="custom"
+
+# deploy CR for ICP4ACluster
+cat <<EOF | oc create -f -
+apiVersion: icp4a.ibm.com/v1
+kind: ICP4ACluster
+metadata:
+  name: icp4adeploy-federated-2
+  namespace: ${CP4BA_AUTO_NAMESPACE}
+  labels:
+    app.kubernetes.io/instance: ibm-dba
+    app.kubernetes.io/managed-by: ibm-dba
+    app.kubernetes.io/name: ibm-dba
+    release: ${APP_VERSION}
+spec:
+  appVersion: ${APP_VERSION}
+  ibm_license: accept
+
+  shared_configuration:
+    enable_fips: false
+    sc_deployment_type: ${DEPL_TYPE}
+    sc_optional_components: ''
+    sc_iam:
+      default_admin_username: 'cpadmin'
+    sc_drivers_url: null
+    image_pull_secrets:
+      - ibm-entitlement-key
+    trusted_certificate_list: []
+    sc_deployment_patterns: 'foundation'
+    sc_deployment_baw_license: ${DEPL_LIC}
+    storage_configuration:
+      sc_block_storage_classname: thin-csi
+      sc_dynamic_storage_classname: managed-nfs-storage
+      sc_fast_file_storage_classname: ''
+      sc_medium_file_storage_classname: ''
+      sc_slow_file_storage_classname: ''
+    root_ca_secret: '{{ meta.name }}-root-ca'
+    sc_content_initialization: true
+    sc_deployment_license: ${DEPL_LIC}
+    sc_egress_configuration:
+      sc_api_namespace: null
+      sc_api_port: null
+      sc_dns_namespace: null
+      sc_dns_port: null
+      sc_restricted_internet_access: true
+    sc_ingress_enable: false
+    sc_image_repository: cp.icr.io
+    sc_deployment_platform: OCP
+    sc_deployment_fncm_license: ${DEPL_LIC}
+
+  ldap_configuration:
+    lc_selected_ldap_type: "Custom"
+    lc_ldap_server: "vuxprod-ldap.${CP4BA_AUTO_NAMESPACE}.svc.cluster.local"
+    lc_ldap_port: "389"
+    lc_bind_secret: my-ldap-credentials
+    lc_ldap_base_dn: "${MY_LDAP_BASE_DN}"
+    lc_ldap_ssl_enabled: false
+    lc_ldap_ssl_secret_name: ""
+    lc_ldap_user_name_attribute: "*:cn"
+    lc_ldap_user_display_name_attr: "cn"
+    lc_ldap_group_base_dn: "${MY_LDAP_BASE_DN}"
+    lc_ldap_group_name_attribute: "*:cn"
+    lc_ldap_group_display_name_attr: "cn"
+    lc_ldap_group_membership_search_filter: "(&(cn=%v)(objectclass=groupOfNames))"
+    lc_ldap_group_member_id_map: "memberof:member"
+    lc_ldap_recursive_search: false
+    lc_enable_pagination: false
+    lc_pagination_size: 4500     
+    custom:
+      lc_user_filter: "(&(cn=%v)(objectclass=person))"
+      lc_group_filter: "(&(cn=%v)(objectclass=groupOfNames))"
+
+  dc_icn_datasource:
+    dc_database_type: "postgresql"
+    dc_common_icn_datasource_name: "ECMClientDS"
+    database_servername: "${ICN_HOST_NAME}"
+    database_port: "${ICN_HOST_PORT}"
+    database_name: "${ICN_DB_NAME}"
+    database_ssl_secret_name: ""
+
+  navigator_configuration:
+    icn_production_setting:
+      icn_jndids_name: ECMClientDS
+      icn_schema: "${ICN_DB_SCHEMA}"
+      icn_table_space: "${ICN_DB_TS_NAME}"
+
 EOF
 
 # wait for config map 'icp4adeploy-federated-cp4ba-access-info' creation, it contains URLs and cp4admin credentials
