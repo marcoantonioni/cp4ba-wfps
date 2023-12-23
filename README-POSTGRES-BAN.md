@@ -39,17 +39,6 @@ ICN_DB_SCHEMA="ICNDB"
 ICN_DB_TS_NAME="ICNDB"
 ICN_DB_NAME="ICNDB"
 
-# utenze differenti da cpadmin devono essere in LDAP
-oc delete secret -n ${CP4BA_AUTO_NAMESPACE} ibm-ban-secret
-oc create secret -n ${CP4BA_AUTO_NAMESPACE} generic ibm-ban-secret \
-  --from-literal=navigatorDBUsername="banadmin" \
-  --from-literal=navigatorDBPassword="dem0s" \
-  --from-literal=appLoginUsername="banadmin" \
-  --from-literal=appLoginPassword="dem0s" \
-  --from-literal=keystorePassword="changeit" \
-  --from-literal=ltpaPassword="changeit"
-
-
 cat <<EOF | oc create -f -
 apiVersion: postgresql.k8s.enterprisedb.io/v1
 kind: Cluster
@@ -145,8 +134,10 @@ chmod 0600 ${PGPASSFILE}
 psql -h localhost -U ${DB_USER} -d ${ICN_DB_NAME}
 
 
-\c ICNDB
-\dt
+\l            # list db
+\c ICNDB      # connect
+\dn+          # list schema
+\dt+ icndb.*  # list tables in schema
 
 
 #----------------------

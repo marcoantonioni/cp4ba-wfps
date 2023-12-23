@@ -474,17 +474,12 @@ AE_DB_NAME="AEDB"
 # >>>>
 
 AE_SECRET=my-app-engine-credentials
-oc delete secret -n ${CP4BA_AUTO_NAMESPACE} ${AE_SECRET}
-oc create secret -n ${CP4BA_AUTO_NAMESPACE} generic ${AE_SECRET} \
-  --from-literal=AE_DATABASE_USER="cpadmin" \
-  --from-literal=AE_DATABASE_PWD="passw0rd"
 
 LDAP_SECRET=my-ldap-credentials
 oc delete secret -n ${CP4BA_AUTO_NAMESPACE} ${LDAP_SECRET}
 oc create secret -n ${CP4BA_AUTO_NAMESPACE} generic ${LDAP_SECRET} \
   --from-literal=ldapUsername="cn=admin,dc=vuxprod,dc=net" \
   --from-literal=ldapPassword="passw0rd"
-
 
 MY_LDAP_BASE_DN="dc=vuxprod,dc=net"
 
@@ -506,7 +501,6 @@ LC_SELECTED_LDAP_EXT_TAG="tds"
 
 # deploy CR for ICP4ACluster
 cat <<EOF | oc create -f -
-cat <<EOF
 apiVersion: icp4a.ibm.com/v1
 kind: ICP4ACluster
 metadata:
@@ -603,6 +597,32 @@ spec:
       icn_table_space: "${ICN_DB_TS_NAME}"
 
 EOF
+
+# !!! attendere presenza secrets
+
+oc get secret -n ${CP4BA_AUTO_NAMESPACE} ${ICN_CR_NAME}-app
+oc get secret -n ${CP4BA_AUTO_NAMESPACE} ${AE_CR_NAME}-app
+
+_USER_NAME=$(oc get secret -n ${CP4BA_AUTO_NAMESPACE} ${ICN_CR_NAME}-app -o jsonpath='{.data.username}' | base64 -d)
+_USER_PASSWORD=$(oc get secret -n ${CP4BA_AUTO_NAMESPACE} ${ICN_CR_NAME}-app -o jsonpath='{.data.password}' | base64 -d)
+oc delete secret -n ${CP4BA_AUTO_NAMESPACE} ibm-ban-secret
+oc create secret -n ${CP4BA_AUTO_NAMESPACE} generic ibm-ban-secret \
+  --from-literal=navigatorDBUsername="${_USER_NAME}" \
+  --from-literal=navigatorDBPassword="${_USER_PASSWORD}" \
+  --from-literal=appLoginUsername="vuxuser10" \
+  --from-literal=appLoginPassword="dem0s" \
+  --from-literal=keystorePassword="changeit" \
+  --from-literal=ltpaPassword="changeit"
+
+_USER_NAME=$(oc get secret -n ${CP4BA_AUTO_NAMESPACE} ${AE_CR_NAME}-app -o jsonpath='{.data.username}' | base64 -d)
+_USER_PASSWORD=$(oc get secret -n ${CP4BA_AUTO_NAMESPACE} ${AE_CR_NAME}-app -o jsonpath='{.data.password}' | base64 -d)
+oc delete secret -n ${CP4BA_AUTO_NAMESPACE} ${AE_SECRET}
+oc create secret -n ${CP4BA_AUTO_NAMESPACE} generic ${AE_SECRET} \
+  --from-literal=AE_DATABASE_USER="${_USER_NAME}" \
+  --from-literal=AE_DATABASE_PWD="${_USER_PASSWORD}"
+
+oc get secret -n ${CP4BA_AUTO_NAMESPACE} ibm-ban-secret -o jsonpath='{.data.navigatorDBUsername}' | base64 -d
+oc get secret -n ${CP4BA_AUTO_NAMESPACE} ${AE_SECRET} -o jsonpath='{.data.AE_DATABASE_USER}' | base64 -d
 
 
 # follow operator log

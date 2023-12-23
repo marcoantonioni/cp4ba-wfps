@@ -109,9 +109,10 @@ chmod 0600 ${PGPASSFILE}
 
 psql -h localhost -U ${DB_USER} -d ${AE_DB_NAME}
 
-
-\c ICNDB
-\dt
+\l            # list db
+\c AEDB       # connect
+\dn+          # list schema
+\dt+ dbasb.*  # list tables in schema
 
 
 #----------------------
