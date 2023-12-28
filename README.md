@@ -64,6 +64,9 @@ time ./addSecretsForTrustedCertificates.sh -c ./configs/wfps-federated2.properti
 time ./wfps-deploy.sh -c ./configs/wfps-federated2.properties -t ./configs/trusted-certs.properties
 
 time ./wfps-deploy.sh -c ./configs/wfps-bastudio-federated1.properties
+
+time ./wfps-deploy.sh -c ./configs/wfps-cp4ba-test1-federated1.properties
+time ./wfps-deploy.sh -c ./configs/wfps-cp4ba-test1-federated2.properties
 ```
 
 ## 2. Install application
@@ -85,6 +88,11 @@ time ./wfps-install-application.sh -c ./configs/wfps-federated2.properties -a ..
 
 #-----------------------
 time ./wfps-install-application.sh -c ./configs/wfps-bastudio-federated1.properties -a ../apps/SimpleDemoWfPS.zip
+
+#-----------------------
+time ./wfps-install-application.sh -c ./configs/wfps-cp4ba-test1-federated1.properties -a ../apps/SimpleDemoWfPS.zip
+time ./wfps-install-application.sh -c ./configs/wfps-cp4ba-test1-federated2.properties -a ../apps/SimpleDemoStraightThroughProcessingWfPS.zip
+
 
 ```
 
