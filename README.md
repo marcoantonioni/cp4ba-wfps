@@ -43,7 +43,7 @@ time ./wfps-deploy.sh -c ./configs/wfps1.properties
 # WfPS deploy using trusted certificates (non federated configuration)
 
 # create secret with remote server certificate
-time ./addSecretsForTrustedCertificates.sh -c ./configs/wfps2.properties -t ./configs/trusted-certs.properties
+time ./wfps-add-secrets-trusted-certs.sh -c ./configs/wfps2.properties -t ./configs/trusted-certs.properties
 
 # deploy WfPS
 time ./wfps-deploy.sh -c ./configs/wfps2.properties -t ./configs/trusted-certs.properties
@@ -51,7 +51,7 @@ time ./wfps-deploy.sh -c ./configs/wfps2.properties -t ./configs/trusted-certs.p
 #-----------------------
 # deploy sandbox ??????????
 time ./wfps-deploy.sh -c ./configs/wfps-sandbox1.properties
-time ./addSecretsForTrustedCertificates.sh -c ./configs/wfps-sandbox2.properties -t ./configs/trusted-certs.properties
+time ./wfps-add-secrets-trusted-certs.sh -c ./configs/wfps-sandbox2.properties -t ./configs/trusted-certs.properties
 time ./wfps-deploy.sh -c ./configs/wfps-sandbox2.properties -t ./configs/trusted-certs.properties
 
 #-----------------------
@@ -59,11 +59,9 @@ time ./wfps-deploy.sh -c ./configs/wfps-sandbox2.properties -t ./configs/trusted
 
 time ./wfps-deploy.sh -c ./configs/wfps-pfs-demo.properties
 
-
-
 time ./wfps-deploy.sh -c ./configs/wfps-federated1.properties
 
-time ./addSecretsForTrustedCertificates.sh -c ./configs/wfps-federated2.properties -t ./configs/trusted-certs.properties
+time ./wfps-add-secrets-trusted-certs.sh -c ./configs/wfps-federated2.properties -t ./configs/trusted-certs.properties
 
 time ./wfps-deploy.sh -c ./configs/wfps-federated2.properties -t ./configs/trusted-certs.properties
 
@@ -111,14 +109,20 @@ time ./wfps-install-application.sh -c ./configs/wfps-cp4ba-test1-federated2.prop
 # -c path to wfps configuration file
 # -t path to team bindings configuration file
 # -r [optional] remove actual team binding configuration 
-./updateTeamBindings.sh -c ./configs/wfps1.properties -t ./configs/team-bindings-app-1.properties -r
+./wfps-update-team-bindings.sh -c ./configs/wfps1.properties -t ./configs/team-bindings-app-1.properties -r
 
-./updateTeamBindings.sh -c ./configs/wfps-sandbox1.properties -t ./configs/team-bindings-app-1.properties -r
+./wfps-update-team-bindings.sh -c ./configs/wfps-sandbox1.properties -t ./configs/team-bindings-app-1.properties -r
 
-./updateTeamBindings.sh -c ./configs/wfps-federated1.properties -t ./configs/team-bindings-app-1.properties -r
+./wfps-update-team-bindings.sh -c ./configs/wfps-federated1.properties -t ./configs/team-bindings-app-1.properties -r
 
-./updateTeamBindings.sh -c ./configs/wfps-federated1.properties -t ./configs/team-bindings-app-1-devenv.properties -r
+./wfps-update-team-bindings.sh -c ./configs/wfps-federated1.properties -t ./configs/team-bindings-app-1-devenv.properties -r
 
+```
+
+## 4. Update application
+
+```
+./wfps-update-application.sh
 ```
 
 ## Misc.
@@ -134,7 +138,7 @@ time ./wfps-federate.sh -c ./configs/wfps-bastudio-federated1.properties
 
 ### Example of REST services invocations using curl
 ```
-./exportWfPSEnvVars.sh -c ./configs/wfps1.properties 
+./wfps-export-env-vars-to-file.sh -c ./configs/wfps1.properties 
 source ./exp-wfps-t1.vars
 
 curl -sk -u ${WFPS_ADMINUSER}:${WFPS_ADMINPASSWORD} -H 'accept: application/json' -H 'content-type: application/json' -H 'BPMCSRFToken: '${WFPS_CSRF_TOKEN} -X POST ${WFPS_EXTERNAL_BASE_URL}/automationservices/rest/SDWPS/SimpleDemoREST/startService -d '{"request": {"name":"Marco", "counter": 10, "flag": true}}' | jq .
@@ -157,7 +161,7 @@ oc get wfps --no-headers | awk '{print $1}' | xargs oc delete wfps
 
 # server's log
 # export variables for wfps server
-./exportWfPSEnvVars.sh -c ./configs/wfps1.properties 
+./wfps-export-env-vars-to-file.sh -c ./configs/wfps1.properties 
 source ./exp-wfps-t1.vars
 
 oc rsh -n ${WFPS_NAMESPACE} ${WFPS_NAME}-wfps-runtime-server-0 tail -n 1000 -f /logs/application/${WFPS_NAME}-wfps-runtime-server-0/liberty-message.log
@@ -259,7 +263,7 @@ oc adm policy add-scc-to-user anyuid -z ibm-cp4ba-anyuid -n ${CP4BA_AUTO_NAMESPA
 
 export CP4BA_AUTO_NAMESPACE=cp4ba-non-federated-wfps
 
-APP_VERSION="23.0.2"
+APP_VERSION="23.2.0"
 
 #DEPL_LIC="non-production"
 DEPL_LIC="production"
@@ -326,7 +330,7 @@ WARNING: Install in a different namespace, repeat step 2 using export CP4BA_AUTO
 
         MY_LDAP_BASE_DN="dc=vuxprod,dc=net"
 
-        APP_VERSION="23.0.2"
+        APP_VERSION="23.2.0"
 
         DEPL_LIC="non-production"
         #DEPL_LIC="production"
@@ -498,7 +502,7 @@ oc create secret -n ${CP4BA_AUTO_NAMESPACE} generic ${LDAP_SECRET} \
 
 MY_LDAP_BASE_DN="dc=vuxprod,dc=net"
 
-APP_VERSION="23.0.2"
+APP_VERSION="23.2.0"
 
 DEPL_LIC="non-production"
 #DEPL_LIC="production"
