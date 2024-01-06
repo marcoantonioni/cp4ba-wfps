@@ -1,14 +1,14 @@
-# cp4ba-wfps-utils
+# cp4ba-wfps
 
 This repository contains a series of examples and tools for creating and configuring Workflow Process Service (WfPS) in IBM Cloud Pak for Business Automation deployment.
 
-Two scenarios are described, one with non-federated servers and one with federated servers and use of Application Engine via Workplace dashboard.
+Two scenarios are described, one with non-federated servers and one with federated servers.
 
-For ease of demonstration, Starter type CP4BA deployments with automatically created PostgreSQL server db are used.
+For both scenarios we will use a 'starter' type installation.
 
+The second scenario is preparatory to a more complex configuration which requires the presence of a federated BAW runtime instance as well.
 
-TO BE INVESTIGATED
-- application_engine: https://cpd-cp4ba-application.apps.656d73e8eb178100111c14ac.cloud.techzone.ibm.com/ae-workspace/v2/applications
+The BAW in its '/ProcessPortal' dashboard will offer the applications/tasks running on the other federated WFPSs.
 
 <b>**WARNING**</b>:
 
@@ -29,74 +29,121 @@ If you want run a WFPS environment federated using 'Process Federation Server' i
 
 You may deploy non-federated WfPS into same namespace of federated WfPS server.
 
+All examples make use of dynamic storage, the presence of a storage class for dynamic volume allocation is required.
+
+The tools 'oc' and 'jq' are required.
+
+The 'openssl' tool is required only for the integration scenario with external services protected by TLS transports.
+
+All examples and scripts are only available for Linux boxes.
 
 <b>WARNING</b>: before run any command please update configuration files with your values
 
+## Description of cponfiguration files and variables
 
-## 1. Simple WfPS deploy - new instance of WfPS with a dedicated PostgreSQL database
+WfpS configuration file variables
 ```
-#-----------------------
+WFPS_NAME=<name-of-cr> # any name k8s compatible
+WFPS_NAMESPACE=<target-namespace> # any name k8s compatible
+WFPS_STORAGE_CLASS=<name-of-file-type-storage-class> # select one available from your OCP cluster
+WFPS_APP_VER=<cp4ba-version-number> (eg: 23.0.2)
+WFPS_APP_TAG="${WFPS_APP_VER}" # do not modify
+WFPS_FEDERATE=<true|false> # if true the deployment scripts generate the required tags
+
+# self explaining
+WFPS_LIMITS_CPU=750m
+WFPS_LIMITS_MEMORY=2048Mi
+WFPS_REQS_CPU=500m
+WFPS_REQS_MEMORY=1024Mi
+```
+
+Trusted certificates configuration file variables
+```
+TCERT_ENDPOINT_URL_1=<hostname-and-port-of-target-service> # eg: cpd-cp4ba.apps.1234567890.cloud.techzone.ibm.com:443
+TCERT_SECRET_NAME_1=<secret-name> # any name k8s compatible
+
+# add as you like with sequential number as suffix
+TCERT_ENDPOINT_URL_2=
+TCERT_SECRET_NAME_2=
+```
+
+
+## WfPS Deployments
+
+### 1.1 Simple WfPS deploy (dedicated PostgreSQL database built by operator)
+```
+#-------------------------------------------
 # WfPS deploy (non federated configuration)
-time ./wfps-deploy.sh -c ./configs/wfps1.properties
+#-------------------------------------------
+# REMEMBER: adapt the properties file to your environment
 
-#-----------------------
+# 1. deploy WfPS
+time ./wfps-deploy.sh -c ../configs/wfps1.properties
+```
+
+### 1.2 Simple WfPS deploy with trusted certificates (dedicated PostgreSQL database built by operator)
+```
+#-------------------------------------------
 # WfPS deploy using trusted certificates (non federated configuration)
+#-------------------------------------------
 
-# create secret with remote server certificate
-time ./wfps-add-secrets-trusted-certs.sh -c ./configs/wfps2.properties -t ./configs/trusted-certs.properties
+# 1. create secret with remote server certificate
+# REMEMBER: adapt the properties file to your environment
 
-# deploy WfPS
-time ./wfps-deploy.sh -c ./configs/wfps2.properties -t ./configs/trusted-certs.properties
+time ./wfps-add-secrets-trusted-certs.sh -c ../configs/wfps2.properties -t ../configs/trusted-certs.properties
+
+# 2. deploy WfPS
+time ./wfps-deploy.sh -c ../configs/wfps2.properties -t ../configs/trusted-certs.properties
 
 #-----------------------
 # deploy sandbox ??????????
-time ./wfps-deploy.sh -c ./configs/wfps-sandbox1.properties
-time ./wfps-add-secrets-trusted-certs.sh -c ./configs/wfps-sandbox2.properties -t ./configs/trusted-certs.properties
-time ./wfps-deploy.sh -c ./configs/wfps-sandbox2.properties -t ./configs/trusted-certs.properties
+time ./wfps-deploy.sh -c ../configs/wfps-sandbox1.properties
+time ./wfps-add-secrets-trusted-certs.sh -c ../configs/wfps-sandbox2.properties -t ../configs/trusted-certs.properties
+time ./wfps-deploy.sh -c ../configs/wfps-sandbox2.properties -t ../configs/trusted-certs.properties
 
 #-----------------------
 # WfPS deploy (federated configuration)
 
-time ./wfps-deploy.sh -c ./configs/wfps-pfs-demo.properties
+time ./wfps-deploy.sh -c ../configs/wfps-pfs-demo.properties
 
-time ./wfps-deploy.sh -c ./configs/wfps-federated1.properties
+time ./wfps-deploy.sh -c ../configs/wfps-federated1.properties
 
-time ./wfps-add-secrets-trusted-certs.sh -c ./configs/wfps-federated2.properties -t ./configs/trusted-certs.properties
+time ./wfps-add-secrets-trusted-certs.sh -c ../configs/wfps-federated2.properties -t ../configs/trusted-certs.properties
 
-time ./wfps-deploy.sh -c ./configs/wfps-federated2.properties -t ./configs/trusted-certs.properties
+time ./wfps-deploy.sh -c ../configs/wfps-federated2.properties -t ../configs/trusted-certs.properties
 
-time ./wfps-deploy.sh -c ./configs/wfps-bastudio-federated1.properties
+time ./wfps-deploy.sh -c ../configs/wfps-bastudio-federated1.properties
 
-time ./wfps-deploy.sh -c ./configs/wfps-cp4ba-test1-federated1.properties
-time ./wfps-deploy.sh -c ./configs/wfps-cp4ba-test1-federated2.properties
+time ./wfps-deploy.sh -c ../configs/wfps-cp4ba-test1-federated1.properties
+time ./wfps-deploy.sh -c ../configs/wfps-cp4ba-test1-federated2.properties
 ```
 
 ## 2. Install application
 ```
 #-----------------------
-time ./wfps-install-application.sh -c ./configs/wfps-pfs-demo.properties -a ../apps/SimpleDemoWfPS.zip
+time ./wfps-install-application.sh -c ../configs/wfps-pfs-demo.properties -a ../apps/SimpleDemoWfPS.zip
 
 
-time ./wfps-install-application.sh -c ./configs/wfps1.properties -a ../apps/SimpleDemoWfPS.zip
+time ./wfps-install-application.sh -c ../configs/wfps1.properties -a ../apps/SimpleDemoWfPS.zip
 
-time ./wfps-install-application.sh -c ./configs/wfps2.properties -a ../apps/SimpleDemoStraightThroughProcessingWfPS.zip
-
-#-----------------------
-time ./wfps-install-application.sh -c ./configs/wfps-sandbox1.properties -a ../apps/SimpleDemoWfPS.zip
-
-time ./wfps-install-application.sh -c ./configs/wfps-sandbox2.properties -a ../apps/SimpleDemoStraightThroughProcessingWfPS.zip
+time ./wfps-install-application.sh -c ../configs/wfps2.properties -a ../apps/SimpleDemoStraightThroughProcessingWfPS.zip
 
 #-----------------------
-time ./wfps-install-application.sh -c ./configs/wfps-federated1.properties -a ../apps/SimpleDemoWfPS.zip
+time ./wfps-install-application.sh -c ../configs/wfps-sandbox1.properties -a ../apps/SimpleDemoWfPS.zip
 
-time ./wfps-install-application.sh -c ./configs/wfps-federated2.properties -a ../apps/SimpleDemoStraightThroughProcessingWfPS.zip
-
-#-----------------------
-time ./wfps-install-application.sh -c ./configs/wfps-bastudio-federated1.properties -a ../apps/SimpleDemoWfPS.zip
+time ./wfps-install-application.sh -c ../configs/wfps-sandbox2.properties -a ../apps/SimpleDemoStraightThroughProcessingWfPS.zip
 
 #-----------------------
-time ./wfps-install-application.sh -c ./configs/wfps-cp4ba-test1-federated1.properties -a ../apps/SimpleDemoWfPS.zip
-time ./wfps-install-application.sh -c ./configs/wfps-cp4ba-test1-federated2.properties -a ../apps/SimpleDemoStraightThroughProcessingWfPS.zip
+time ./wfps-install-application.sh -c ../configs/wfps-federated1.properties -a ../apps/SimpleDemoWfPS.zip
+
+time ./wfps-install-application.sh -c ../configs/wfps-federated2.properties -a ../apps/SimpleDemoStraightThroughProcessingWfPS.zip
+
+#-----------------------
+time ./wfps-install-application.sh -c ../configs/wfps-bastudio-federated1.properties -a ../apps/SimpleDemoWfPS.zip
+
+#-----------------------
+time ./wfps-install-application.sh -c ../configs/wfps-cp4ba-test1-federated1.properties -a ../apps/SimpleDemoWfPS.zip
+time ./wfps-install-application.sh -c ../configs/wfps-cp4ba-test1-federated2.properties -a ../apps/SimpleDemoStraightThroughProcessingWfPS.zip
 
 
 ```
@@ -109,13 +156,13 @@ time ./wfps-install-application.sh -c ./configs/wfps-cp4ba-test1-federated2.prop
 # -c path to wfps configuration file
 # -t path to team bindings configuration file
 # -r [optional] remove actual team binding configuration 
-./wfps-update-team-bindings.sh -c ./configs/wfps1.properties -t ./configs/team-bindings-app-1.properties -r
+./wfps-update-team-bindings.sh -c ../configs/wfps1.properties -t ../configs/team-bindings-app-1.properties -r
 
-./wfps-update-team-bindings.sh -c ./configs/wfps-sandbox1.properties -t ./configs/team-bindings-app-1.properties -r
+./wfps-update-team-bindings.sh -c ../configs/wfps-sandbox1.properties -t ../configs/team-bindings-app-1.properties -r
 
-./wfps-update-team-bindings.sh -c ./configs/wfps-federated1.properties -t ./configs/team-bindings-app-1.properties -r
+./wfps-update-team-bindings.sh -c ../configs/wfps-federated1.properties -t ../configs/team-bindings-app-1.properties -r
 
-./wfps-update-team-bindings.sh -c ./configs/wfps-federated1.properties -t ./configs/team-bindings-app-1-devenv.properties -r
+./wfps-update-team-bindings.sh -c ../configs/wfps-federated1.properties -t ../configs/team-bindings-app-1-devenv.properties -r
 
 ```
 
@@ -130,15 +177,15 @@ time ./wfps-install-application.sh -c ./configs/wfps-cp4ba-test1-federated2.prop
 ### Federate/Unfederate WfPS
 ```
 # federate or unfederate an existing wfps instance (see WFPS_FEDERATE var)
-time ./wfps-federate.sh -c ./configs/wfps-federated1.properties
+time ./wfps-federate.sh -c ../configs/wfps-federated1.properties
 
-time ./wfps-federate.sh -c ./configs/wfps-bastudio-federated1.properties
+time ./wfps-federate.sh -c ../configs/wfps-bastudio-federated1.properties
 ```
 
 
 ### Example of REST services invocations using curl
 ```
-./wfps-export-env-vars-to-file.sh -c ./configs/wfps1.properties 
+./wfps-export-env-vars-to-file.sh -c ../configs/wfps1.properties 
 source ./exp-wfps-t1.vars
 
 curl -sk -u ${WFPS_ADMINUSER}:${WFPS_ADMINPASSWORD} -H 'accept: application/json' -H 'content-type: application/json' -H 'BPMCSRFToken: '${WFPS_CSRF_TOKEN} -X POST ${WFPS_EXTERNAL_BASE_URL}/automationservices/rest/SDWPS/SimpleDemoREST/startService -d '{"request": {"name":"Marco", "counter": 10, "flag": true}}' | jq .
@@ -161,7 +208,7 @@ oc get wfps --no-headers | awk '{print $1}' | xargs oc delete wfps
 
 # server's log
 # export variables for wfps server
-./wfps-export-env-vars-to-file.sh -c ./configs/wfps1.properties 
+./wfps-export-env-vars-to-file.sh -c ../configs/wfps1.properties 
 source ./exp-wfps-t1.vars
 
 oc rsh -n ${WFPS_NAMESPACE} ${WFPS_NAME}-wfps-runtime-server-0 tail -n 1000 -f /logs/application/${WFPS_NAME}-wfps-runtime-server-0/liberty-message.log
@@ -436,10 +483,10 @@ export CP4BA_AUTO_NAMESPACE=cp4ba-federated-wfps
 # DEPLOY LDAP - NO IDP
 
 cd /home/marco/wfps/cp4ba-idp-ldap
-./scripts/add-ldap.sh -p ./configs/_cfg-production-ldap-domain.properties
+./scripts/add-ldap.sh -p ../configs/_cfg-production-ldap-domain.properties
 
 # dopo per utilizzo certificati
-./scripts/add-phpadmin.sh -p ./configs/_cfg-production-ldap-domain.properties -s common-web-ui-cert -w common-web-ui-cert -n ${CP4BA_AUTO_NAMESPACE}
+./scripts/add-phpadmin.sh -p ../configs/_cfg-production-ldap-domain.properties -s common-web-ui-cert -w common-web-ui-cert -n ${CP4BA_AUTO_NAMESPACE}
 
 
 
