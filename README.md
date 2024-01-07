@@ -82,6 +82,9 @@ TCERT_SECRET_NAME_2=
 
 ## Demo application
 
+The demo applications in this repository have been developer using CP4BA BAStudio v23.0.2
+
+
 ../apps/SimpleDemoWFPS.zip
 
 TO-BE-CHANGED
