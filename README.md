@@ -1,6 +1,6 @@
 # cp4ba-wfps
 
-This repository contains a series of examples and tools for creating and configuring Workflow Process Service (WfPS) in IBM Cloud Pak for Business Automation deployment.
+This repository contains a series of examples and tools for creating and configuring Workflow Process Service (WFPS) in IBM Cloud Pak for Business Automation deployment.
 
 Two scenarios are described, one with non-federated servers and one with federated servers.
 
@@ -23,11 +23,11 @@ Do not use in a production environment without making your own necessary modific
 ++++++++++++++++++++++++++++++++++++++++++++++++
 
 
-See '[Prerequisites](#Prerequisites)' section before deploying WfPS servers.
+See '[Prerequisites](#Prerequisites)' section before deploying WFPS servers.
 
 If you want run a WFPS instance in federated environment using 'Process Federation Server' in container (same namespace) you must configure a <b>PFS</b> deployment; use guidance and tools from repository [https://github.com/marcoantonioni/cp4ba-process-federation-server](https://github.com/marcoantonioni/cp4ba-process-federation-server)
 
-You may deploy non-federated WfPS into same namespace of federated WfPS server.
+You may deploy non-federated WFPS into same namespace of federated WFPS server.
 
 All examples make use of dynamic storage, the presence of a storage class for dynamic volume allocation is required.
 
@@ -69,10 +69,10 @@ TCERT_SECRET_NAME_2=
 
 ## Demo application
 
-../apps/SimpleDemoWfPS.zip
+../apps/SimpleDemoWFPS.zip
 
 TO-BE-CHANGED
-../apps/SimpleDemoStraightThroughProcessingWfPS.zip
+../apps/SimpleDemoStraightThroughProcessingWFPS.zip
 
 TO-BE
 ../apps/SimpleExternalService.zip
@@ -83,35 +83,35 @@ To continue with the deployment examples, the following prerequisites must be me
 
 - The destination namespace must contain a Foundation deployment.
 
-## 1. WfPS Deployments
+## 1. WFPS Deployments
 
-Examples for WfPS server deployments.
+Examples for WFPS server deployments.
 
 Login in browser to '<b>/ProcessAdmin</b>' as admin user defined in configuration variable '<i>WFPS_ADMINUSER</i>'.
 
 
-### 1.1 Simple WfPS deploy (dedicated PostgreSQL database built by operator)
+### 1.1 Simple WFPS deploy (dedicated PostgreSQL database built by operator)
 ```
 #-------------------------------------------
-# WfPS deploy (non federated configuration)
+# WFPS deploy (non federated configuration)
 #-------------------------------------------
 # REMEMBER: adapt the properties file to your environment
 
-# 1. deploy WfPS
+# 1. deploy WFPS
 time ./wfps-deploy.sh -c ../configs/wfps1.properties
 ```
 
-### 1.2 Simple WfPS deploy with trusted certificates (dedicated PostgreSQL database built by operator)
+### 1.2 Simple WFPS deploy with trusted certificates (dedicated PostgreSQL database built by operator)
 ```
 #-------------------------------------------
-# WfPS deploy using trusted certificates (non federated configuration)
+# WFPS deploy using trusted certificates (non federated configuration)
 #-------------------------------------------
 # REMEMBER: adapt the properties file to your environment
 
 # 1. create secret with remote server certificate
 time ./wfps-add-secrets-trusted-certs.sh -c ../configs/wfps2.properties -t ../configs/trusted-certs.properties
 
-# 2. deploy WfPS and add trusted certificates list
+# 2. deploy WFPS and add trusted certificates list
 time ./wfps-deploy.sh -c ../configs/wfps2.properties -t ../configs/trusted-certs.properties
 ```
 
@@ -139,11 +139,11 @@ Example for installing applications.
 ### 2.1 Deploy application
 ```
 #-----------------------
-# install application using WfPS runtime described in 'wfps1.properties'
-time ./wfps-install-application.sh -c ../configs/wfps1.properties -a ../apps/SimpleDemoWfPS.zip
+# install application using WFPS runtime described in 'wfps1.properties'
+time ./wfps-install-application.sh -c ../configs/wfps1.properties -a ../apps/SimpleDemoWFPS.zip
 
-# install application using WfPS runtime described in 'wfps3.properties'
-time ./wfps-install-application.sh -c ../configs/wfps2.properties -a ../apps/SimpleDemoStraightThroughProcessingWfPS.zip
+# install application using WFPS runtime described in 'wfps3.properties'
+time ./wfps-install-application.sh -c ../configs/wfps2.properties -a ../apps/SimpleDemoStraightThroughProcessingWFPS.zip
 ```
 
 ## 3. Configure application Team Bindings
@@ -202,25 +202,25 @@ time ./wfps-remove-application.sh -c ../configs/wfps1.properties -a HSS -b RHSV1
 
 ```
 
-## 5. Federate/Unfederate WfPS
+## 5. Federate/Unfederate WFPS
 
 To federate or unfederate an existing wfps instance set WFPS_FEDERATE var to true for federate or false to unfederate
 
 ### 
 ```
 # REMEMBER: adapt the properties file to your environment
-# WfPS must exists
+# WFPS must exists
 time ./wfps-federate.sh -c ../configs/wfps1.properties
 
 ```
 
 ## 6. Examples of REST services invocations using curl
 
-Below are some examples for invoking REST services exposed by the demo applications deployed in WfPS.
+Below are some examples for invoking REST services exposed by the demo applications deployed in WFPS.
 
 The script 'wfps-export-env-vars-to-file.sh' exports the environment variables necessary to interact via 'cUrl' with REST services into a support file.
 
-### 6.1 Interact with services from 'SimpleDemoWfPS' application
+### 6.1 Interact with services from 'SimpleDemoWFPS' application
 
 Login in browser to '<b>/Workplace</b>' as a user defined in TeamBindings role to interact with tasks.
 
@@ -237,7 +237,7 @@ curl -sk -u ${WFPS_ADMINUSER}:${WFPS_ADMINPASSWORD} -H 'accept: application/json
 curl -sk -u ${WFPS_ADMINUSER}:${WFPS_ADMINPASSWORD} -H 'accept: application/json' -H 'content-type: application/json' -H 'BPMCSRFToken: '${WFPS_CSRF_TOKEN} -X POST ${WFPS_EXTERNAL_BASE_URL}/automationservices/rest/SDWPS/SimpleDemoREST/startProcess -d '{"request": {"name":"Marco in process", "counter": 20, "flag": true}}' | jq .
 
 ```
-### 6.2 Interact with services from 'SimpleDemoStraightThroughProcessingWfPS' application
+### 6.2 Interact with services from 'SimpleDemoStraightThroughProcessingWFPS' application
 ```
 #------------------------------------------
 # generate and source env vars
