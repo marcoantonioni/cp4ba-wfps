@@ -94,7 +94,7 @@ TO-BE
 
 To continue with the deployment examples, the following prerequisites must be met:
 
-- The destination namespace must contain a Foundation deployment.
+- The destination namespace must contain at least a running Foundation deployment.
 
 ## 1. WFPS Deployments
 
