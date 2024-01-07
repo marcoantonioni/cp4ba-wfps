@@ -20,6 +20,8 @@ This software and the configurations contained in the repository MUST be conside
 Do not use in a production environment without making your own necessary modifications.
 </i>
 <br>
+<br>
+<br>
 I am not a 'guru' for bash script development, so don't rely too much on the solidity of the code I have developed. It's just an example of how many operations can be automated.
 <br>
 ++++++++++++++++++++++++++++++++++++++++++++++++
