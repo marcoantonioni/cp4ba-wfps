@@ -22,7 +22,10 @@ Do not use in a production environment without making your own necessary modific
 <br>
 <br>
 <br>
-I am not a 'guru' for bash script development, so don't rely too much on the solidity of the code I have developed. It's just an example of how many operations can be automated.
+I am not a 'guru' for bash script development, so don't rely too much on the solidity of the code I have developed.
+<br>
+It's just an example of how many operations can be automated.
+<br>
 <br>
 ++++++++++++++++++++++++++++++++++++++++++++++++
 
