@@ -105,9 +105,7 @@ Login in browser to '<b>/ProcessAdmin</b>' as admin user defined in configuratio
 
 ### 1.1 Simple WFPS deploy (dedicated PostgreSQL database built by operator)
 ```
-#-------------------------------------------
 # WFPS deploy (non federated configuration)
-#-------------------------------------------
 # REMEMBER: adapt the properties file to your environment
 
 # 1. deploy WFPS
@@ -116,9 +114,7 @@ time ./wfps-deploy.sh -c ../configs/wfps1.properties
 
 ### 1.2 Simple WFPS deploy with trusted certificates (dedicated PostgreSQL database built by operator)
 ```
-#-------------------------------------------
 # WFPS deploy using trusted certificates (non federated configuration)
-#-------------------------------------------
 # REMEMBER: adapt the properties file to your environment
 
 # 1. create secret with remote server certificate
