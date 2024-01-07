@@ -147,7 +147,6 @@ Example for installing applications.
 
 ### 2.1 Deploy application
 ```
-#-----------------------
 # install application using WFPS runtime described in 'wfps1.properties'
 time ./wfps-install-application.sh -c ../configs/wfps1.properties -a ../apps/SimpleDemoWFPS.zip
 
@@ -222,7 +221,6 @@ The script 'wfps-export-env-vars-to-file.sh' exports the environment variables n
 Login in browser to '<b>/Workplace</b>' as a user defined in TeamBindings role to interact with tasks.
 
 ```
-#------------------------------------------
 # generate and source env vars
 ./wfps-export-env-vars-to-file.sh -c ../configs/wfps1.properties 
 source ./exp-wfps-1.vars
@@ -236,7 +234,6 @@ curl -sk -u ${WFPS_ADMINUSER}:${WFPS_ADMINPASSWORD} -H 'accept: application/json
 ```
 ### 5.2 Interact with services from 'SimpleDemoStraightThroughProcessingWFPS' application
 ```
-#------------------------------------------
 # generate and source env vars
 ./wfps-export-env-vars-to-file.sh -c ../configs/wfps2.properties 
 source ./exp-wfps-2.vars
