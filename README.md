@@ -26,7 +26,6 @@ I am not a 'guru' for bash script development, so don't rely too much on the sol
 <br>
 It's just an example of how many operations can be automated.
 <br>
-<br>
 ++++++++++++++++++++++++++++++++++++++++++++++++
 
 
