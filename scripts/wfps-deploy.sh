@@ -4,6 +4,7 @@ _me=$(basename "$0")
 
 _NOWAIT=false
 _TAG_ES=""
+_TAG_FEDERATE=""
 
 #--------------------------------------------------------
 # read command line params
@@ -41,9 +42,10 @@ spec:
     username: ${WFPS_ADMINUSER}
   license:
     accept: true
-  capabilities: 
-    federate:
-      enable: ${WFPS_FEDERATE}
+  ${_TAG_FEDERATE}
+  #capabilities: 
+  #  federate:
+  #    enable: ${WFPS_FEDERATE}
     ${_TAG_ES}
   persistent:
     storageClassName: ${WFPS_STORAGE_CLASS}
@@ -79,9 +81,10 @@ spec:
     username: ${WFPS_ADMINUSER}
   license:
     accept: true
-  capabilities: 
-    federate:
-      enable: ${WFPS_FEDERATE}
+  ${_TAG_FEDERATE}
+  #capabilities: 
+  #  federate:
+  #    enable: ${WFPS_FEDERATE}
     ${_TAG_ES}
   persistent:
     storageClassName: ${WFPS_STORAGE_CLASS}
@@ -127,6 +130,11 @@ deployWfPSRuntime () {
   fi
   
   if [[ "${WFPS_FEDERATE}" = "true" ]]; then
+
+    _TAG_FEDERATE="  capabilities: 
+    federate:
+      enable: ${WFPS_FEDERATE}"
+
     _TAG_ES="fullTextSearch:
       enable: true
       esStorage:

@@ -187,9 +187,8 @@ getCsrfToken() {
   CRED="-u $1:$2"
   LOGIN_URI="$3/system/login"
   # echo -n "Getting csrf token"
-  until CSRF_TOKEN=$(curl -ks -X POST ${CRED} -H 'accept: application/json' -H 'Content-Type: application/json' ${LOGIN_URI} -d '{}' | jq .csrf_token | sed 's/"//g') && [[ -n "$CSRF_TOKEN" ]]
+  until CSRF_TOKEN=$(curl -ks -X POST ${CRED} -H 'accept: application/json' -H 'Content-Type: application/json' ${LOGIN_URI} -d '{}' | jq .csrf_token 2>/dev/null | sed 's/"//g') && [[ -n "$CSRF_TOKEN" ]]
   do
-  echo $CSRF_TOKEN
     # echo -n "."
     sleep 1
   done
@@ -269,13 +268,4 @@ waitContainerStatus () {
   done
 }
 
-# ????
-getUserPasswordFromLocalLdif () {
-
-  TNS=cp4ba
-  USER_NAME=user1
-  USER_PASSWORD=$(oc get secrets -n ${TNS} | grep openldap-customldif | awk '{print $1}' | xargs oc get secret -n ${TNS} -o jsonpath='{.data.ldap_user\.ldif}' | base64 -d | grep "dn: uid=${USER_NAME}," -A5 | grep userpassword | sed 's/userpassword: //g')
-  echo ${USER_NAME}" / "${USER_PASSWORD}
-
-}
 

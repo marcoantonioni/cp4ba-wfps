@@ -22,6 +22,7 @@ source ./oc-utils.sh
 source ${CONFIG_FILE}
 verifyAllParams
 
+echo "Exporting infos for '${WFPS_NAME}', please wait for server ready..."
 getAdminInfo
 getWfPSUrls ${WFPS_NAMESPACE} ${WFPS_NAME}
 getCsrfToken ${WFPS_ADMINUSER} ${WFPS_ADMINPASSWORD} ${WFPS_URL_OPS}
@@ -40,5 +41,6 @@ echo "export WFPS_URL_PROCESSADMIN=${WFPS_URL_PROCESSADMIN}" >> ${OUT_FILE}
 echo "export WFPS_CSRF_TOKEN=${WFPS_CSRF_TOKEN}" >> ${OUT_FILE}
 echo "export WFPS_PAK_BASE_URL=${WFPS_PAK_BASE_URL}" >> ${OUT_FILE}
 echo "Env vars for [${WFPS_NAME}] in file "${OUT_FILE}
+echo ""
 cat ${OUT_FILE}
 
