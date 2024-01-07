@@ -80,7 +80,7 @@ TCERT_ENDPOINT_URL_2=
 TCERT_SECRET_NAME_2=
 ```
 
-## Demo application
+## Demo applications
 
 The demo applications in this repository have been developer using CP4BA BAStudio v23.0.2
 
