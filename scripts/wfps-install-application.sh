@@ -76,16 +76,15 @@ source ${CONFIG_FILE}
 
 verifyAllParams
 
-if test -f ${APPLICATION_FILE}; then
-  echo "Installing "${APPLICATION_FILE}
-else
-  echo "File "${APPLICATION_FILE}" not found."
+if [[ ! -f ${APPLICATION_FILE} ]]; then
+  echo ""
+  echo "ERROR: file "${APPLICATION_FILE}" not found."
+  exit 1
 fi
 
 getAdminInfo
 getCsrfToken ${WFPS_ADMINUSER} ${WFPS_ADMINPASSWORD} ${WFPS_URL_OPS}
 
-# echo ${WFPS_CSRF_TOKEN}
 installApplication ${WFPS_ADMINUSER} ${WFPS_ADMINPASSWORD} ${WFPS_URL_OPS} ${WFPS_CSRF_TOKEN} ${APPLICATION_FILE}
 
 # verifyInstalledApplication ${WFPS_ADMINUSER} ${WFPS_ADMINPASSWORD} ${WFPS_URL_OPS} ${WFPS_CSRF_TOKEN} "SimpleDemoWfPS"
