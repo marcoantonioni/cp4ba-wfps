@@ -202,25 +202,13 @@ time ./wfps-remove-application.sh -c ../configs/wfps1.properties -a HSS -b RHSV1
 
 ```
 
-## 5. Federate/Unfederate WFPS
-
-To federate or unfederate an existing wfps instance set WFPS_FEDERATE var to true for federate or false to unfederate
-
-### 
-```
-# REMEMBER: adapt the properties file to your environment
-# WFPS must exists
-time ./wfps-federate.sh -c ../configs/wfps1.properties
-
-```
-
-## 6. Examples of REST services invocations using curl
+## 5. Examples of REST services invocations using curl
 
 Below are some examples for invoking REST services exposed by the demo applications deployed in WFPS.
 
 The script 'wfps-export-env-vars-to-file.sh' exports the environment variables necessary to interact via 'cUrl' with REST services into a support file.
 
-### 6.1 Interact with services from 'SimpleDemoWFPS' application
+### 5.1 Interact with services from 'SimpleDemoWFPS' application
 
 Login in browser to '<b>/Workplace</b>' as a user defined in TeamBindings role to interact with tasks.
 
@@ -237,7 +225,7 @@ curl -sk -u ${WFPS_ADMINUSER}:${WFPS_ADMINPASSWORD} -H 'accept: application/json
 curl -sk -u ${WFPS_ADMINUSER}:${WFPS_ADMINPASSWORD} -H 'accept: application/json' -H 'content-type: application/json' -H 'BPMCSRFToken: '${WFPS_CSRF_TOKEN} -X POST ${WFPS_EXTERNAL_BASE_URL}/automationservices/rest/SDWPS/SimpleDemoREST/startProcess -d '{"request": {"name":"Marco in process", "counter": 20, "flag": true}}' | jq .
 
 ```
-### 6.2 Interact with services from 'SimpleDemoStraightThroughProcessingWFPS' application
+### 5.2 Interact with services from 'SimpleDemoStraightThroughProcessingWFPS' application
 ```
 #------------------------------------------
 # generate and source env vars
@@ -246,6 +234,20 @@ source ./exp-wfps-2.vars
 
 # test STP demo
 curl -sk -u ${WFPS_ADMINUSER}:${WFPS_ADMINPASSWORD} -H 'accept: application/json' -H 'content-type: application/json' -H 'BPMCSRFToken: '${WFPS_CSRF_TOKEN} -X POST ${WFPS_EXTERNAL_BASE_URL}/automationservices/rest/SDSTPWP/ServiceSTP/startProcess -d '{"request": {"contextId":"ctx1", "counter": 3, "delayMillisecs": 100}}' | jq .
+```
+
+## 6. Federate/Unfederate WFPS
+
+You can federate a WFPS instance only after installing a PFS within the same namespace.
+
+To federate or unfederate an existing wfps instance set WFPS_FEDERATE var to true for federate or false to unfederate
+
+### 
+```
+# REMEMBER: adapt the properties file to your environment
+# WFPS must exists
+time ./wfps-federate.sh -c ../configs/wfps1.properties
+
 ```
 
 ### 7. Spare commands
@@ -267,3 +269,6 @@ oc get wfps --no-headers | awk '{print $1}' | xargs oc delete wfps
 Installing a CP4BA Workflow Process Service production deployment [https://www.ibm.com/docs/en/cloud-paks/cp-biz-automation/23.0.2?topic=deployments-installing-cp4ba-workflow-process-service-production-deployment](https://www.ibm.com/docs/en/cloud-paks/cp-biz-automation/23.0.2?topic=deployments-installing-cp4ba-workflow-process-service-production-deployment)
 
 Federating IBM Business Automation Workflow on containers [https://www.ibm.com/docs/en/cloud-paks/cp-biz-automation/23.0.2?topic=deployment-federating-business-automation-workflow-containers](https://www.ibm.com/docs/en/cloud-paks/cp-biz-automation/23.0.2?topic=deployment-federating-business-automation-workflow-containers)
+
+
+For other free tools related to IBM Cloud Pak for Business Automation you can search for projects with the prefix 'cp4ba-' in my public git [https://github.com/marcoantonioni](https://github.com/marcoantonioni)
