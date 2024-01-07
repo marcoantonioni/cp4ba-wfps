@@ -1,14 +1,5 @@
 # cp4ba-wfps
 
-
-ToBeDone
-```
-- full deployments
-- curl services
-- prerequisites section
-```
-
-
 This repository contains a series of examples and tools for creating and configuring Workflow Process Service (WfPS) in IBM Cloud Pak for Business Automation deployment.
 
 Two scenarios are described, one with non-federated servers and one with federated servers.
@@ -95,6 +86,9 @@ To continue with the deployment examples, the following prerequisites must be me
 ## 1. WfPS Deployments
 
 Examples for WfPS server deployments.
+
+Login in browser to '<b>/ProcessAdmin</b>' as admin user defined in configuration variable '<i>WFPS_ADMINUSER</i>'.
+
 
 ### 1.1 Simple WfPS deploy (dedicated PostgreSQL database built by operator)
 ```
@@ -208,7 +202,6 @@ time ./wfps-remove-application.sh -c ../configs/wfps1.properties -a HSS -b RHSV1
 
 ```
 
-
 ## 5. Federate/Unfederate WfPS
 
 To federate or unfederate an existing wfps instance set WFPS_FEDERATE var to true for federate or false to unfederate
@@ -229,7 +222,7 @@ The script 'wfps-export-env-vars-to-file.sh' exports the environment variables n
 
 ### 6.1 Interact with services from 'SimpleDemoWfPS' application
 
-Login in browser to '/Workplace' as user in TeamBindings to interact with tasks.
+Login in browser to '<b>/Workplace</b>' as a user defined in TeamBindings role to interact with tasks.
 
 ```
 #------------------------------------------
