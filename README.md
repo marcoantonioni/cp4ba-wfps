@@ -31,7 +31,7 @@ It's just an example of how many operations can be automated.
 
 See '[Prerequisites](#Prerequisites)' section before deploying WFPS servers.
 
-If you want run a WFPS instance in federated environment using 'Process Federation Server' in container (same namespace) you must configure a <b>PFS</b> deployment; use guidance and tools from repository [https://github.com/marcoantonioni/cp4ba-process-federation-server](https://github.com/marcoantonioni/cp4ba-process-federation-server)
+If you want run a WFPS instance in federated environment using 'Process Federation Server' in container (same namespace) you must configure a <b>PFS</b> deployment; use guidance and tools from repository [https://github.com/marcoantonioni/cp4ba-process-federation-server](https://github.com/marcoantonioni/cp4ba-process-federation-server) ...will be public soon.
 
 You may deploy non-federated WFPS into same namespace of federated WFPS server.
 
