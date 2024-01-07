@@ -69,8 +69,7 @@ WFPS_FEDERATE_TEXTSEARCH_SIZE="10Gi" # size of storage used by PVC
 WFPS_FEDERATE_TEXTSEARCHSIZE_SNAP="2Gi"  # size of storage used by PVC
 ```
 
-Trusted certificates configuration file variables
-
+Trusted certificates configuration file variables.
 The script will create a tls type secret containing the public key obtained from endpoint url.
 ```
 TCERT_ENDPOINT_URL_1=<hostname-and-port-of-target-service> # eg: cpd-cp4ba.apps.1234567890.cloud.techzone.ibm.com:443
