@@ -84,14 +84,17 @@ TCERT_SECRET_NAME_2=
 
 The demo applications in this repository have been developer using CP4BA BAStudio v23.0.2
 
+For each application both source code (.twx) and deployable package (.zip) are in 'apps' folder
 
-../apps/SimpleDemoWFPS.zip
+The app SimpleDemoWfPS implements a process named 'SimpleProcess'.
+This process can be started either via '/Workplace' browser or via REST service (see example interaction with cUrl).
+The process implements two tasks associated respectively with the Requester role and the Validator role (see TeamBindings for associated users).
 
-TO-BE-CHANGED
-../apps/SimpleDemoStraightThroughProcessingWFPS.zip
+The app SimpleDemoStraightThroughProcessingWfPS implements a process named 'SimpleSTPProcess'.
+This process can be started either via '/Workplace' browser or via REST service (see example interaction with cUrl).
+The 'Straight Through Processing' type process does not implement tasks, it starts and ends independently.
 
-TO-BE
-../apps/SimpleExternalService.zip
+Both processes write to the server log file (to consult the logs see example in the 'Spare commands' section
 
 ## Prerequisites
 
@@ -153,8 +156,8 @@ Example for installing applications.
 # install application using WFPS runtime described in 'wfps1.properties'
 time ./wfps-install-application.sh -c ../configs/wfps1.properties -a ../apps/SimpleDemoWFPS.zip
 
-# install application using WFPS runtime described in 'wfps3.properties'
-time ./wfps-install-application.sh -c ../configs/wfps2.properties -a ../apps/SimpleDemoStraightThroughProcessingWFPS.zip
+# install application using WFPS runtime described in 'wfps2.properties'
+time ./wfps-install-application.sh -c ../configs/wfps2.properties -a ../apps/SimpleDemoStraightThroughProcessingWfPS.zip
 ```
 
 ## 3. Configure application Team Bindings
@@ -235,7 +238,7 @@ curl -sk -u ${WFPS_ADMINUSER}:${WFPS_ADMINPASSWORD} -H 'accept: application/json
 curl -sk -u ${WFPS_ADMINUSER}:${WFPS_ADMINPASSWORD} -H 'accept: application/json' -H 'content-type: application/json' -H 'BPMCSRFToken: '${WFPS_CSRF_TOKEN} -X POST ${WFPS_EXTERNAL_BASE_URL}/automationservices/rest/SDWPS/SimpleDemoREST/startProcess -d '{"request": {"name":"Marco in process", "counter": 20, "flag": true}}' | jq .
 
 ```
-### 5.2 Interact with services from 'SimpleDemoStraightThroughProcessingWFPS' application
+### 5.2 Interact with services from 'SimpleDemoStraightThroughProcessingWfPS' application
 ```
 # generate and source env vars
 ./wfps-export-env-vars-to-file.sh -c ../configs/wfps2.properties 
