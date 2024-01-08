@@ -1,5 +1,7 @@
 # cp4ba-wfps
 
+<i>Last update: 2024-01-07</i>
+
 This repository contains a series of examples and tools for creating and configuring Workflow Process Service (WFPS) in IBM Cloud Pak for Business Automation deployment.
 
 Two scenarios are described, one with non-federated servers and one with federated servers.
@@ -28,6 +30,7 @@ It's just an example of how many operations can be automated.
 <br>
 ++++++++++++++++++++++++++++++++++++++++++++++++
 
+Please use '-stable' versions, the main branch may contain untested functionality.
 
 See '[Prerequisites](#Prerequisites)' section before deploying WFPS servers.
 
