@@ -1,6 +1,6 @@
 # cp4ba-wfps
 
-<i>Last update: 2024-01-09</i>
+<i>Last update: 2024-01-09</i> use '<b>1.0.1-stable</b>'
 
 This repository contains a series of examples and tools for creating and configuring Workflow Process Service (WFPS) in IBM Cloud Pak for Business Automation deployment.
 
