@@ -148,7 +148,7 @@ Example for installing applications.
 ### 2.1 Deploy application
 ```
 # install application using WFPS runtime described in 'wfps1.properties'
-time ./wfps-install-application.sh -c ../configs/wfps1.properties -a ../apps/SimpleDemoWFPS.zip
+time ./wfps-install-application.sh -c ../configs/wfps1.properties -a ../apps/SimpleDemoWfPS.zip
 
 # install application using WFPS runtime described in 'wfps2.properties'
 time ./wfps-install-application.sh -c ../configs/wfps2.properties -a ../apps/SimpleDemoStraightThroughProcessingWfPS.zip
