@@ -1,6 +1,6 @@
 # cp4ba-wfps
 
-<i>Last update: 2024-01-07</i>
+<i>Last update: 2024-01-09</i>
 
 This repository contains a series of examples and tools for creating and configuring Workflow Process Service (WFPS) in IBM Cloud Pak for Business Automation deployment.
 
@@ -21,12 +21,6 @@ This software and the configurations contained in the repository MUST be conside
 <br>
 Do not use in a production environment without making your own necessary modifications.
 </i>
-<br>
-<br>
-<br>
-I am not a 'guru' for bash script development, so don't rely too much on the solidity of the code I have developed.
-<br>
-It's just an example of how many operations can be automated.
 <br>
 ++++++++++++++++++++++++++++++++++++++++++++++++
 
@@ -108,9 +102,6 @@ To continue with the deployment examples, the following prerequisites must be me
 ## 1. WFPS Deployments
 
 Examples for WFPS server deployments.
-
-Login in browser to '<b>/ProcessAdmin</b>' as admin user defined in configuration variable '<i>WFPS_ADMINUSER</i>'.
-
 
 ### 1.1 Simple WFPS deploy (dedicated PostgreSQL database built by operator)
 ```
@@ -228,6 +219,8 @@ The script 'wfps-export-env-vars-to-file.sh' exports the environment variables n
 ### 5.1 Interact with services from 'SimpleDemoWFPS' application
 
 Login in browser to '<b>/Workplace</b>' as a user defined in TeamBindings role to interact with tasks.
+To administer the WfPS runtime login in browser to '<b>/ProcessAdmin</b>' as admin user defined in configuration variable '<i>WFPS_ADMINUSER</i>'.
+
 
 ```
 # generate and source env vars
