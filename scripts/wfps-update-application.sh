@@ -46,7 +46,7 @@ done
 
 if [[ -z "${_CFG}" ]] || [[ -z "${_APP}" ]] || [[ -z "${_BRANCH}" ]]; then
   usage
-  exit
+  exit 1
 fi
 
 if [[ ! -f "${_CFG}" ]]; then

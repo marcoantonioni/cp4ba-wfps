@@ -14,7 +14,7 @@ done
 
 if [[ -z "${_CFG}" || -z "${_APP}" ]]; then
   echo "usage: $_me -c path-of-config-file -a path-of-deployable-app"
-  exit
+  exit 1
 fi
 
 export CONFIG_FILE=${_CFG}

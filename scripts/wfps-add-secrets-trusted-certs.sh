@@ -14,11 +14,11 @@ done
 
 if [[ -z "${_CFG}" ]]; then
   echo "usage: $_me -c path-of-config-file -t path-of-trusted-certs-config-file"
-  exit
+  exit 1
 fi
 if [[ -z "${_TRUST}" ]]; then
   echo "usage: $_me -c path-of-config-file -t path-of-trusted-certs-config-file"
-  exit
+  exit 1
 fi
 
 export CONFIG_FILE=${_CFG}
@@ -77,6 +77,7 @@ echo "Using config file: "${CONFIG_FILE}
 echo "Using certs file: "${TRUST_CERTS_FILE}
 
 source ${CONFIG_FILE}
+
 source ${TRUST_CERTS_FILE}
 
 verifyAllParams

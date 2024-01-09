@@ -15,11 +15,11 @@ done
 
 if [[ -z "${_CFG}" ]]; then
   echo "usage: $_me -c path-of-config-file -t path-of-team-bindings-config-file"
-  exit
+  exit 1
 fi
 if [[ -z "${_TB}" ]]; then
   echo "usage: $_me -c path-of-config-file -t path-of-team-bindings-config-file"
-  exit
+  exit 
 fi
 
 export CONFIG_FILE=${_CFG}

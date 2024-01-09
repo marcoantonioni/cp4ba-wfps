@@ -33,7 +33,7 @@ fi
 
 if [[ -z "${_CFG}" ]]; then
   echo "usage: $_me -c path-of-config-file -t [display task list] -p [display process list] -l [display launchable entities] -a [display all]"
-  exit
+  exit 1
 fi
 
 export CONFIG_FILE=${_CFG}

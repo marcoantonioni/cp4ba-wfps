@@ -13,7 +13,7 @@ done
 
 if [[ -z "${_CFG}" ]]; then
   echo "usage: $_me -c path-of-config-file"
-  exit
+  exit 1
 fi
 
 export CONFIG_FILE=${_CFG}
