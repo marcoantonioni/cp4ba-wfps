@@ -25,6 +25,10 @@ do
     esac
 done
 
+if [[ "${_ALL}" = "false" ]] && [[ "${_ALL}" = "false" ]] && [[ "${_ALL}" = "false" ]] && [[ "${_ALL}" = "false" ]]; then
+  _ALL=true
+fi
+
 if [[ "${_ALL}" = "true" ]]; then
   _TSK=true
   _PRO=true

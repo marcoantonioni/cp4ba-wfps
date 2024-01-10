@@ -38,7 +38,8 @@ getAdminInfo
 getWfPSUrls ${WFPS_NAMESPACE} ${WFPS_NAME}
 getCsrfToken ${WFPS_ADMINUSER} ${WFPS_ADMINPASSWORD} ${WFPS_URL_OPS}
 
-OUT_FILE=./exp-${WFPS_NAME}.vars
+mkdir -p $_SCRIPT_DIR/../output
+OUT_FILE=$_SCRIPT_DIR/../output/exp-${WFPS_NAME}.vars
 echo "Generating env vars in file: "${OUT_FILE}
 echo "export WFPS_NAME=${WFPS_NAME}" > ${OUT_FILE}
 echo "export WFPS_NAMESPACE=${WFPS_NAMESPACE}" >> ${OUT_FILE}

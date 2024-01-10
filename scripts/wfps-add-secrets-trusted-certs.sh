@@ -35,7 +35,8 @@ _SCRIPT_DIR="$(cd -P "$(dirname -- "${_SCRIPT_PATH}")" >/dev/null 2>&1 && pwd)"
 
 source $_SCRIPT_DIR/oc-utils.sh
 
-CERT_FILE_TMP="./temp.crt"
+mkdir -p $_SCRIPT_DIR/../output
+CERT_FILE_TMP="$_SCRIPT_DIR/../output/temp-$USER-$RANDOM.crt"
 
 #--------------------------------------------------------------
 # get certificate from remote url
