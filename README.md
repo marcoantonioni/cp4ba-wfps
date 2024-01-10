@@ -2,10 +2,10 @@
 
 <i>Last update: 2024-01-10</i> use '<b>1.1.1-stable</b>'
 ```
-<b>1.1.1-stable</b>
+> branch 1.1.1-stable
 All generated files are now created in 'prjfolder/output' folder.
 
-<b>1.1.0-stable</b>
+> branch 1.1.0-stable
 bug fixed:
 - wrong tag for federated CR
 
