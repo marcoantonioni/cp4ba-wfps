@@ -1,6 +1,15 @@
 # cp4ba-wfps
 
-<i>Last update: 2024-01-09</i> use '<b>1.0.1-stable</b>'
+<i>Last update: 2024-01-10</i> use '<b>1.1.0-stable</b>'
+```
+bug fixed:
+- wrong tag for federated CR
+
+new functionalities:
+- CR in yaml format generated into 'output' folder
+- new run option '-g' for generate CR only without deployment
+```
+
 
 This repository contains a series of examples and tools for creating and configuring Workflow Process Service (WFPS) in IBM Cloud Pak for Business Automation deployment.
 
