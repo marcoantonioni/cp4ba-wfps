@@ -287,6 +287,14 @@ Installing a CP4BA Workflow Process Service production deployment [https://www.i
 
 Federating IBM Business Automation Workflow on containers [https://www.ibm.com/docs/en/cloud-paks/cp-biz-automation/23.0.2?topic=deployment-federating-business-automation-workflow-containers](https://www.ibm.com/docs/en/cloud-paks/cp-biz-automation/23.0.2?topic=deployment-federating-business-automation-workflow-containers)
 
+TOOLS
+
+Openshift CLI
+https://docs.openshift.com/container-platform/4.14/cli_reference/openshift_cli/getting-started-cli.html
+
+JQ
+https://jqlang.github.io/jq/
+
 
 For other free tools related to IBM Cloud Pak for Business Automation you can search for projects with the prefix 'cp4ba-' in my public git [https://github.com/marcoantonioni](https://github.com/marcoantonioni)
 
