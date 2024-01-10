@@ -290,10 +290,10 @@ Federating IBM Business Automation Workflow on containers [https://www.ibm.com/d
 TOOLS
 
 Openshift CLI
-https://docs.openshift.com/container-platform/4.14/cli_reference/openshift_cli/getting-started-cli.html
+[https://docs.openshift.com/container-platform/4.14/cli_reference/openshift_cli/getting-started-cli.html](https://docs.openshift.com/container-platform/4.14/cli_reference/openshift_cli/getting-started-cli.html)
 
 JQ
-https://jqlang.github.io/jq/
+[https://jqlang.github.io/jq](https://jqlang.github.io/jq)
 
 
 For other free tools related to IBM Cloud Pak for Business Automation you can search for projects with the prefix 'cp4ba-' in my public git [https://github.com/marcoantonioni](https://github.com/marcoantonioni)
