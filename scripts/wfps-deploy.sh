@@ -97,37 +97,6 @@ EOF
 #--------------------------------------------------------
 deployWfPSRuntimeWithoutCerts () {
 
-#cat <<EOF | oc create -f -
-#apiVersion: icp4a.ibm.com/v1
-#kind: WfPSRuntime
-#metadata:
-#  name: ${WFPS_NAME}
-#  namespace: ${WFPS_NAMESPACE}
-#spec:
-#  admin:
-#    username: ${WFPS_ADMINUSER}
-#  license:
-#    accept: true
-#  ${_TAG_FEDERATE}
-#    ${_TAG_ES}
-#  persistent:
-#    storageClassName: ${WFPS_STORAGE_CLASS}
-#  appVersion: ${WFPS_APP_VER}
-#  image:
-#    imagePullPolicy: IfNotPresent
-#    repository: cp.icr.io/cp/cp4a/workflow-ps/workflow-ps-server
-#    tag: ${WFPS_APP_TAG}
-#  deploymentLicense: production
-#  node:
-#    resources:
-#      limits:
-#        cpu: ${WFPS_LIMITS_CPU}
-#        memory: ${WFPS_LIMITS_MEMORY}
-#      requests:
-#        cpu: ${WFPS_REQS_CPU}
-#        memory: ${WFPS_REQS_MEMORY}
-#EOF
-
 _CR_YAML="../output/${WFPS_NAME}.yaml"
 cat <<EOF > ${_CR_YAML}
 apiVersion: icp4a.ibm.com/v1

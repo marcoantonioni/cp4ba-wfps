@@ -2,23 +2,14 @@ apiVersion: icp4a.ibm.com/v1
 kind: WfPSRuntime
 metadata:
   name: wfps-demo-2
-  namespace: cp4ba-pfs-demo
+  namespace: cp4ba-wfps-baw-pfs-demo
 spec:
   admin:
     username: cpadmin
   license:
     accept: true
-  capabilities: 
-    federate:
-      enable: true
-    fullTextSearch:
-      enable: true
-      esStorage:
-        storageClassName: thin-csi
-        size: 10Gi
-      esSnapshotStorage:
-        storageClassName: thin-csi
-        size: 2Gi
+  
+    
   persistent:
     storageClassName: managed-nfs-storage
   appVersion: 23.0.2
