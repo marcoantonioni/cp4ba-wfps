@@ -184,6 +184,31 @@ deployWfPSRuntime () {
   echo "WfPS CR generated in: "${_CR_YAML}
 }
 
+# Wait for FIX
+__workaround () {
+  _HOST=$(oc get route cpd -o jsonpath='{.spec.host}') 1>/dev/null
+  _PATCH_FILE="/tmp/wfps-patch-$RANDOM.yaml"
+  _PROPS='<properties> 
+          <server merge="mergeChildren">
+            <portal merge="mergeChildren">
+              <bpm-data-endpoint merge="replace">https://'${_HOST}':443/'${WFPS_NAME}'-wfps/rest/bpm/federated</bpm-data-endpoint>
+              <federated-dashboards-endpoint merge="replace">https://'${_HOST}':443/'${WFPS_NAME}'-wfps/rest/bpm/federated</federated-dashboards-endpoint>
+            </portal>
+          </server>
+        </properties>'
+  _CUSTOMIZE="
+spec:
+  node:
+    customize:
+      lombardiXML: |-
+        "${_PROPS}
+
+  echo -e "$_CUSTOMIZE" > $_PATCH_FILE
+  oc patch -n ${WFPS_NAMESPACE} wfps ${WFPS_NAME} --type='merge' --patch-file ${_PATCH_FILE} 1>/dev/null
+  rm $_PATCH_FILE
+
+}
+
 #==========================================
 echo ""
 echo "*************************************"
@@ -218,6 +243,12 @@ if [ $? -eq 0 ]; then
     WFPS_ADMINUSER="cpadmin"
   fi
   deployWfPSRuntime
+
+# Wait for FIX
+if [[ "${WFPS_FEDERATE}" = "true" ]]; then
+  __workaround
+fi
+
   waitForResourceCreated ${WFPS_NAMESPACE} wfps ${WFPS_NAME} 5
 else
   echo ${WFPS_NAME}" already installed..."

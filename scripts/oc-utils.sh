@@ -113,12 +113,15 @@ getWfPSUrls() {
 #-------------------------------
 showWfPSUrls() {
     getWfPSUrls $1 $2
-    echo "  operations url: "${WFPS_URL_OPS}
-    echo "  explorer url: "${WFPS_URL_EXPLORER}
+    echo "  Operations url: "${WFPS_URL_OPS}
+    echo "  Explorer url: "${WFPS_URL_EXPLORER}
     echo "  Workplace url: "${WFPS_URL_WORKPLACE}
     echo "  ProcessAdmin url: "${WFPS_URL_PROCESSADMIN}
     echo "  REST url: "${WFPS_EXTERNAL_BASE_URL}
     echo "  Pak console url: "${WFPS_PAK_BASE_URL}
+    echo "  Admin user: "${WFPS_ADMINUSER}
+    echo "  Admin password: "${WFPS_ADMINPASSWORD}
+
 }
 
 #-------------------------------

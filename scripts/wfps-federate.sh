@@ -30,6 +30,29 @@ _SCRIPT_DIR="$(cd -P "$(dirname -- "${_SCRIPT_PATH}")" >/dev/null 2>&1 && pwd)"
 
 source $_SCRIPT_DIR/oc-utils.sh
 
+__workaround () {
+  _HOST=$(oc get route cpd -o jsonpath='{.spec.host}') 1>/dev/null
+  _PATCH_FILE="/tmp/wfps-patch-$RANDOM.yaml"
+  _PROPS='<properties> 
+          <server merge="mergeChildren">
+            <portal merge="mergeChildren">
+              <bpm-data-endpoint merge="replace">'${_HOST}':443/'${WFPS_NAME}'-wfps/rest/bpm/federated</bpm-data-endpoint>
+              <federated-dashboards-endpoint merge="replace">'${_HOST}':443/'${WFPS_NAME}'-wfps/rest/bpm/federated</federated-dashboards-endpoint>
+            </portal>
+          </server>
+        </properties>'
+  _CUSTOMIZE="
+spec:
+  node:
+    customize:
+      lombardiXML: |-
+        "${_PROPS}
+
+  echo -e "$_CUSTOMIZE" > $_PATCH_FILE
+  oc patch -n ${WFPS_NAMESPACE} wfps ${WFPS_NAME} --type='merge' --patch-file ${_PATCH_FILE} 1>/dev/null
+  rm $_PATCH_FILE
+
+}
 #--------------------------------------------------------
 federateWfPSServer () {
 
@@ -51,6 +74,9 @@ federateWfPSServer () {
   oc patch -n ${WFPS_NAMESPACE} wfps ${WFPS_NAME} --type='merge' -p '{"spec": {"capabilities":{"federate":{"enable": '${WFPS_FEDERATE}'}}}}' 1>/dev/null
   oc patch -n ${WFPS_NAMESPACE} wfps ${WFPS_NAME} --type='merge' -p '{"spec": {"capabilities":{"fullTextSearch":{"enable": '${WFPS_FEDERATE_TEXTSEARCH}',"esStorage":{"storageClassName":"'${WFPS_STORAGE_CLASS_BLOCK}'","size":"'${WFPS_FEDERATE_TEXTSEARCH_SIZE}'"},"esSnapshotStorage":{"storageClassName":"'${WFPS_STORAGE_CLASS_BLOCK}'","size":"'${WFPS_FEDERATE_TEXTSEARCHSIZE_SNAP}'"}}}}}' 1>/dev/null
 
+  if [[ "${WFPS_FEDERATE}" = "true" ]]; then
+    __workaround
+  fi
 }
 
 #==========================================
