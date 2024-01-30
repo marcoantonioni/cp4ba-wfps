@@ -21,6 +21,10 @@ if [[ -z "${_TB}" ]]; then
   echo "usage: $_me -c path-of-config-file -t path-of-team-bindings-config-file"
   exit 
 fi
+if [[ ! -f "${_TB}" ]]; then
+  echo "ERROR: file not found: ${_TB}"
+  exit 1
+fi
 
 export CONFIG_FILE=${_CFG}
 export TEAM_BINDINGS_FILE=${_TB}
