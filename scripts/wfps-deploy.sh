@@ -60,6 +60,12 @@ source $_SCRIPT_DIR/oc-utils.sh
 
 #--------------------------------------------------------
 deployWfPSRuntimeWithCerts () {
+
+_TAG="${WFPS_APP_TAG}"
+if [[ ! -z "${WFPS_PATCHED_IMG}" ]]; then
+  _TAG="${WFPS_PATCHED_IMG_TAG}"
+fi
+
 cat <<EOF | oc create -f -
 apiVersion: icp4a.ibm.com/v1
 kind: WfPSRuntime
@@ -80,8 +86,8 @@ spec:
   appVersion: ${WFPS_APP_VER}
   image:
     imagePullPolicy: IfNotPresent
-    repository: cp.icr.io/cp/cp4a/workflow-ps/workflow-ps-server
-    tag: ${WFPS_APP_TAG}
+    repository: "${WFPS_PATCHED_IMG:-cp.icr.io/cp/cp4a/workflow-ps/workflow-ps-server}"
+    tag: "${_TAG}"
   deploymentLicense: production
   node:
     resources:
@@ -96,6 +102,11 @@ EOF
 }
 #--------------------------------------------------------
 deployWfPSRuntimeWithoutCerts () {
+
+_TAG="${WFPS_APP_TAG}"
+if [[ ! -z "${WFPS_PATCHED_IMG}" ]]; then
+  _TAG="${WFPS_PATCHED_IMG_TAG}"
+fi
 
 _CR_YAML="../output/${WFPS_NAME}.yaml"
 cat <<EOF > ${_CR_YAML}
@@ -116,8 +127,8 @@ spec:
   appVersion: ${WFPS_APP_VER}
   image:
     imagePullPolicy: IfNotPresent
-    repository: cp.icr.io/cp/cp4a/workflow-ps/workflow-ps-server
-    tag: ${WFPS_APP_TAG}
+    repository: "${WFPS_PATCHED_IMG:-cp.icr.io/cp/cp4a/workflow-ps/workflow-ps-server}"
+    tag: "${_TAG}"
   deploymentLicense: production
   node:
     resources:
@@ -184,6 +195,10 @@ deployWfPSRuntime () {
   echo "WfPS CR generated in: "${_CR_YAML}
 }
 
+executeExportVars () {
+  $_SCRIPT_DIR/wfps-export-env-vars-to-file.sh -c ${CONFIG_FILE}
+}
+
 # Wait for FIX
 __workaround () {
   _HOST=$(oc get route cpd -o jsonpath='{.spec.host}') 1>/dev/null
@@ -245,9 +260,9 @@ if [ $? -eq 0 ]; then
   deployWfPSRuntime
 
 # Wait for FIX
-if [[ "${WFPS_FEDERATE}" = "true" ]]; then
-  __workaround
-fi
+# if [[ "${WFPS_FEDERATE}" = "true" ]]; then
+# Only without ifix-->  __workaround
+# fi
 
   waitForResourceCreated ${WFPS_NAMESPACE} wfps ${WFPS_NAME} 5
 else
@@ -264,7 +279,8 @@ if [[ "${_YAML_ONLY}" = "false" ]]; then
       echo ${WFPS_NAME}" is not ready"
     else
       echo "Success, "${WFPS_NAME}" is operated through the folowing URLs using '${WFPS_ADMINUSER}' credentials"
-      showWfPSUrls ${WFPS_NAMESPACE} ${WFPS_NAME}
+      #showWfPSUrls ${WFPS_NAMESPACE} ${WFPS_NAME}
+      executeExportVars
     fi
   else
     echo "Success, ${WFPS_NAME} is building, you may check its status rerunning this command without -n parameter"

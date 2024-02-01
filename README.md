@@ -2,9 +2,10 @@
 
 Utilities for IBM Cloud Pak® for Business Automation
 
-<i>Last update: 2024-01-19</i> use '<b>1.1.1-stable</b>'
+<i>Last update: 2024-02-01</i> use '<b>1.1.2</b>'
 ```
-> main always unstable
+> branch 1.1.2
+Minimal adjustments
 
 > branch 1.1.1-stable
 All generated files are now created in 'prjfolder/output' folder.
@@ -152,8 +153,8 @@ time ./wfps-deploy.sh -c ../configs/wfps2.properties -t ../configs/trusted-certs
 ```
 ./wfps-export-env-vars-to-file.sh -c ../configs/wfps1.properties 
 
-# warning: source using generated vars file
-source ./exp-wfps-1.vars
+# source using generated vars file (adapt the file name to your wfps name)
+source ../output/exp-wfps-1.vars
 
 oc rsh -n ${WFPS_NAMESPACE} ${WFPS_NAME}-wfps-runtime-server-0 tail -n 1000 -f /logs/application/${WFPS_NAME}-wfps-runtime-server-0/liberty-message.log
 ```
@@ -245,7 +246,7 @@ To administer the WfPS runtime login in browser to '<b>/ProcessAdmin</b>' as adm
 ```
 # generate and source env vars
 ./wfps-export-env-vars-to-file.sh -c ../configs/wfps1.properties 
-source ./exp-wfps-1.vars
+source ../output/exp-wfps-1.vars
 
 # call a service
 curl -sk -u ${WFPS_ADMINUSER}:${WFPS_ADMINPASSWORD} -H 'accept: application/json' -H 'content-type: application/json' -H 'BPMCSRFToken: '${WFPS_CSRF_TOKEN} -X POST ${WFPS_EXTERNAL_BASE_URL}/automationservices/rest/SDWPS/SimpleDemoREST/startService -d '{"request": {"name":"Marco", "counter": 10, "flag": true}}' | jq .
@@ -258,7 +259,7 @@ curl -sk -u ${WFPS_ADMINUSER}:${WFPS_ADMINPASSWORD} -H 'accept: application/json
 ```
 # generate and source env vars
 ./wfps-export-env-vars-to-file.sh -c ../configs/wfps2.properties 
-source ./exp-wfps-2.vars
+source ../output/exp-wfps-2.vars
 
 # test STP demo
 curl -sk -u ${WFPS_ADMINUSER}:${WFPS_ADMINPASSWORD} -H 'accept: application/json' -H 'content-type: application/json' -H 'BPMCSRFToken: '${WFPS_CSRF_TOKEN} -X POST ${WFPS_EXTERNAL_BASE_URL}/automationservices/rest/SDSTPWP/ServiceSTP/startProcess -d '{"request": {"contextId":"ctx1", "counter": 3, "delayMillisecs": 100}}' | jq .
@@ -309,4 +310,3 @@ JQ
 
 For other free tools related to IBM Cloud Pak for Business Automation you can search for projects with the prefix 'cp4ba-' in my public git [https://github.com/marcoantonioni](https://github.com/marcoantonioni)
 
-More repositories for IBM CP4BA will be made public soon.
