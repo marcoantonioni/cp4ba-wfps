@@ -83,7 +83,7 @@ spec:
     storageClassName: ${WFPS_STORAGE_CLASS}
   tls:
     serverTrustCertificateList: $1
-  appVersion: ${WFPS_APP_VER}
+  appVersion: "23.0.2"
   image:
     imagePullPolicy: IfNotPresent
     repository: "${WFPS_PATCHED_IMG:-cp.icr.io/cp/cp4a/workflow-ps/workflow-ps-server}"
@@ -124,7 +124,7 @@ spec:
     ${_TAG_ES}
   persistent:
     storageClassName: ${WFPS_STORAGE_CLASS}
-  appVersion: ${WFPS_APP_VER}
+  appVersion: "23.0.2"
   image:
     imagePullPolicy: IfNotPresent
     repository: "${WFPS_PATCHED_IMG:-cp.icr.io/cp/cp4a/workflow-ps/workflow-ps-server}"
