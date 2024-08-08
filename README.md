@@ -2,7 +2,8 @@
 
 Utilities for IBM Cloud Pak® for Business Automation
 
-<i>Last update: 2024-02-01</i> use '<b>1.1.2</b>'
+<i>Last update: 2024-08-08</i> use '<b>main</b>' for latest update
+
 ```
 > branch 1.1.2
 Minimal adjustments
