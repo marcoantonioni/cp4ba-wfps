@@ -178,10 +178,10 @@ deployWfPSRuntime () {
     _TAG_ES="fullTextSearch:
       enable: true
       esStorage:
-        storageClassName: thin-csi
+        storageClassName: ${WFPS_STORAGE_CLASS_BLOCK}
         size: 10Gi
       esSnapshotStorage:
-        storageClassName: thin-csi
+        storageClassName: ${WFPS_STORAGE_CLASS_BLOCK}
         size: 2Gi"
 
   fi

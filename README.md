@@ -2,23 +2,7 @@
 
 Utilities for IBM Cloud Pak® for Business Automation
 
-<i>Last update: 2024-08-08</i> use '<b>main</b>' for latest update
-
-```
-> branch 1.1.2
-Minimal adjustments
-
-> branch 1.1.1-stable
-All generated files are now created in 'prjfolder/output' folder.
-
-> branch 1.1.0-stable
-bug fixed:
-- wrong tag for federated CR
-
-new functionalities:
-- CR in yaml format generated into 'output' folder
-- new run option '-g' for generate CR only without deployment
-```
+<i>Last update: 2024-08-12</i> use '<b>main</b>' for latest update (see changelog.md for details)
 
 
 This repository contains a series of examples and tools for creating and configuring Workflow Process Service (WFPS) in IBM Cloud Pak for Business Automation deployment.

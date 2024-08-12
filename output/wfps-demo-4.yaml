@@ -1,7 +1,7 @@
 apiVersion: icp4a.ibm.com/v1
 kind: WfPSRuntime
 metadata:
-  name: wfps-demo-1
+  name: wfps-demo-4
   namespace: cp4ba-wfps-baw-pfs
 spec:
   admin:
@@ -30,7 +30,7 @@ spec:
   node:
     resources:
       limits:
-        cpu: 3000m
+        cpu: 1000m
         memory: 3072Mi
       requests:
         cpu: 500m
