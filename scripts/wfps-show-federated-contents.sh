@@ -58,7 +58,7 @@ source $_SCRIPT_DIR/oc-utils.sh
 showTasks () {
   echo "--------------------------------------------------------------"
   echo "Task list from WFPS '${WFPS_NAME}'"
-
+echo "WFPS_CSRF_TOKEN="$WFPS_CSRF_TOKEN
   _CRED="-u ${_UN}:${_UP}"
   _DATA='{"size":0,"id":0,"name":"","fields":[],"organization":"byTask","shared":false,"teams":[],"interaction":"claimed_and_available","conditions":[],"sort":[],"aliases":[]}'
   RESPONSE=$(curl -sk ${_CRED} -H "BPMCSRFToken: "${WFPS_CSRF_TOKEN} -H 'accept: application/json' -X PUT "${WFPS_EXTERNAL_BASE_URL}/rest/bpm/federated/v1/tasks?calcStats=true&usersFullName=true&size=0" -d $_DATA)

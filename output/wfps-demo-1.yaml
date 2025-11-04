@@ -2,7 +2,7 @@ apiVersion: icp4a.ibm.com/v1
 kind: WfPSRuntime
 metadata:
   name: wfps-demo-1
-  namespace: cp4ba-crif-prod
+  namespace: cp4ba-wfps-prod-liveinst
 spec:
   admin:
     username: cpadmin
@@ -14,18 +14,18 @@ spec:
     fullTextSearch:
       enable: true
       esStorage:
-        storageClassName: ocs-storagecluster-ceph-rbd
+        storageClassName: ocs-external-storagecluster-ceph-rbd
         size: 10Gi
       esSnapshotStorage:
-        storageClassName: ocs-storagecluster-ceph-rbd
+        storageClassName: ocs-external-storagecluster-ceph-rbd
         size: 2Gi
   persistent:
-    storageClassName: ocs-storagecluster-cephfs
-  appVersion: "24.0.1"
+    storageClassName: ocs-external-storagecluster-cephfs
+  appVersion: "25.0.0"
   image:
     imagePullPolicy: IfNotPresent
     repository: "cp.icr.io/cp/cp4a/workflow-ps/workflow-ps-server"
-    tag: "24.0.1"
+    tag: "25.0.0"
   deploymentLicense: production
   node:
     resources:
