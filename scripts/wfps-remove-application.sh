@@ -1,5 +1,8 @@
 #!/bin/bash
 
+#set -euo pipefail
+
+
 _me=$(basename "$0")
 
 _APP=""
@@ -9,7 +12,7 @@ _FORCE=false
 #--------------------------------------------------------
 _CLR_RED="\033[0;31m"   #'0;31' is Red's ANSI color code
 _CLR_GREEN="\033[0;32m"   #'0;32' is Green's ANSI color code
-_CLR_YELLOW="\033[1;32m"   #'1;32' is Yellow's ANSI color code
+_CLR_YELLOW="\033[1;33m"   #'1;32' is Yellow's ANSI color code
 _CLR_BLUE="\033[0;34m"   #'0;34' is Blue's ANSI color code
 _CLR_NC="\033[0m"
 
@@ -46,7 +49,7 @@ if [[ ! -f "${_CFG}" ]]; then
   exit 1
 fi
 
-source ${_CFG}
+source "${_CFG}"
 
 _SCRIPT_PATH="${BASH_SOURCE}"
 while [ -L "${_SCRIPT_PATH}" ]; do
@@ -82,7 +85,7 @@ removeApplication () {
   echo "Request result: "${REMOVE_DESCR}
   sleep 2
   echo "Get deletion status at url: "${REMOVE_URL}
-  while [ true ]
+  while true 
   do
     echo -n "."
     REMOVE_RESPONSE=$(curl -sk ${CRED} -H 'accept: application/json' -H 'BPMCSRFToken: '${WFPS_CSRF_TOKEN} -X GET ${REMOVE_URL})

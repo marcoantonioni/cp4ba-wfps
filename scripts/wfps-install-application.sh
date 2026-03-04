@@ -1,5 +1,8 @@
 #!/bin/bash
 
+#set -euo pipefail
+
+
 _me=$(basename "$0")
 
 #--------------------------------------------------------
@@ -48,7 +51,7 @@ installApplication () {
   echo "Request result: "${INST_DESCR}
   sleep 2
   echo "Get installation status at url: "${INST_URL}
-  while [ true ]
+  while true 
   do
     echo -n "."
     INST_STATE=$(curl -sk ${CRED} -H 'accept: application/json' -H 'BPMCSRFToken: '$4 -X GET ${INST_URL} | jq .state | sed 's/"//g')

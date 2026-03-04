@@ -1,5 +1,8 @@
 #!/bin/bash
 
+#set -euo pipefail
+
+
 _me=$(basename "$0")
 
 _TSK=false

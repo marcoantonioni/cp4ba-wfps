@@ -1,5 +1,8 @@
 #!/bin/bash
 
+#set -euo pipefail
+
+
 _me=$(basename "$0")
 
 _NOWAIT=false
@@ -11,7 +14,7 @@ _CR_YAML=""
 #--------------------------------------------------------
 _CLR_RED="\033[0;31m"   #'0;31' is Red's ANSI color code
 _CLR_GREEN="\033[0;32m"   #'0;32' is Green's ANSI color code
-_CLR_YELLOW="\033[1;32m"   #'1;32' is Yellow's ANSI color code
+_CLR_YELLOW="\033[1;33m"   #'1;32' is Yellow's ANSI color code
 _CLR_BLUE="\033[0;34m"   #'0;34' is Blue's ANSI color code
 _CLR_NC="\033[0m"
 

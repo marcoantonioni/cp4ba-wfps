@@ -1,9 +1,12 @@
 #!/bin/bash
 
+#set -euo pipefail
+
+
 #--------------------------------------------------------
 _CLR_RED="\033[0;31m"   #'0;31' is Red's ANSI color code
 _CLR_GREEN="\033[0;32m"   #'0;32' is Green's ANSI color code
-_CLR_YELLOW="\033[1;32m"   #'1;32' is Yellow's ANSI color code
+_CLR_YELLOW="\033[1;33m"   #'1;32' is Yellow's ANSI color code
 _CLR_BLUE="\033[0;34m"   #'0;34' is Blue's ANSI color code
 _CLR_NC="\033[0m"
 
@@ -15,7 +18,7 @@ CUR_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 PARENT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )/.." && pwd )"
 
 #-------------------------------
-checkPrepreqTools () {
+checkPrereqTools () {
   which jq &>/dev/null
   if [[ $? -ne 0 ]]; then
     echo -e "${_CLR_RED}[✗] Error, jq not installed, cannot proceed.${_CLR_NC}"
@@ -65,7 +68,7 @@ waitForResourceCreated () {
 #    echo "time to wait: $4"
 
   echo -n "Wait for resource '$3' in namespace '$1' created"
-  while [ true ]
+  while true 
   do
       resourceExist $1 $2 $3
       if [ $? -eq 0 ]; then
@@ -85,7 +88,7 @@ waitForWfPSReady () {
 #    echo "time to wait: $3"
 
     echo -n "Wait for WfPs '$2' in namespace '$1' to be READY"
-    while [ true ]
+    while true 
     do
         _READY=$(oc get wfps -n $1 $2 --no-headers | awk '{print $2}')
         if [ "${_READY}" = "True" ]; then
