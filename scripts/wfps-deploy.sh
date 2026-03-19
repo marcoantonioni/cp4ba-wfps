@@ -21,7 +21,7 @@ _CLR_NC="\033[0m"
 usage () {
   echo ""
   echo -e "${_CLR_GREEN}usage: $_me
-    -c full-path-to-config-file
+    -c full-path-to-wfps-config-file 
        (eg: '../configs/env1.properties')
     -g(optional) generate-yaml-only
     -t(optional) path-of-trusted-certs-config-file
@@ -44,6 +44,7 @@ if [[ -z "${_CFG}" ]]; then
   usage
   exit 1
 fi
+
 
 export CONFIG_FILE=${_CFG}
 if [[ ! -z "${_TRUST}" ]]; then
@@ -100,6 +101,23 @@ spec:
       requests:
         cpu: ${WFPS_REQS_CPU}
         memory: ${WFPS_REQS_MEMORY}
+  businessEvent:
+    enable: false
+
+  database:
+    external:
+      serverName: ${WFPS_EXT_DB_SERVER}
+      port: ${WFPS_EXT_DB_PORT}
+      type: postgresql
+      databaseName:	${WFPS_EXT_DB_NAME}
+      current_schema: wfpsdb
+      dbCredentialSecret:	${WFPS_EXT_DB_CREDENTIAL_SECRET} # The secret key must include the username and password      
+      enableSSL: false
+      sslMode: require
+    client:
+      maxConnectionPoolSize: 200
+      minConnectionPoolSize: 50
+
 EOF
 
 }
@@ -141,6 +159,21 @@ spec:
       requests:
         cpu: ${WFPS_REQS_CPU}
         memory: ${WFPS_REQS_MEMORY}
+
+  database:
+    external:
+      serverName: ${WFPS_EXT_DB_SERVER}
+      port: ${WFPS_EXT_DB_PORT}
+      type: postgresql
+      databaseName:	${WFPS_EXT_DB_NAME}
+      current_schema: wfpsdb
+      dbCredentialSecret:	${WFPS_EXT_DB_CREDENTIAL_SECRET} # The secret key must include the username and password      
+      enableSSL: false
+      sslMode: require
+    client:
+      maxConnectionPoolSize: 200
+      minConnectionPoolSize: 50
+
 EOF
 
 if [[ "${_YAML_ONLY}" = "false" ]]; then
@@ -148,6 +181,17 @@ if [[ "${_YAML_ONLY}" = "false" ]]; then
 fi
 
 }
+
+createSecrets () {
+  _SECRET_NAME="${CP4BA_INST_CR_NAME}-ibm-mls-itp-admin-secret"
+  [[ "${_VERBOSE}" = "true" ]] && echo -e "Secret '${_CLR_YELLOW}${WFPS_EXT_DB_CREDENTIAL_SECRET}${_CLR_NC}'"
+  oc delete secret -n ${WFPS_NAMESPACE} ${WFPS_EXT_DB_CREDENTIAL_SECRET} 2> /dev/null 1> /dev/null
+  oc create secret -n ${WFPS_NAMESPACE} generic ${WFPS_EXT_DB_CREDENTIAL_SECRET} \
+    --from-literal=username="${WFPS_EXT_DB_USER_NAME}" \
+    --from-literal=password="${WFPS_EXT_DB_USER_PASSWORD}" 1> /dev/null
+
+}
+
 #--------------------------------------------------------
 deployWfPSRuntime () {
 
@@ -179,7 +223,7 @@ deployWfPSRuntime () {
       enable: ${WFPS_FEDERATE}"
 
     _TAG_ES="fullTextSearch:
-      enable: true
+      enable: false
       esStorage:
         storageClassName: ${WFPS_STORAGE_CLASS_BLOCK}
         size: 10Gi
@@ -188,6 +232,8 @@ deployWfPSRuntime () {
         size: 2Gi"
 
   fi
+
+  createSecrets
 
   if [[ -z "${CERTS_LIST}" ]]; then
     deployWfPSRuntimeWithoutCerts
@@ -257,9 +303,9 @@ resourceExist ${WFPS_NAMESPACE} wfps ${WFPS_NAME}
 if [ $? -eq 0 ]; then
   echo "Ready to install..."
   getAdminInfo true
-  if [[ -z "${WFPS_ADMINUSER}" ]]; then
-    WFPS_ADMINUSER="cpadmin"
-  fi
+  # if [[ -z "${WFPS_ADMINUSER}" ]]; then
+  #   WFPS_ADMINUSER="cpadmin"
+  # fi
   deployWfPSRuntime
 
 # Wait for FIX

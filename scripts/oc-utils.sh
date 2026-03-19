@@ -160,20 +160,30 @@ verifyAllParams () {
       exit 1
   fi
 
+  isParamSet ${WFPS_ADMINUSER}
+  if [ $? -eq 0 ]; then
+      echo "ERROR: WFPS_ADMINUSER not set"
+      exit 1
+  fi
+
+
+
 }
 
 #--------------------------------------------------------
 getAdminInfo () {
   # $1: boolean skip urls 
-  WFPS_ADMINUSER=$(oc get secrets -n ${WFPS_NAMESPACE} platform-auth-idp-credentials -o jsonpath='{.data.admin_username}' | base64 -d)
-  WFPS_ADMINPASSWORD=$(oc get secrets -n ${WFPS_NAMESPACE} platform-auth-idp-credentials -o jsonpath='{.data.admin_password}' | base64 -d)
   if [[ -z "${WFPS_ADMINUSER}" ]]; then
-    echo "ERROR cannot get admin user name from secret"
-    exit 1
-  fi
-  if [[ -z "${WFPS_ADMINPASSWORD}" ]]; then
-    echo "ERROR cannot get admin password from secret"
-    exit 1
+    WFPS_ADMINUSER=$(oc get secrets -n ${WFPS_NAMESPACE} platform-auth-idp-credentials -o jsonpath='{.data.admin_username}' | base64 -d)
+    WFPS_ADMINPASSWORD=$(oc get secrets -n ${WFPS_NAMESPACE} platform-auth-idp-credentials -o jsonpath='{.data.admin_password}' | base64 -d)
+    if [[ -z "${WFPS_ADMINUSER}" ]]; then
+      echo "ERROR cannot get admin user name from secret"
+      exit 1
+    fi
+    if [[ -z "${WFPS_ADMINPASSWORD}" ]]; then
+      echo "ERROR cannot get admin password from secret"
+      exit 1
+    fi
   fi
   if [[ ! "$1" = "true" ]]; then
     resourceExist ${WFPS_NAMESPACE} wfps ${WFPS_NAME}

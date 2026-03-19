@@ -2,30 +2,21 @@ apiVersion: icp4a.ibm.com/v1
 kind: WfPSRuntime
 metadata:
   name: wfps-demo-2
-  namespace: cp4ba-wfps-prod-liveinst
+  namespace: cp4ba-wfps-production
 spec:
   admin:
-    username: cpadmin
+    username: cp4admin
   license:
     accept: true
-  capabilities: 
-    federate:
-      enable: true
-    fullTextSearch:
-      enable: true
-      esStorage:
-        storageClassName: ocs-external-storagecluster-ceph-rbd
-        size: 10Gi
-      esSnapshotStorage:
-        storageClassName: ocs-external-storagecluster-ceph-rbd
-        size: 2Gi
+  
+    
   persistent:
     storageClassName: ocs-external-storagecluster-cephfs
-  appVersion: "25.0.0"
+  appVersion: "25.0.1"
   image:
     imagePullPolicy: IfNotPresent
     repository: "cp.icr.io/cp/cp4a/workflow-ps/workflow-ps-server"
-    tag: "25.0.0"
+    tag: "25.0.1"
   deploymentLicense: production
   node:
     resources:
@@ -35,3 +26,18 @@ spec:
       requests:
         cpu: 500m
         memory: 1024Mi
+
+  database:
+    external:
+      serverName: my-postgres-1-for-cp4ba-rw.cp4ba-wfps-production.svc.cluster.local
+      port: 5432
+      type: postgresql
+      databaseName:	wfpsdb2
+      current_schema: wfpsdb
+      dbCredentialSecret:	wfpsdb-secret # The secret key must include the username and password      
+      enableSSL: false
+      sslMode: require
+    client:
+      maxConnectionPoolSize: 200
+      minConnectionPoolSize: 50
+

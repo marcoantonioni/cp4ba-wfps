@@ -47,6 +47,8 @@ All examples and scripts are only available for Linux boxes with <i>bash</i> she
 
 ## Description of configuration files and variables
 
+https://www.ibm.com/docs/en/cloud-paks/cp-biz-automation/25.0.1?topic=reference-cp4ba-workflow-process-service-runtime-parameters
+
 WFPS configuration file variables
 ```
 WFPS_NAME=<name-of-cr> # any name k8s compatible
