@@ -11,6 +11,7 @@ _STATE="activate"
 _DEFAULT=false
 _FORCE=false
 _SUSPEND_INSTANCES=false
+_ENV_CFG=""
 
 #--------------------------------------------------------
 _CLR_RED="\033[0;31m"   #'0;31' is Red's ANSI color code
@@ -24,6 +25,7 @@ usage () {
   echo -e "${_CLR_GREEN}usage: $_me
     -c full-path-to-config-file
        (eg: '../configs/wfps1.properties')
+    -e full-path-to-target-environment-config-file 
     -a app-acronym
     -b branch-name 
     -s activate|deactivate
@@ -34,10 +36,11 @@ usage () {
 
 #--------------------------------------------------------
 # read command line params
-while getopts c:a:b:s:dfrh flag
+while getopts c:e:a:b:s:dfrh flag
 do
     case "${flag}" in
         c) _CFG=${OPTARG};;
+        e) _ENV_CFG=${OPTARG};;
         a) _APP=${OPTARG};;
         b) _BRANCH=${OPTARG};;
         s) _STATE=${OPTARG};;
@@ -47,7 +50,7 @@ do
     esac
 done
 
-if [[ -z "${_CFG}" ]] || [[ -z "${_APP}" ]] || [[ -z "${_BRANCH}" ]]; then
+if [[ -z "${_CFG}" ]] || [[ -z "${_ENV_CFG}" ]] || [[ -z "${_APP}" ]] || [[ -z "${_BRANCH}" ]]; then
   usage
   exit 1
 fi
@@ -58,7 +61,12 @@ if [[ ! -f "${_CFG}" ]]; then
   exit 1
 fi
 
-source "${_CFG}"
+export CONFIG_FILE=${_CFG}
+export TARGET_ENV_CONFIG_FILE=${_ENV_CFG}
+
+# Read target environment configuration, ignore error for IDP/LDAP configuration properties 
+source ${TARGET_ENV_CONFIG_FILE} 2> /dev/null 1> /dev/null
+source "${CONFIG_FILE}"
 
 _SCRIPT_PATH="${BASH_SOURCE}"
 while [ -L "${_SCRIPT_PATH}" ]; do

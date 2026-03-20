@@ -10,6 +10,7 @@ _YAML_ONLY=false
 _TAG_ES=""
 _TAG_FEDERATE=""
 _CR_YAML=""
+_ENV_CFG=""
 
 #--------------------------------------------------------
 _CLR_RED="\033[0;31m"   #'0;31' is Red's ANSI color code
@@ -23,6 +24,7 @@ usage () {
   echo -e "${_CLR_GREEN}usage: $_me
     -c full-path-to-wfps-config-file 
        (eg: '../configs/env1.properties')
+    -e full-path-to-target-environment-config-file 
     -g(optional) generate-yaml-only
     -t(optional) path-of-trusted-certs-config-file
     -n(optional) no wait for instance readiness${_CLR_NC}"
@@ -30,23 +32,27 @@ usage () {
 
 #--------------------------------------------------------
 # read command line params
-while getopts c:t:ng flag
+while getopts c:t:e:ng flag
 do
     case "${flag}" in
         c) _CFG=${OPTARG};;
+        e) _ENV_CFG=${OPTARG};;
         t) _TRUST=${OPTARG};;
         n) _NOWAIT=true;;
         g) _YAML_ONLY=true;;
     esac
 done
 
-if [[ -z "${_CFG}" ]]; then
+if [[ -z "${_CFG}" ]] || [[ -z "${_ENV_CFG}" ]]; then
   usage
   exit 1
 fi
 
 
+
 export CONFIG_FILE=${_CFG}
+export TARGET_ENV_CONFIG_FILE=${_ENV_CFG}
+
 if [[ ! -z "${_TRUST}" ]]; then
   export TRUST_CERTS_FILE=${_TRUST}
 fi
@@ -280,13 +286,18 @@ echo "****** WfPS Runtime Deployment ******"
 echo "*************************************"
 echo "Using config file: "${CONFIG_FILE}
 
-if [[ ! -f "${_CFG}" ]]; then
-  echo "Configuration file not found: "${_CFG}
+if [[ ! -f "${_CFG}" || ! -f "${_ENV_CFG}" ]]; then
+  echo "Configuration file not found -c [${_CFG}] -e [${_ENV_CFG}]"
   usage
   exit 1
 fi
 
+# Read target environment configuration, ignore error for IDP/LDAP configuration properties 
+source ${TARGET_ENV_CONFIG_FILE} 2> /dev/null 1> /dev/null
+
+# Read WfPS configuration
 source ${CONFIG_FILE}
+
 if [[ ! -z "${TRUST_CERTS_FILE}" ]]; then
   source ${TRUST_CERTS_FILE}
 fi

@@ -5,24 +5,32 @@
 
 _me=$(basename "$0")
 
+_ENV_CFG=""
+
 #--------------------------------------------------------
 # read command line params
-while getopts c:t:r flag
+while getopts c:e:t:r flag
 do
     case "${flag}" in
         c) _CFG=${OPTARG};;
+        e) _ENV_CFG=${OPTARG};;
         t) _TB=${OPTARG};;
         r) _REMOVE=true
     esac
 done
 
-if [[ -z "${_CFG}" ]]; then
-  echo "usage: $_me -c path-of-config-file -t path-of-team-bindings-config-file"
+usage () {
+  echo ""
+  echo -e "${_CLR_GREEN}usage: $_me
+    -c full-path-to-wfps-config-file 
+       (eg: '../configs/env1.properties')
+    -e full-path-to-target-environment-config-file 
+    -t path-of-team-bindings-config-file${_CLR_NC}"
+}
+
+if [[ -z "${_CFG}" || -z "${_ENV_CFG}" || -z "${_TB}" ]]; then
+  usage
   exit 1
-fi
-if [[ -z "${_TB}" ]]; then
-  echo "usage: $_me -c path-of-config-file -t path-of-team-bindings-config-file"
-  exit 
 fi
 if [[ ! -f "${_TB}" ]]; then
   echo "ERROR: file not found: ${_TB}"
@@ -30,6 +38,7 @@ if [[ ! -f "${_TB}" ]]; then
 fi
 
 export CONFIG_FILE=${_CFG}
+export TARGET_ENV_CONFIG_FILE=${_ENV_CFG}
 export TEAM_BINDINGS_FILE=${_TB}
 
 _SCRIPT_PATH="${BASH_SOURCE}"
@@ -190,6 +199,8 @@ echo "*************************************"
 echo "Using config file: "${CONFIG_FILE}
 echo "Using team bindings file: "${TEAM_BINDINGS_FILE}
 
+# Read target environment configuration, ignore error for IDP/LDAP configuration properties 
+source ${TARGET_ENV_CONFIG_FILE} 2> /dev/null 1> /dev/null
 source ${CONFIG_FILE}
 source ${TEAM_BINDINGS_FILE}
 

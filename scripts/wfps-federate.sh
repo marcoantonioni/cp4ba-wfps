@@ -5,22 +5,29 @@
 
 _me=$(basename "$0")
 
+_ENV_CFG=""
 
 #--------------------------------------------------------
 # read command line params
-while getopts c:f: flag
+while getopts c:e: flag
 do
     case "${flag}" in
         c) _CFG=${OPTARG};;
+        e) _ENV_CFG=${OPTARG};;
     esac
 done
 
-if [[ -z "${_CFG}" ]]; then
-  echo "usage: $_me -c path-of-config-file"
+usage () {
+  echo "usage: $_me -c path-of-config-file -e full-path-to-target-environment-config-file"
   exit 1
+}
+
+if [[ -z "${_CFG}" ]] || [[ -z "${_ENV_CFG}" ]]; then
+  usage
 fi
 
 export CONFIG_FILE=${_CFG}
+export TARGET_ENV_CONFIG_FILE=${_ENV_CFG}
 
 _SCRIPT_PATH="${BASH_SOURCE}"
 while [ -L "${_SCRIPT_PATH}" ]; do
@@ -89,6 +96,8 @@ echo "****** WfPS Runtime Deployment Federation ****"
 echo "**********************************************"
 echo "Using config file: "${CONFIG_FILE}
 
+# Read target environment configuration, ignore error for IDP/LDAP configuration properties 
+source ${TARGET_ENV_CONFIG_FILE} 2> /dev/null 1> /dev/null
 source ${CONFIG_FILE}
 
 verifyAllParams

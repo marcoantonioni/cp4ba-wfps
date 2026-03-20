@@ -5,25 +5,32 @@
 
 _me=$(basename "$0")
 
+_ENV_CFG=""
+
 #--------------------------------------------------------
 # read command line params
-while getopts c:t: flag
+while getopts c:t:e: flag
 do
     case "${flag}" in
         c) _CFG=${OPTARG};;
         t) _TRUST=${OPTARG};;
+        e) _ENV_CFG=${OPTARG};;
     esac
 done
 
-if [[ -z "${_CFG}" ]]; then
-  echo "usage: $_me -c path-of-config-file -t path-of-trusted-certs-config-file"
+usage () {
+  echo "usage: $_me -c path-of-config-file -t path-of-trusted-certs-config-file -e full-path-to-target-environment-config-file"
   exit 1
+}
+
+if [[ -z "${_CFG}" ]]; then
+  usage
 fi
 if [[ -z "${_TRUST}" ]]; then
-  echo "usage: $_me -c path-of-config-file -t path-of-trusted-certs-config-file"
-  exit 1
+  usage
 fi
 
+export TARGET_ENV_CONFIG_FILE=${_ENV_CFG}
 export CONFIG_FILE=${_CFG}
 export TRUST_CERTS_FILE=${_TRUST}
 
@@ -88,6 +95,9 @@ echo "****** WfPS Runtime Deployment ******"
 echo "*************************************"
 echo "Using config file: "${CONFIG_FILE}
 echo "Using certs file: "${TRUST_CERTS_FILE}
+
+# Read target environment configuration, ignore error for IDP/LDAP configuration properties 
+source ${TARGET_ENV_CONFIG_FILE} 2> /dev/null 1> /dev/null
 
 source ${CONFIG_FILE}
 

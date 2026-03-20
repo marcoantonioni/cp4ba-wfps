@@ -5,22 +5,35 @@
 
 _me=$(basename "$0")
 
+_ENV_CFG=""
+
 #--------------------------------------------------------
 # read command line params
-while getopts c:a: flag
+while getopts c:e:a: flag
 do
     case "${flag}" in
         c) _CFG=${OPTARG};;
+        e) _ENV_CFG=${OPTARG};;
         a) _APP=${OPTARG};;
     esac
 done
 
-if [[ -z "${_CFG}" || -z "${_APP}" ]]; then
-  echo "usage: $_me -c path-of-config-file -a path-of-deployable-app"
+usage () {
+  echo ""
+  echo -e "${_CLR_GREEN}usage: $_me
+    -c full-path-to-wfps-config-file 
+       (eg: '../configs/env1.properties')
+    -e full-path-to-target-environment-config-file 
+    -a path-of-deployable-app${_CLR_NC}"
+}
+
+if [[ -z "${_CFG}" || -z ${_ENV_CFG} || -z "${_APP}" ]]; then
+  usage
   exit 1
 fi
 
 export CONFIG_FILE=${_CFG}
+export TARGET_ENV_CONFIG_FILE=${_ENV_CFG}
 export APPLICATION_FILE=${_APP}
 
 _SCRIPT_PATH="${BASH_SOURCE}"
@@ -84,6 +97,8 @@ echo "*** WfPS Application Installation ***"
 echo "*************************************"
 echo "Using config file: "${CONFIG_FILE}" for application: "${APPLICATION_FILE}
 
+# Read target environment configuration, ignore error for IDP/LDAP configuration properties 
+source ${TARGET_ENV_CONFIG_FILE} 2> /dev/null 1> /dev/null
 source ${CONFIG_FILE}
 
 verifyAllParams

@@ -8,6 +8,7 @@ _me=$(basename "$0")
 _APP=""
 _BRANCH=""
 _FORCE=false
+_ENV_CFG=""
 
 #--------------------------------------------------------
 _CLR_RED="\033[0;31m"   #'0;31' is Red's ANSI color code
@@ -21,6 +22,7 @@ usage () {
   echo -e "${_CLR_GREEN}usage: $_me
     -c full-path-to-config-file
        (eg: '../configs/wfps1.properties')
+    -e full-path-to-target-environment-config-file 
     -a app-acronym
     -b branch-name 
     -f (optional) force-suspend (used with: '-s deactivate' and '-r' )${_CLR_NC}"
@@ -28,28 +30,34 @@ usage () {
 
 #--------------------------------------------------------
 # read command line params
-while getopts c:a:b:f flag
+while getopts c:e:a:b:f flag
 do
     case "${flag}" in
         c) _CFG=${OPTARG};;
+        e) _ENV_CFG=${OPTARG};;
         a) _APP=${OPTARG};;
         b) _BRANCH=${OPTARG};;
         f) _FORCE=true;;
     esac
 done
 
-if [[ -z "${_CFG}" ]] || [[ -z "${_APP}" ]] || [[ -z "${_BRANCH}" ]]; then
+if [[ -z "${_CFG}" ]] || [[ -z "${_ENV_CFG}" ]] || [[ -z "${_APP}" ]] || [[ -z "${_BRANCH}" ]]; then
   usage
   exit 1
 fi
 
-if [[ ! -f "${_CFG}" ]]; then
-  echo "Configuration file not found: "${_CFG}
-    usage
+if [[ ! -f "${_CFG}" || ! -f "${_ENV_CFG}" ]]; then
+  echo "Configuration file not found -c [${_CFG}] -e [${_ENV_CFG}]"
+  usage
   exit 1
 fi
 
-source "${_CFG}"
+export CONFIG_FILE=${_CFG}
+export TARGET_ENV_CONFIG_FILE=${_ENV_CFG}
+
+# Read target environment configuration, ignore error for IDP/LDAP configuration properties 
+source ${TARGET_ENV_CONFIG_FILE} 2> /dev/null 1> /dev/null
+source "${CONFIG_FILE}"
 
 _SCRIPT_PATH="${BASH_SOURCE}"
 while [ -L "${_SCRIPT_PATH}" ]; do
