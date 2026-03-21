@@ -8,15 +8,25 @@ spec:
     username: cp4admin
   license:
     accept: true
-  
-    
+  capabilities: 
+    federate:
+      enable: false
+    fullTextSearch:
+      enable: false
+      esStorage:
+        storageClassName: ocs-external-storagecluster-ceph-rbd
+        size: 1Gi
+      esSnapshotStorage:
+        storageClassName: ocs-external-storagecluster-ceph-rbd
+        size: 1Gi
+
   persistent:
     storageClassName: ocs-external-storagecluster-cephfs
   appVersion: "25.0.1"
-  image:
-    imagePullPolicy: IfNotPresent
-    repository: "cp.icr.io/cp/cp4a/workflow-ps/workflow-ps-server"
-    tag: "25.0.1"
+  # image:
+  #   imagePullPolicy: IfNotPresent
+  #   repository: "${WFPS_PATCHED_IMG:-cp.icr.io/cp/cp4a/workflow-ps/workflow-ps-server}"
+  #   tag: ""
   deploymentLicense: production
   node:
     resources:
@@ -40,4 +50,3 @@ spec:
     client:
       maxConnectionPoolSize: 200
       minConnectionPoolSize: 50
-

@@ -87,7 +87,7 @@ waitForWfPSReady () {
 #    echo "resource name: $2"
 #    echo "time to wait: $3"
 
-    echo -n "Wait for WfPs '$2' in namespace '$1' to be READY"
+    echo -n "Wait for WfPS '$2' in namespace '$1' to be READY"
     while true 
     do
         _READY=$(oc get wfps -n $1 $2 --no-headers | awk '{print $2}')
