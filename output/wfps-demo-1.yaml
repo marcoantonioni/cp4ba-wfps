@@ -23,7 +23,7 @@ spec:
   persistent:
     storageClassName: ocs-external-storagecluster-cephfs
   appVersion: "25.0.1"
-  deploymentLicense: production
+  deploymentLicense: "production"
   node:
     resources:
       limits:

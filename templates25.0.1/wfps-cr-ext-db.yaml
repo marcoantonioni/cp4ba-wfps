@@ -23,7 +23,7 @@ spec:
   persistent:
     storageClassName: ${WFPS_STORAGE_CLASS}
   appVersion: "${WFPS_APP_VER}"
-  deploymentLicense: production
+  deploymentLicense: "${WFPS_LICENSE_TYPE}"
   node:
     resources:
       limits:

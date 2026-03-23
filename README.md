@@ -140,6 +140,11 @@ WFPS_CONFIG=../configs/25.0.1/wfps-wfps-demo-2.properties
 TARGET_ENV_CONFIG=../../cp4ba-installations/configs25.0.1/env1-runtime-wfps-test.properties
 time ./wfps-deploy.sh -c ${WFPS_CONFIG} -e ${TARGET_ENV_CONFIG}
 
+# WfPS 3
+WFPS_CONFIG=../configs/25.0.1/wfps-wfps-demo-3.properties
+TARGET_ENV_CONFIG=../../cp4ba-installations/configs25.0.1/env1-runtime-wfps-test.properties
+time ./wfps-deploy.sh -c ${WFPS_CONFIG} -e ${TARGET_ENV_CONFIG}
+
 ```
 
 ### [DEPRECATED] 1.2 Simple WFPS deploy with trusted certificates (dedicated PostgreSQL database built by operator)
@@ -319,7 +324,8 @@ To federate or unfederate an existing wfps instance set WFPS_FEDERATE var to tru
 # REMEMBER: adapt the properties file to your environment
 # WFPS must exists
 WFPS_CONFIG=../configs/25.0.1/wfps-wfps-demo-1.properties
-time ./wfps-federate.sh -c ${WFPS_CONFIG}
+TARGET_ENV_CONFIG=../../cp4ba-installations/configs25.0.1/env1-runtime-wfps-test.properties
+time ./wfps-federate.sh -c ${WFPS_CONFIG} -e ${TARGET_ENV_CONFIG}
 
 ```
 
@@ -329,11 +335,11 @@ time ./wfps-federate.sh -c ${WFPS_CONFIG}
 oc get sc
 
 # get Zen admin user name and password
-oc get secrets ${WFPS_NAMESPACE} platform-auth-idp-credentials -o jsonpath='{.data.admin_username}' | base64 -d && echo
-oc get secrets ${WFPS_NAMESPACE} platform-auth-idp-credentials -o jsonpath='{.data.admin_password}' | base64 -d && echo
+oc get secrets -n ${WFPS_NAMESPACE} platform-auth-idp-credentials -o jsonpath='{.data.admin_username}' | base64 -d && echo
+oc get secrets -n ${WFPS_NAMESPACE} platform-auth-idp-credentials -o jsonpath='{.data.admin_password}' | base64 -d && echo
 
 # delete all wfps
-oc get wfps --no-headers | awk '{print $1}' | xargs oc delete wfps
+oc get wfps -n ${WFPS_NAMESPACE} --no-headers | awk '{print $1}' | xargs oc delete wfps -n ${WFPS_NAMESPACE}
 
 ```
 
