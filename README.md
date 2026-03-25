@@ -49,6 +49,10 @@ All examples and scripts are only available for Linux boxes with <i>bash</i> she
 
 https://www.ibm.com/docs/en/cloud-paks/cp-biz-automation/25.0.1?topic=reference-cp4ba-workflow-process-service-runtime-parameters
 
+PFS
+
+https://www.ibm.com/docs/en/cloud-paks/cp-biz-automation/25.0.1?topic=reference-cp4ba-process-federation-server-parameters
+
 WFPS example configuration file variables
 ```
 # WfPS server name
@@ -123,7 +127,7 @@ To continue with the deployment examples, the following prerequisites must be me
 
 Examples for WFPS server deployments.
 
-### 1.1 Simple WFPS deploy (dedicated PostgreSQL database built by operator)
+### 1.1 Simple WFPS deploy (dedicated PostgreSQL database)
 ```
 # WFPS deploy (non federated configuration)
 # REMEMBER: adapt the properties file to your environment
@@ -145,6 +149,20 @@ WFPS_CONFIG=../configs/25.0.1/wfps-wfps-demo-3.properties
 TARGET_ENV_CONFIG=../../cp4ba-installations/configs25.0.1/env1-runtime-wfps-test.properties
 time ./wfps-deploy.sh -c ${WFPS_CONFIG} -e ${TARGET_ENV_CONFIG}
 
+```
+
+Examples for federated WFPS server deployments.
+```
+WFPS_CONFIG=../configs/25.0.1/wfps-wfps-demo-pfs-1.properties
+TARGET_ENV_CONFIG=../../cp4ba-installations/configs25.0.1/env1-runtime-wfps-pfs.properties
+time ./wfps-deploy.sh -c ${WFPS_CONFIG} -e ${TARGET_ENV_CONFIG}
+
+WFPS_CONFIG=../configs/25.0.1/wfps-wfps-demo-pfs-2.properties
+TARGET_ENV_CONFIG=../../cp4ba-installations/configs25.0.1/env1-runtime-wfps-pfs.properties
+time ./wfps-deploy.sh -c ${WFPS_CONFIG} -e ${TARGET_ENV_CONFIG}
+```
+
+### 1.1 Simple WFPS deploy (dedicated PostgreSQL database)
 ```
 
 ### [DEPRECATED] 1.2 Simple WFPS deploy with trusted certificates (dedicated PostgreSQL database built by operator)

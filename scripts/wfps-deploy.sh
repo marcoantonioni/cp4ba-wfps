@@ -387,22 +387,22 @@ deployWfPSRuntime () {
     WFPS_FEDERATE=false
   fi
   
-#  if [[ "${WFPS_FEDERATE}" = "true" ]]; then
-#
-#    _TAG_FEDERATE="capabilities: 
-#    federate:
-#      enable: ${WFPS_FEDERATE}"
-#
-#    _TAG_ES="fullTextSearch:
-#      enable: false
-#      esStorage:
-#        storageClassName: ${WFPS_STORAGE_CLASS_BLOCK}
-#        size: 10Gi
-#      esSnapshotStorage:
-#        storageClassName: ${WFPS_STORAGE_CLASS_BLOCK}
-#        size: 2Gi"
-#
-#  fi
+ if [[ "${WFPS_FEDERATE}" = "true" ]]; then
+
+   _TAG_FEDERATE="capabilities: 
+   federate:
+     enable: ${WFPS_FEDERATE}"
+
+   _TAG_ES="fullTextSearch:
+     enable: ${WFPS_FEDERATE_TEXTSEARCH}
+     esStorage:
+       storageClassName: ${WFPS_STORAGE_CLASS_BLOCK}
+       size: 10Gi
+     esSnapshotStorage:
+       storageClassName: ${WFPS_STORAGE_CLASS_BLOCK}
+       size: 2Gi"
+
+ fi
 
   dropAndCreateDb
 
