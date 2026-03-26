@@ -69,64 +69,79 @@ _SCRIPT_DIR="$(cd -P "$(dirname -- "${_SCRIPT_PATH}")" >/dev/null 2>&1 && pwd)"
 source $_SCRIPT_DIR/oc-utils.sh
 
 #--------------------------------------------------------
-deployWfPSRuntimeWithCerts () {
+# deployWfPSRuntimeWithCerts () {
+# 
+# _TAG="${WFPS_APP_TAG}"
+# if [[ ! -z "${WFPS_PATCHED_IMG}" ]]; then
+#   _TAG="${WFPS_PATCHED_IMG_TAG}"
+# fi
+# 
+# cat <<EOF | oc create -f -
+# apiVersion: icp4a.ibm.com/v1
+# kind: WfPSRuntime
+# metadata:
+#   name: ${WFPS_NAME}
+#   namespace: ${WFPS_NAMESPACE}
+# spec:
+#   admin:
+#     username: ${WFPS_ADMINUSER}
+#   license:
+#     accept: true
+# 
+#   #${_TAG_FEDERATE}
+#   #  ${_TAG_ES}
+#   capabilities: 
+#     federate:
+#       enable: ${WFPS_FEDERATE}
+# 
+#     fullTextSearch:
+#       enable: true #${WFPS_FEDERATE_TEXTSEARCH}
+#       esStorage:
+#         storageClassName: ${WFPS_STORAGE_CLASS_BLOCK}
+#         size: 10Gi
+#       esSnapshotStorage:
+#         storageClassName: ${WFPS_STORAGE_CLASS_BLOCK}
+#         size: 2Gi
+# 
+#   persistent:
+#     storageClassName: ${WFPS_STORAGE_CLASS}
+#   tls:
+#     serverTrustCertificateList: $1
+#   appVersion: "${WFPS_APP_VER}"
+#   image:
+#     imagePullPolicy: IfNotPresent
+#     repository: "${WFPS_PATCHED_IMG:-cp.icr.io/cp/cp4a/workflow-ps/workflow-ps-server}"
+#     tag: "${_TAG}"
+#   deploymentLicense: production
+#   node:
+#     resources:
+#       limits:
+#         cpu: ${WFPS_LIMITS_CPU}
+#         memory: ${WFPS_LIMITS_MEMORY}
+#       requests:
+#         cpu: ${WFPS_REQS_CPU}
+#         memory: ${WFPS_REQS_MEMORY}
+#   businessEvent:
+#     enable: false
+# 
+#   database:
+#     external:
+#       serverName: ${WFPS_EXT_DB_SERVER}
+#       port: ${WFPS_EXT_DB_PORT}
+#       type: postgresql
+#       databaseName:	${WFPS_EXT_DB_NAME}
+#       current_schema: wfpsdb
+#       dbCredentialSecret:	${WFPS_EXT_DB_CREDENTIAL_SECRET} # The secret key must include the username and password      
+#       enableSSL: false
+#       sslMode: require
+#     client:
+#       maxConnectionPoolSize: 200
+#       minConnectionPoolSize: 50
+# 
+# EOF
+# 
+# }
 
-_TAG="${WFPS_APP_TAG}"
-if [[ ! -z "${WFPS_PATCHED_IMG}" ]]; then
-  _TAG="${WFPS_PATCHED_IMG_TAG}"
-fi
-
-cat <<EOF | oc create -f -
-apiVersion: icp4a.ibm.com/v1
-kind: WfPSRuntime
-metadata:
-  name: ${WFPS_NAME}
-  namespace: ${WFPS_NAMESPACE}
-spec:
-  admin:
-    username: ${WFPS_ADMINUSER}
-  license:
-    accept: true
-  ${_TAG_FEDERATE}
-    ${_TAG_ES}
-  persistent:
-    storageClassName: ${WFPS_STORAGE_CLASS}
-  tls:
-    serverTrustCertificateList: $1
-  appVersion: "${WFPS_APP_VER}"
-  image:
-    imagePullPolicy: IfNotPresent
-    repository: "${WFPS_PATCHED_IMG:-cp.icr.io/cp/cp4a/workflow-ps/workflow-ps-server}"
-    tag: "${_TAG}"
-  deploymentLicense: production
-  node:
-    resources:
-      limits:
-        cpu: ${WFPS_LIMITS_CPU}
-        memory: ${WFPS_LIMITS_MEMORY}
-      requests:
-        cpu: ${WFPS_REQS_CPU}
-        memory: ${WFPS_REQS_MEMORY}
-  businessEvent:
-    enable: false
-
-  database:
-    external:
-      serverName: ${WFPS_EXT_DB_SERVER}
-      port: ${WFPS_EXT_DB_PORT}
-      type: postgresql
-      databaseName:	${WFPS_EXT_DB_NAME}
-      current_schema: wfpsdb
-      dbCredentialSecret:	${WFPS_EXT_DB_CREDENTIAL_SECRET} # The secret key must include the username and password      
-      enableSSL: false
-      sslMode: require
-    client:
-      maxConnectionPoolSize: 200
-      minConnectionPoolSize: 50
-
-EOF
-
-}
 #--------------------------------------------------------
 deployWfPSRuntimeWithoutCerts () {
 
@@ -147,8 +162,20 @@ spec:
     username: ${WFPS_ADMINUSER}
   license:
     accept: true
-  ${_TAG_FEDERATE}
-    ${_TAG_ES}
+
+  capabilities: 
+    federate:
+      enable: ${WFPS_FEDERATE}
+
+    fullTextSearch:
+      enable: ${WFPS_FEDERATE_TEXTSEARCH}
+      esStorage:
+        storageClassName: ${WFPS_STORAGE_CLASS_BLOCK}
+        size: 10Gi
+      esSnapshotStorage:
+        storageClassName: ${WFPS_STORAGE_CLASS_BLOCK}
+        size: 2Gi
+
   persistent:
     storageClassName: ${WFPS_STORAGE_CLASS}
   appVersion: "${WFPS_APP_VER}"
@@ -387,22 +414,34 @@ deployWfPSRuntime () {
     WFPS_FEDERATE=false
   fi
   
- if [[ "${WFPS_FEDERATE}" = "true" ]]; then
-
-   _TAG_FEDERATE="capabilities: 
-   federate:
-     enable: ${WFPS_FEDERATE}"
-
-   _TAG_ES="fullTextSearch:
-     enable: ${WFPS_FEDERATE_TEXTSEARCH}
-     esStorage:
-       storageClassName: ${WFPS_STORAGE_CLASS_BLOCK}
-       size: 10Gi
-     esSnapshotStorage:
-       storageClassName: ${WFPS_STORAGE_CLASS_BLOCK}
-       size: 2Gi"
-
- fi
+ #if [[ "${WFPS_FEDERATE}" = "true" ]]; then
+ #  _TAG_FEDERATE="capabilities: 
+ #  federate:
+ #    enable: ${WFPS_FEDERATE}"
+ #  _TAG_ES="fullTextSearch:
+ #    enable: ${WFPS_FEDERATE_TEXTSEARCH}
+ #    esStorage:
+ #      storageClassName: ${WFPS_STORAGE_CLASS_BLOCK}
+ #      size: 10Gi
+ #    esSnapshotStorage:
+ #      storageClassName: ${WFPS_STORAGE_CLASS_BLOCK}
+ #      size: 2Gi"
+ #   # fullTextSearch:
+ #   #   enable: false
+ #   #   esSnapshotStorage:
+ #   #     size: 1Gi
+ #   #     storageClassName: ocs-external-storagecluster-ceph-rbd
+ #   #   esStorage:
+ #   #     size: 1Gi
+ #   #     storageClassName: ocs-external-storagecluster-ceph-rbd
+ #   #   resources:
+ #   #     limits:
+ #   #       cpu: 1000m
+ #   #       memory: 8Gi
+ #   #     requests:
+ #   #       cpu: 100m
+ #   #       memory: 2Gi
+ #fi
 
   dropAndCreateDb
 
@@ -410,11 +449,12 @@ deployWfPSRuntime () {
 
   generateCR
 
-#  if [[ -z "${CERTS_LIST}" ]]; then
-#    deployWfPSRuntimeWithoutCerts
-#  else
-#    deployWfPSRuntimeWithCerts ${CERTS_LIST}
-#  fi
+  if [[ -z "${CERTS_LIST}" ]]; then
+    deployWfPSRuntimeWithoutCerts
+  else
+    # deployWfPSRuntimeWithCerts ${CERTS_LIST}
+    echo "TBD: deployWfPSRuntimeWithCerts"
+  fi
 
   echo "WfPS CR generated in: "${_CR_YAML}
 

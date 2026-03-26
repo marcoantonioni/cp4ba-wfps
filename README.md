@@ -363,9 +363,9 @@ oc get wfps -n ${WFPS_NAMESPACE} --no-headers | awk '{print $1}' | xargs oc dele
 
 # References
 
-Installing a CP4BA Workflow Process Service production deployment [https://www.ibm.com/docs/en/cloud-paks/cp-biz-automation/23.0.2?topic=deployments-installing-cp4ba-workflow-process-service-production-deployment](https://www.ibm.com/docs/en/cloud-paks/cp-biz-automation/23.0.2?topic=deployments-installing-cp4ba-workflow-process-service-production-deployment)
+Installing a CP4BA Workflow Process Service production deployment [https://www.ibm.com/docs/en/cloud-paks/cp-biz-automation/25.0.1?topic=ipd-installing-cp4ba-workflow-process-service-runtime-production-deployment](https://www.ibm.com/docs/en/cloud-paks/cp-biz-automation/25.0.1?topic=ipd-installing-cp4ba-workflow-process-service-runtime-production-deployment)
 
-Federating IBM Business Automation Workflow on containers [https://www.ibm.com/docs/en/cloud-paks/cp-biz-automation/23.0.2?topic=deployment-federating-business-automation-workflow-containers](https://www.ibm.com/docs/en/cloud-paks/cp-biz-automation/23.0.2?topic=deployment-federating-business-automation-workflow-containers)
+Federating IBM Business Automation Workflow on containers [https://www.ibm.com/docs/en/cloud-paks/cp-biz-automation/25.0.1?topic=deployment-federating-business-automation-workflow-in-cp4ba](https://www.ibm.com/docs/en/cloud-paks/cp-biz-automation/25.0.1?topic=deployment-federating-business-automation-workflow-in-cp4ba)
 
 TOOLS
 
