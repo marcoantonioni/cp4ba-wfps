@@ -292,7 +292,7 @@ deployWfPSRuntime () {
     fi
   fi
 
-  echo "WfPS CR generated in: "${_CR_YAML}
+  echo -e "WfPS CR generated in '${_CLR_YELLOW}${_CR_YAML}${_CLR_NC}'"
 
   if [[ "${_YAML_ONLY}" = "false" ]]; then
     oc create -f ${_CR_YAML} 2> /dev/null 1>/dev/null
@@ -323,7 +323,7 @@ spec:
       lombardiXML: |-
         "${_PROPS}
 
-  echo -e "$_CUSTOMIZE" > $_PATCH_FILE
+  echo "$_CUSTOMIZE" > $_PATCH_FILE
   oc patch -n ${WFPS_NAMESPACE} wfps ${WFPS_NAME} --type='merge' --patch-file ${_PATCH_FILE} 1>/dev/null
   rm $_PATCH_FILE
 
@@ -334,7 +334,7 @@ startWfPSDeployment () {
   setTemporaryFolder
 
   if [[ ! -f "${_CFG}" || ! -f "${_ENV_CFG}" ]]; then
-    echo "Configuration file not found -c [${_CFG}] -e [${_ENV_CFG}]"
+    echo -e "${_CLR_RED}ERROR: Configuration file not found -c [${_CFG}] -e [${_ENV_CFG}]${_CLR_NC}"
     usage
     exit 1
   fi
@@ -353,13 +353,12 @@ startWfPSDeployment () {
 
   storageClassExist ${WFPS_STORAGE_CLASS}
   if [ $? -eq 0 ]; then
-      echo "ERROR: Storage class not found"
+      echo -e "${_CLR_RED}ERROR: Storage class '${WFPS_STORAGE_CLASS}' not found${_CLR_NC}"
       exit 1
   fi
 
   resourceExist ${WFPS_NAMESPACE} wfps ${WFPS_NAME}
   if [ $? -eq 0 ]; then
-    echo "Ready to install..."
     getAdminInfo true
     # if [[ -z "${WFPS_ADMINUSER}" ]]; then
     #   WFPS_ADMINUSER="cpadmin"
@@ -373,7 +372,7 @@ startWfPSDeployment () {
 
     waitForResourceCreated ${WFPS_NAMESPACE} wfps ${WFPS_NAME} 5
   else
-    echo ${WFPS_NAME}" already installed..."
+    echo -e "Warning: '${_CLR_YELLOW}${WFPS_NAME}${_CLR_NC}' already installed"
     if [[ "${_YAML_ONLY}" = "true" ]]; then
       deployWfPSRuntime
     fi
@@ -383,14 +382,14 @@ startWfPSDeployment () {
     if [[ "${_NOWAIT}" = "false" ]]; then
       waitForWfPSReady ${WFPS_NAMESPACE} ${WFPS_NAME} 5
       if [ $? -eq 0 ]; then
-        echo ${WFPS_NAME}" is not ready"
+        echo -e "'${_CLR_YELLOW}${WFPS_NAME}${_CLR_NC}' is not ready"
       else
-        echo "Success, "${WFPS_NAME}" is operated through the folowing URLs using '${WFPS_ADMINUSER}' credentials"
+        echo -e "Success, '${_CLR_YELLOW}${WFPS_NAME}${_CLR_NC}' is operated through the folowing URLs using '${_CLR_YELLOW}${WFPS_ADMINUSER}${_CLR_NC}' credentials"
         #showWfPSUrls ${WFPS_NAMESPACE} ${WFPS_NAME}
         executeExportVars
       fi
     else
-      echo "Success, ${WFPS_NAME} is building, you may check its status rerunning this command without -n parameter"
+      echo -e "Success, '${_CLR_YELLOW}${WFPS_NAME}${_CLR_NC}' is building, you may check its status rerunning this command without -n parameter"
     fi
   fi
 }
@@ -398,9 +397,9 @@ startWfPSDeployment () {
 #==========================================
 echo ""
 echo "*************************************"
-echo "****** WfPS Runtime Deployment ******"
+echo -e "****** ${_CLR_YELLOW}WfPS Runtime Deployment${_CLR_NC} ******"
 echo "*************************************"
-echo "Using config file: "${CONFIG_FILE}
+echo -e "Using config file: '${_CLR_YELLOW}${CONFIG_FILE}${_CLR_NC}'"
 
 startWfPSDeployment
 exit 0

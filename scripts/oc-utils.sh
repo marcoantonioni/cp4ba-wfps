@@ -93,7 +93,7 @@ waitForWfPSReady () {
         _READY=$(oc get wfps -n $1 $2 --no-headers | awk '{print $2}')
         if [ "${_READY}" = "True" ]; then
             echo ""
-            echo "WfPS '$2' in namespace '$1' is READY"
+            echo -e "WfPS '${_CLR_YELLOW}$2${_CLR_NC}' in namespace '${_CLR_YELLOW}$1${_CLR_NC}' is ready"
             return 1
         else
             echo -n "."
@@ -116,14 +116,14 @@ getWfPSUrls() {
 #-------------------------------
 showWfPSUrls() {
     getWfPSUrls $1 $2
-    echo "  Operations url: "${WFPS_URL_OPS}
-    echo "  Explorer url: "${WFPS_URL_EXPLORER}
-    echo "  Workplace url: "${WFPS_URL_WORKPLACE}
-    echo "  ProcessAdmin url: "${WFPS_URL_PROCESSADMIN}
-    echo "  REST url: "${WFPS_EXTERNAL_BASE_URL}
-    echo "  Pak console url: "${WFPS_PAK_BASE_URL}
-    echo "  Admin user: "${WFPS_ADMINUSER}
-    echo "  Admin password: "${WFPS_ADMINPASSWORD}
+    echo -e "  Operations url: ${_CLR_YELLOW}${WFPS_URL_OPS}${_CLR_NC}"
+    echo -e "  Explorer url: ${_CLR_YELLOW}${WFPS_URL_EXPLORER}${_CLR_NC}"
+    echo -e "  Workplace url: ${_CLR_YELLOW}${WFPS_URL_WORKPLACE}${_CLR_NC}"
+    echo -e "  ProcessAdmin url: ${_CLR_YELLOW}${WFPS_URL_PROCESSADMIN}${_CLR_NC}"
+    echo -e "  REST url: ${_CLR_YELLOW}${WFPS_EXTERNAL_BASE_URL}${_CLR_NC}"
+    echo -e "  Pak console url: ${_CLR_YELLOW}${WFPS_PAK_BASE_URL}${_CLR_NC}"
+    echo -e "  Admin user: ${_CLR_YELLOW}${WFPS_ADMINUSER}${_CLR_NC}"
+    echo -e "  Admin password: ${_CLR_YELLOW}${WFPS_ADMINPASSWORD}${_CLR_NC}"
 
 }
 
@@ -132,37 +132,37 @@ verifyAllParams () {
 
   isParamSet ${WFPS_STORAGE_CLASS}
   if [ $? -eq 0 ]; then
-      echo "ERROR: WFPS_STORAGE_CLASS not set"
+      echo -e "${_CLR_RED}ERROR: WFPS_STORAGE_CLASS not set${_CLR_NC}"
       exit 1
   fi
 
   isParamSet ${WFPS_NAME}
   if [ $? -eq 0 ]; then
-      echo "ERROR: WFPS_NAME not set"
+      echo -e "${_CLR_RED}ERROR: WFPS_NAME not set${_CLR_NC}"
       exit 1
   fi
 
   isParamSet ${WFPS_NAMESPACE}
   if [ $? -eq 0 ]; then
-      echo "ERROR: WFPS_NAMESPACE not set"
+      echo -e "${_CLR_RED}ERROR: WFPS_NAMESPACE not set${_CLR_NC}"
       exit 1
   fi
 
   isParamSet ${WFPS_APP_VER}
   if [ $? -eq 0 ]; then
-      echo "ERROR: WFPS_APP_VER not set"
+      echo -e "${_CLR_RED}ERROR: WFPS_APP_VER not set${_CLR_NC}"
       exit 1
   fi
 
   isParamSet ${WFPS_APP_TAG}
   if [ $? -eq 0 ]; then
-      echo "ERROR: WFPS_APP_TAG not set"
+      echo -e "${_CLR_RED}ERROR: WFPS_APP_TAG not set${_CLR_NC}"
       exit 1
   fi
 
   isParamSet ${WFPS_ADMINUSER}
   if [ $? -eq 0 ]; then
-      echo "ERROR: WFPS_ADMINUSER not set"
+      echo -e "${_CLR_RED}ERROR: WFPS_ADMINUSER not set${_CLR_NC}"
       exit 1
   fi
 
@@ -177,11 +177,11 @@ getAdminInfo () {
     WFPS_ADMINUSER=$(oc get secrets -n ${WFPS_NAMESPACE} platform-auth-idp-credentials -o jsonpath='{.data.admin_username}' | base64 -d)
     WFPS_ADMINPASSWORD=$(oc get secrets -n ${WFPS_NAMESPACE} platform-auth-idp-credentials -o jsonpath='{.data.admin_password}' | base64 -d)
     if [[ -z "${WFPS_ADMINUSER}" ]]; then
-      echo "ERROR cannot get admin user name from secret"
+      echo -e "${_CLR_RED}ERROR cannot get admin user name from secret${_CLR_NC}"
       exit 1
     fi
     if [[ -z "${WFPS_ADMINPASSWORD}" ]]; then
-      echo "ERROR cannot get admin password from secret"
+      echo -e "${_CLR_RED}ERROR cannot get admin password from secret${_CLR_NC}"
       exit 1
     fi
   fi
@@ -190,7 +190,7 @@ getAdminInfo () {
     if [ $? -eq 1 ]; then
       getWfPSUrls ${WFPS_NAMESPACE} ${WFPS_NAME}
     else
-      echo "WARNING: wfps '${WFPS_NAME}' not present in namespace '${WFPS_NAMESPACE}'"
+      echo -e "WARNING: wfps '${_CLR_YELLOW}${WFPS_NAME}${_CLR_NC}' not present in namespace '${_CLR_YELLOW}${WFPS_NAMESPACE}${_CLR_NC}'"
     fi
   fi
 }
