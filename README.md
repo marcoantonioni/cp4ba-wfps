@@ -132,26 +132,26 @@ Examples for WFPS server deployments.
 # WFPS deploy (non federated configuration)
 # REMEMBER: adapt the properties file to your environment
 
-# 1. deploy WFPS
+# 1. deploy WFPS (no PFS)
 
 # WfPS 1
 WFPS_CONFIG=../configs/25.0.1/wfps-wfps-demo-1.properties
-TARGET_ENV_CONFIG=../../cp4ba-installations/configs25.0.1/env1-runtime-wfps-test.properties
+TARGET_ENV_CONFIG=../../cp4ba-installations/configs25.0.1/env1-runtime-wfps-pfs.properties
 time ./wfps-deploy.sh -c ${WFPS_CONFIG} -e ${TARGET_ENV_CONFIG}
 
 # WfPS 2
 WFPS_CONFIG=../configs/25.0.1/wfps-wfps-demo-2.properties
-TARGET_ENV_CONFIG=../../cp4ba-installations/configs25.0.1/env1-runtime-wfps-test.properties
+TARGET_ENV_CONFIG=../../cp4ba-installations/configs25.0.1/env1-runtime-wfps-pfs.properties
 time ./wfps-deploy.sh -c ${WFPS_CONFIG} -e ${TARGET_ENV_CONFIG}
 
 # WfPS 3
 WFPS_CONFIG=../configs/25.0.1/wfps-wfps-demo-3.properties
-TARGET_ENV_CONFIG=../../cp4ba-installations/configs25.0.1/env1-runtime-wfps-test.properties
+TARGET_ENV_CONFIG=../../cp4ba-installations/configs25.0.1/env1-runtime-wfps-pfs.properties
 time ./wfps-deploy.sh -c ${WFPS_CONFIG} -e ${TARGET_ENV_CONFIG}
 
 ```
 
-Examples for federated WFPS server deployments.
+Examples for PFS federated WFPS server deployments.
 ```
 WFPS_CONFIG=../configs/25.0.1/wfps-wfps-demo-pfs-1.properties
 TARGET_ENV_CONFIG=../../cp4ba-installations/configs25.0.1/env1-runtime-wfps-pfs.properties
@@ -160,9 +160,13 @@ time ./wfps-deploy.sh -c ${WFPS_CONFIG} -e ${TARGET_ENV_CONFIG}
 WFPS_CONFIG=../configs/25.0.1/wfps-wfps-demo-pfs-2.properties
 TARGET_ENV_CONFIG=../../cp4ba-installations/configs25.0.1/env1-runtime-wfps-pfs.properties
 time ./wfps-deploy.sh -c ${WFPS_CONFIG} -e ${TARGET_ENV_CONFIG}
+
+WFPS_CONFIG=../configs/25.0.1/wfps-wfps-demo-pfs-3.properties
+TARGET_ENV_CONFIG=../../cp4ba-installations/configs25.0.1/env1-runtime-wfps-pfs.properties
+time ./wfps-deploy.sh -c ${WFPS_CONFIG} -e ${TARGET_ENV_CONFIG}
 ```
 
-### 1.1 Simple WFPS deploy (dedicated PostgreSQL database)
+### 1.2 Simple WFPS deploy (dedicated PostgreSQL database)
 ```
 
 ### [DEPRECATED] 1.2 Simple WFPS deploy with trusted certificates (dedicated PostgreSQL database built by operator)
@@ -181,7 +185,7 @@ time ./wfps-deploy.sh -c ${WFPS_CONFIG} -t ../configs/trusted-certs.properties
 
 ```
 WFPS_CONFIG=../configs/25.0.1/wfps-wfps-demo-1.properties
-TARGET_ENV_CONFIG=../../cp4ba-installations/configs25.0.1/env1-runtime-wfps-test.properties
+TARGET_ENV_CONFIG=../../cp4ba-installations/configs25.0.1/env1-runtime-wfps-pfs.properties
 ./wfps-export-env-vars-to-file.sh -c ${WFPS_CONFIG} -e ${TARGET_ENV_CONFIG}
 ```
 
@@ -189,7 +193,7 @@ TARGET_ENV_CONFIG=../../cp4ba-installations/configs25.0.1/env1-runtime-wfps-test
 
 ```
 WFPS_CONFIG=../configs/25.0.1/wfps-wfps-demo-1.properties
-TARGET_ENV_CONFIG=../../cp4ba-installations/configs25.0.1/env1-runtime-wfps-test.properties
+TARGET_ENV_CONFIG=../../cp4ba-installations/configs25.0.1/env1-runtime-wfps-pfs.properties
 ./wfps-export-env-vars-to-file.sh -c ${WFPS_CONFIG} -e ${TARGET_ENV_CONFIG}
 
 # source using generated vars file (adapt the file name to your wfps name)
@@ -207,7 +211,7 @@ Example for installing applications.
 ### 2.1 Deploy application
 ```
 WFPS_CONFIG=../configs/25.0.1/wfps-wfps-demo-1.properties
-TARGET_ENV_CONFIG=../../cp4ba-installations/configs25.0.1/env1-runtime-wfps-test.properties
+TARGET_ENV_CONFIG=../../cp4ba-installations/configs25.0.1/env1-runtime-wfps-pfs.properties
 
 # install first application using WFPS runtime 
 time ./wfps-install-application.sh -c ${WFPS_CONFIG} -e ${TARGET_ENV_CONFIG} -a ../apps/SimpleDemoWfPS1.zip
@@ -245,7 +249,7 @@ time ./wfps-update-team-bindings.sh -c ${WFPS_CONFIG} -e ${TARGET_ENV_CONFIG} -t
 To activate|deactivate or make as 'default' a snapshot
 ```
 WFPS_CONFIG=../configs/25.0.1/wfps-wfps-demo-1.properties
-TARGET_ENV_CONFIG=../../cp4ba-installations/configs25.0.1/env1-runtime-wfps-test.properties
+TARGET_ENV_CONFIG=../../cp4ba-installations/configs25.0.1/env1-runtime-wfps-pfs.properties
 
 # deactivate app, dont force (may result in error if unique snapshot)
 time ./wfps-update-application.sh -c ${WFPS_CONFIG} -e ${TARGET_ENV_CONFIG} -a SDWPSB1 -b 1.0 -s deactivate
@@ -262,7 +266,7 @@ time ./wfps-update-application.sh -c ${WFPS_CONFIG} -e ${TARGET_ENV_CONFIG} -a S
 Prerequisite: The snapshot must be deactivated
 ```
 WFPS_CONFIG=../configs/25.0.1/wfps-wfps-demo-1.properties
-TARGET_ENV_CONFIG=../../cp4ba-installations/configs25.0.1/env1-runtime-wfps-test.properties
+TARGET_ENV_CONFIG=../../cp4ba-installations/configs25.0.1/env1-runtime-wfps-pfs.properties
 
 time ./wfps-update-application.sh -c ${WFPS_CONFIG} -e ${TARGET_ENV_CONFIG} -a SDWPSB1 -b 1.0 -s deactivate -f
 
@@ -289,7 +293,7 @@ To administer the WfPS runtime login in browser to '<b>/ProcessAdmin</b>' as adm
 ```
 # generate and source env vars
 WFPS_CONFIG=../configs/25.0.1/wfps-wfps-demo-1.properties
-TARGET_ENV_CONFIG=../../cp4ba-installations/configs25.0.1/env1-runtime-wfps-test.properties
+TARGET_ENV_CONFIG=../../cp4ba-installations/configs25.0.1/env1-runtime-wfps-pfs.properties
 ./wfps-export-env-vars-to-file.sh -c ${WFPS_CONFIG} -e ${TARGET_ENV_CONFIG}
 
 source ${TARGET_ENV_CONFIG} 2> /dev/null 1> /dev/null
@@ -309,7 +313,7 @@ curl -sk -u ${WFPS_ADMINUSER}:${WFPS_ADMINPASSWORD} -H 'accept: application/json
 # generate and source env vars
 WFPS_CONFIG=../configs/25.0.1/wfps-wfps-demo-1.properties
 # WFPS_CONFIG=../configs/25.0.1/wfps-wfps-demo-2.properties
-TARGET_ENV_CONFIG=../../cp4ba-installations/configs25.0.1/env1-runtime-wfps-test.properties
+TARGET_ENV_CONFIG=../../cp4ba-installations/configs25.0.1/env1-runtime-wfps-pfs.properties
 ./wfps-export-env-vars-to-file.sh -c ${WFPS_CONFIG} -e ${TARGET_ENV_CONFIG}
 
 source ${TARGET_ENV_CONFIG} 2> /dev/null 1> /dev/null
@@ -324,7 +328,7 @@ curl -sk -u ${WFPS_ADMINUSER}:${WFPS_ADMINPASSWORD} -H 'accept: application/json
 # NOTA: process instance will fail if application 'SimpleDemoServicesWfPS' is not deployed.
 
 WFPS_CONFIG=../configs/25.0.1/wfps-wfps-demo-2.properties
-TARGET_ENV_CONFIG=../../cp4ba-installations/configs25.0.1/env1-runtime-wfps-test.properties
+TARGET_ENV_CONFIG=../../cp4ba-installations/configs25.0.1/env1-runtime-wfps-pfs.properties
 
 # install first application using WFPS runtime 
 time ./wfps-install-application.sh -c ${WFPS_CONFIG} -e ${TARGET_ENV_CONFIG} -a ../apps/SimpleDemoServicesWfPS.zip
@@ -342,7 +346,7 @@ To federate or unfederate an existing wfps instance set WFPS_FEDERATE var to tru
 # REMEMBER: adapt the properties file to your environment
 # WFPS must exists
 WFPS_CONFIG=../configs/25.0.1/wfps-wfps-demo-1.properties
-TARGET_ENV_CONFIG=../../cp4ba-installations/configs25.0.1/env1-runtime-wfps-test.properties
+TARGET_ENV_CONFIG=../../cp4ba-installations/configs25.0.1/env1-runtime-wfps-pfs.properties
 time ./wfps-federate.sh -c ${WFPS_CONFIG} -e ${TARGET_ENV_CONFIG}
 
 ```

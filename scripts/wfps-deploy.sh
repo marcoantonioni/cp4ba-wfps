@@ -55,18 +55,18 @@ usage () {
        (eg: '../configs/env1.properties')
     -e full-path-to-target-environment-config-file 
     -g(optional) generate-yaml-only
-    -t(optional) path-of-trusted-certs-config-file
     -n(optional) no wait for instance readiness${_CLR_NC}"
+    # -t(optional) path-of-trusted-certs-config-file
+    
 }
 
 #--------------------------------------------------------
 # read command line params
-while getopts c:t:e:ng flag
+while getopts c:e:ng flag
 do
     case "${flag}" in
         c) _CFG=${OPTARG};;
         e) _ENV_CFG=${OPTARG};;
-        t) _TRUST=${OPTARG};;
         n) _NOWAIT=true;;
         g) _YAML_ONLY=true;;
     esac
@@ -77,14 +77,8 @@ if [[ -z "${_CFG}" ]] || [[ -z "${_ENV_CFG}" ]]; then
   exit 1
 fi
 
-
-
 export CONFIG_FILE=${_CFG}
 export TARGET_ENV_CONFIG_FILE=${_ENV_CFG}
-
-if [[ ! -z "${_TRUST}" ]]; then
-  export TRUST_CERTS_FILE=${_TRUST}
-fi
 
 _SCRIPT_PATH="${BASH_SOURCE}"
 while [ -L "${_SCRIPT_PATH}" ]; do
@@ -98,154 +92,8 @@ _SCRIPT_DIR="$(cd -P "$(dirname -- "${_SCRIPT_PATH}")" >/dev/null 2>&1 && pwd)"
 source $_SCRIPT_DIR/oc-utils.sh
 
 #--------------------------------------------------------
-# deployWfPSRuntimeWithCerts () {
-# 
-# _TAG="${WFPS_APP_TAG}"
-# if [[ ! -z "${WFPS_PATCHED_IMG}" ]]; then
-#   _TAG="${WFPS_PATCHED_IMG_TAG}"
-# fi
-# 
-# cat <<EOF | oc create -f -
-# apiVersion: icp4a.ibm.com/v1
-# kind: WfPSRuntime
-# metadata:
-#   name: ${WFPS_NAME}
-#   namespace: ${WFPS_NAMESPACE}
-# spec:
-#   admin:
-#     username: ${WFPS_ADMINUSER}
-#   license:
-#     accept: true
-# 
-#   #${_TAG_FEDERATE}
-#   #  ${_TAG_ES}
-#   capabilities: 
-#     federate:
-#       enable: ${WFPS_FEDERATE}
-# 
-#     fullTextSearch:
-#       enable: true #${WFPS_FEDERATE_TEXTSEARCH}
-#       esStorage:
-#         storageClassName: ${WFPS_STORAGE_CLASS_BLOCK}
-#         size: 10Gi
-#       esSnapshotStorage:
-#         storageClassName: ${WFPS_STORAGE_CLASS_BLOCK}
-#         size: 2Gi
-# 
-#   persistent:
-#     storageClassName: ${WFPS_STORAGE_CLASS}
-#   tls:
-#     serverTrustCertificateList: $1
-#   appVersion: "${WFPS_APP_VER}"
-#   image:
-#     imagePullPolicy: IfNotPresent
-#     repository: "${WFPS_PATCHED_IMG:-cp.icr.io/cp/cp4a/workflow-ps/workflow-ps-server}"
-#     tag: "${_TAG}"
-#   deploymentLicense: production
-#   node:
-#     resources:
-#       limits:
-#         cpu: ${WFPS_LIMITS_CPU}
-#         memory: ${WFPS_LIMITS_MEMORY}
-#       requests:
-#         cpu: ${WFPS_REQS_CPU}
-#         memory: ${WFPS_REQS_MEMORY}
-#   businessEvent:
-#     enable: false
-# 
-#   database:
-#     external:
-#       serverName: ${WFPS_EXT_DB_SERVER}
-#       port: ${WFPS_EXT_DB_PORT}
-#       type: postgresql
-#       databaseName:	${WFPS_EXT_DB_NAME}
-#       current_schema: wfpsdb
-#       dbCredentialSecret:	${WFPS_EXT_DB_CREDENTIAL_SECRET} # The secret key must include the username and password      
-#       enableSSL: false
-#       sslMode: require
-#     client:
-#       maxConnectionPoolSize: 200
-#       minConnectionPoolSize: 50
-# 
-# EOF
-# 
-# }
-
-#--------------------------------------------------------
-deployWfPSRuntimeWithoutCerts () {
-
-_TAG="${WFPS_APP_TAG}"
-if [[ ! -z "${WFPS_PATCHED_IMG}" ]]; then
-  _TAG="${WFPS_PATCHED_IMG_TAG}"
-fi
-
-_CR_YAML="../output/${WFPS_NAME}.yaml"
-cat <<EOF > ${_CR_YAML}
-apiVersion: icp4a.ibm.com/v1
-kind: WfPSRuntime
-metadata:
-  name: ${WFPS_NAME}
-  namespace: ${WFPS_NAMESPACE}
-spec:
-  admin:
-    username: ${WFPS_ADMINUSER}
-  license:
-    accept: true
-
-  capabilities: 
-    federate:
-      enable: ${WFPS_FEDERATE}
-
-    fullTextSearch:
-      enable: ${WFPS_FEDERATE_TEXTSEARCH}
-      esStorage:
-        storageClassName: ${WFPS_STORAGE_CLASS_BLOCK}
-        size: 10Gi
-      esSnapshotStorage:
-        storageClassName: ${WFPS_STORAGE_CLASS_BLOCK}
-        size: 2Gi
-
-  persistent:
-    storageClassName: ${WFPS_STORAGE_CLASS}
-  appVersion: "${WFPS_APP_VER}"
-  image:
-    imagePullPolicy: IfNotPresent
-    repository: "${WFPS_PATCHED_IMG:-cp.icr.io/cp/cp4a/workflow-ps/workflow-ps-server}"
-    tag: "${_TAG}"
-  deploymentLicense: production
-  node:
-    resources:
-      limits:
-        cpu: ${WFPS_LIMITS_CPU}
-        memory: ${WFPS_LIMITS_MEMORY}
-      requests:
-        cpu: ${WFPS_REQS_CPU}
-        memory: ${WFPS_REQS_MEMORY}
-
-  database:
-    external:
-      serverName: ${WFPS_EXT_DB_SERVER}
-      port: ${WFPS_EXT_DB_PORT}
-      type: postgresql
-      databaseName:	${WFPS_EXT_DB_NAME}
-      current_schema: wfpsdb
-      dbCredentialSecret:	${WFPS_EXT_DB_CREDENTIAL_SECRET} # The secret key must include the username and password      
-      enableSSL: false
-      sslMode: require
-    client:
-      maxConnectionPoolSize: 200
-      minConnectionPoolSize: 50
-
-EOF
-
-if [[ "${_YAML_ONLY}" = "false" ]]; then
-  oc create -f ${_CR_YAML}
-fi
-
-}
 
 createSecrets () {
-  _SECRET_NAME="${CP4BA_INST_CR_NAME}-ibm-mls-itp-admin-secret"
   [[ "${_VERBOSE}" = "true" ]] && echo -e "Secret '${_CLR_YELLOW}${WFPS_EXT_DB_CREDENTIAL_SECRET}${_CLR_NC}'"
   oc delete secret -n ${WFPS_NAMESPACE} ${WFPS_EXT_DB_CREDENTIAL_SECRET} 2> /dev/null 1> /dev/null
   oc create secret -n ${WFPS_NAMESPACE} generic ${WFPS_EXT_DB_CREDENTIAL_SECRET} \
@@ -422,67 +270,26 @@ dropAndCreateDb () {
 #--------------------------------------------------------
 deployWfPSRuntime () {
 
-  if [[ ! -z "${TRUST_CERTS_FILE}" ]]; then
-    CERTS_LIST=""
-    for i in {1..10}
-    do
-      _CRT="TCERT_SECRET_NAME_"$i
-      if [[ ! -z "${!_CRT}" ]]; then
-        if [[ -z "${CERTS_LIST}" ]]; then
-          CERTS_LIST="["
-        fi
-        CERTS_LIST=${CERTS_LIST}"${!_CRT},"
-      fi
-    done
-    if [[ ! -z "${CERTS_LIST}" ]]; then
-      CERTS_LIST=${CERTS_LIST}"]"
-    fi
-  fi
-
   if [[ -z "${WFPS_FEDERATE}" ]]; then
     WFPS_FEDERATE=false
   fi
   
- #if [[ "${WFPS_FEDERATE}" = "true" ]]; then
- #  _TAG_FEDERATE="capabilities: 
- #  federate:
- #    enable: ${WFPS_FEDERATE}"
- #  _TAG_ES="fullTextSearch:
- #    enable: ${WFPS_FEDERATE_TEXTSEARCH}
- #    esStorage:
- #      storageClassName: ${WFPS_STORAGE_CLASS_BLOCK}
- #      size: 10Gi
- #    esSnapshotStorage:
- #      storageClassName: ${WFPS_STORAGE_CLASS_BLOCK}
- #      size: 2Gi"
- #   # fullTextSearch:
- #   #   enable: false
- #   #   esSnapshotStorage:
- #   #     size: 1Gi
- #   #     storageClassName: ocs-external-storagecluster-ceph-rbd
- #   #   esStorage:
- #   #     size: 1Gi
- #   #     storageClassName: ocs-external-storagecluster-ceph-rbd
- #   #   resources:
- #   #     limits:
- #   #       cpu: 1000m
- #   #       memory: 8Gi
- #   #     requests:
- #   #       cpu: 100m
- #   #       memory: 2Gi
- #fi
-
   dropAndCreateDb
 
   createSecrets
 
   generateCR
 
-  if [[ -z "${CERTS_LIST}" ]]; then
-    deployWfPSRuntimeWithoutCerts
-  else
-    # deployWfPSRuntimeWithCerts ${CERTS_LIST}
-    echo "TBD: deployWfPSRuntimeWithCerts"
+  if [[ "${_YAML_ONLY}" = "false" ]]; then
+    _TAG="${WFPS_APP_TAG}"
+    if [[ ! -z "${WFPS_PATCHED_IMG}" ]]; then
+      _TAG="${WFPS_PATCHED_IMG_TAG}"
+    fi
+
+    _CR_YAML="../output/${WFPS_NAME}.yaml"
+    if [[ -f "${_CR_YAML}" ]]; then
+      oc create -f ${_CR_YAML}
+    fi
   fi
 
   echo "WfPS CR generated in: "${_CR_YAML}
@@ -522,6 +329,72 @@ spec:
 
 }
 
+startWfPSDeployment () {
+
+  setTemporaryFolder
+
+  if [[ ! -f "${_CFG}" || ! -f "${_ENV_CFG}" ]]; then
+    echo "Configuration file not found -c [${_CFG}] -e [${_ENV_CFG}]"
+    usage
+    exit 1
+  fi
+
+  # Read target environment configuration, ignore error for IDP/LDAP configuration properties 
+  source ${TARGET_ENV_CONFIG_FILE} 2> /dev/null 1> /dev/null
+
+  # Read WfPS configuration
+  source ${CONFIG_FILE}
+
+  if [[ ! -z "${TRUST_CERTS_FILE}" ]]; then
+    source ${TRUST_CERTS_FILE}
+  fi
+
+  verifyAllParams
+
+  storageClassExist ${WFPS_STORAGE_CLASS}
+  if [ $? -eq 0 ]; then
+      echo "ERROR: Storage class not found"
+      exit 1
+  fi
+
+  resourceExist ${WFPS_NAMESPACE} wfps ${WFPS_NAME}
+  if [ $? -eq 0 ]; then
+    echo "Ready to install..."
+    getAdminInfo true
+    # if [[ -z "${WFPS_ADMINUSER}" ]]; then
+    #   WFPS_ADMINUSER="cpadmin"
+    # fi
+    deployWfPSRuntime
+
+  # Wait for FIX
+  # if [[ "${WFPS_FEDERATE}" = "true" ]]; then
+  # Only without ifix-->  __workaround
+  # fi
+
+    waitForResourceCreated ${WFPS_NAMESPACE} wfps ${WFPS_NAME} 5
+  else
+    echo ${WFPS_NAME}" already installed..."
+    if [[ "${_YAML_ONLY}" = "true" ]]; then
+      deployWfPSRuntime
+    fi
+  fi
+
+  if [[ "${_YAML_ONLY}" = "false" ]]; then
+    if [[ "${_NOWAIT}" = "false" ]]; then
+      waitForWfPSReady ${WFPS_NAMESPACE} ${WFPS_NAME} 5
+      if [ $? -eq 0 ]; then
+        echo ${WFPS_NAME}" is not ready"
+      else
+        echo "Success, "${WFPS_NAME}" is operated through the folowing URLs using '${WFPS_ADMINUSER}' credentials"
+        #showWfPSUrls ${WFPS_NAMESPACE} ${WFPS_NAME}
+        executeExportVars
+      fi
+    else
+      echo "Success, ${WFPS_NAME} is building, you may check its status rerunning this command without -n parameter"
+    fi
+  fi
+}
+
 #==========================================
 echo ""
 echo "*************************************"
@@ -529,67 +402,5 @@ echo "****** WfPS Runtime Deployment ******"
 echo "*************************************"
 echo "Using config file: "${CONFIG_FILE}
 
-setTemporaryFolder
-
-if [[ ! -f "${_CFG}" || ! -f "${_ENV_CFG}" ]]; then
-  echo "Configuration file not found -c [${_CFG}] -e [${_ENV_CFG}]"
-  usage
-  exit 1
-fi
-
-# Read target environment configuration, ignore error for IDP/LDAP configuration properties 
-source ${TARGET_ENV_CONFIG_FILE} 2> /dev/null 1> /dev/null
-
-# Read WfPS configuration
-source ${CONFIG_FILE}
-
-if [[ ! -z "${TRUST_CERTS_FILE}" ]]; then
-  source ${TRUST_CERTS_FILE}
-fi
-
-verifyAllParams
-
-storageClassExist ${WFPS_STORAGE_CLASS}
-if [ $? -eq 0 ]; then
-    echo "ERROR: Storage class not found"
-    exit 1
-fi
-
-resourceExist ${WFPS_NAMESPACE} wfps ${WFPS_NAME}
-if [ $? -eq 0 ]; then
-  echo "Ready to install..."
-  getAdminInfo true
-  # if [[ -z "${WFPS_ADMINUSER}" ]]; then
-  #   WFPS_ADMINUSER="cpadmin"
-  # fi
-  deployWfPSRuntime
-
-# Wait for FIX
-# if [[ "${WFPS_FEDERATE}" = "true" ]]; then
-# Only without ifix-->  __workaround
-# fi
-
-  waitForResourceCreated ${WFPS_NAMESPACE} wfps ${WFPS_NAME} 5
-else
-  echo ${WFPS_NAME}" already installed..."
-  if [[ "${_YAML_ONLY}" = "true" ]]; then
-    deployWfPSRuntime
-  fi
-fi
-
-if [[ "${_YAML_ONLY}" = "false" ]]; then
-  if [[ "${_NOWAIT}" = "false" ]]; then
-    waitForWfPSReady ${WFPS_NAMESPACE} ${WFPS_NAME} 5
-    if [ $? -eq 0 ]; then
-      echo ${WFPS_NAME}" is not ready"
-    else
-      echo "Success, "${WFPS_NAME}" is operated through the folowing URLs using '${WFPS_ADMINUSER}' credentials"
-      #showWfPSUrls ${WFPS_NAMESPACE} ${WFPS_NAME}
-      executeExportVars
-    fi
-  else
-    echo "Success, ${WFPS_NAME} is building, you may check its status rerunning this command without -n parameter"
-  fi
-fi
-
+startWfPSDeployment
 exit 0

@@ -4,26 +4,34 @@ metadata:
   name: ${WFPS_NAME}
   namespace: ${WFPS_NAMESPACE}
 spec:
-  admin:
-    username: ${WFPS_ADMINUSER}
+  appVersion: "${WFPS_APP_VER}"
   license:
     accept: true
+  deploymentLicense: "${WFPS_LICENSE_TYPE}"
+  admin:
+    username: ${WFPS_ADMINUSER}
+
   capabilities: 
     federate:
       enable: ${WFPS_FEDERATE}
+
     fullTextSearch:
-      enable: false
+      enable: ${WFPS_FEDERATE_TEXTSEARCH}
       esStorage:
         storageClassName: ${WFPS_STORAGE_CLASS_BLOCK}
-        size: 1Gi
+        size: "${WFPS_FEDERATE_TEXTSEARCH_SIZE}"
       esSnapshotStorage:
         storageClassName: ${WFPS_STORAGE_CLASS_BLOCK}
-        size: 1Gi
+        size: "${WFPS_FEDERATE_TEXTSEARCHSIZE_SNAP}"
 
+  tls:
+    serverTrustCertificateList: [${WFPS_TLS_SECRET_NAMES}]
   persistent:
     storageClassName: ${WFPS_STORAGE_CLASS}
-  appVersion: "${WFPS_APP_VER}"
-  deploymentLicense: "${WFPS_LICENSE_TYPE}"
+  image:
+    imagePullPolicy: IfNotPresent
+    #repository: "${WFPS_PATCHED_IMG:-cp.icr.io/cp/cp4a/workflow-ps/workflow-ps-server}"
+    #tag: "${_TAG}"
   node:
     resources:
       limits:
@@ -44,5 +52,5 @@ spec:
       enableSSL: false
       sslMode: require
     client:
-      maxConnectionPoolSize: 200
-      minConnectionPoolSize: 50
+      maxConnectionPoolSize: ${WFPS_EXT_DB_CONN_POOL_MAX}
+      minConnectionPoolSize: ${WFPS_EXT_DB_CONN_POOL_MIN}
