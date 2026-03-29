@@ -53,14 +53,14 @@ source ${CONFIG_FILE}
 
 verifyAllParams
 
-echo "Exporting infos for '${WFPS_NAME}', please wait for server ready..."
+echo -e "Exporting infos for '${_CLR_YELLOW}${WFPS_NAME}${_CLR_NC}', please wait for server ready..."
 getAdminInfo
 getWfPSUrls ${WFPS_NAMESPACE} ${WFPS_NAME}
 getCsrfToken ${WFPS_ADMINUSER} ${WFPS_ADMINPASSWORD} ${WFPS_URL_OPS}
 
 mkdir -p $_SCRIPT_DIR/../output
 OUT_FILE=$_SCRIPT_DIR/../output/exp-${WFPS_NAME}.vars
-echo "Generating env vars in file: "${OUT_FILE}
+echo -e "Generating env vars in file '${_CLR_YELLOW}${OUT_FILE}${_CLR_NC}'"
 echo "export WFPS_NAME=${WFPS_NAME}" > ${OUT_FILE}
 echo "export WFPS_NAMESPACE=${WFPS_NAMESPACE}" >> ${OUT_FILE}
 echo "export WFPS_ADMINUSER=${WFPS_ADMINUSER}" >> ${OUT_FILE}
@@ -72,7 +72,7 @@ echo "export WFPS_URL_WORKPLACE=${WFPS_URL_WORKPLACE}" >> ${OUT_FILE}
 echo "export WFPS_URL_PROCESSADMIN=${WFPS_URL_PROCESSADMIN}" >> ${OUT_FILE}
 echo "export WFPS_CSRF_TOKEN=${WFPS_CSRF_TOKEN}" >> ${OUT_FILE}
 echo "export WFPS_PAK_BASE_URL=${WFPS_PAK_BASE_URL}" >> ${OUT_FILE}
-echo "Env vars for [${WFPS_NAME}] in file "${OUT_FILE}
+echo -e "Env vars for '${_CLR_YELLOW}${WFPS_NAME}${_CLR_NC}' in file '${_CLR_YELLOW}${OUT_FILE}${_CLR_NC}'"
 echo ""
-cat ${OUT_FILE}
+cat ${OUT_FILE} | sed 's/export //g'
 

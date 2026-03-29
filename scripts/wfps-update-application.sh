@@ -56,8 +56,14 @@ if [[ -z "${_CFG}" ]] || [[ -z "${_ENV_CFG}" ]] || [[ -z "${_APP}" ]] || [[ -z "
 fi
 
 if [[ ! -f "${_CFG}" ]]; then
-  echo "Configuration file not found: "${_CFG}
-    usage
+  echo -e "${_CLR_RED}Configuration file not found '${_CLR_YELLOW}${_CFG}${_CLR_RED}'${_CLR_NC}"
+  usage
+  exit 1
+fi
+
+if [[ ! -f "${_ENV_CFG}" ]]; then
+  echo -e "${_CLR_RED}Target environment configuration file not found '${_CLR_YELLOW}${_ENV_CFG}${_CLR_RED}'${_CLR_NC}"
+  usage
   exit 1
 fi
 
@@ -111,7 +117,7 @@ updateApplication () {
       UPD_RESPONSE=$(curl -sk ${CRED} -H 'accept: application/json' -H 'BPMCSRFToken: '${WFPS_CSRF_TOKEN} -X POST ${WFPS_URL_OPS}/${_URI})
       if [[ "${UPD_RESPONSE}" == *"error_"* ]]; then
         echo ""
-        echo "ERROR making default '${_APP}/${_BRANCH}' details:"
+        echo -e "${_CLR_RED}ERROR making default '${_CLR_YELLOW}${_APP}/${_BRANCH}${_CLR_RED}' details:${_CLR_NC}"
         echo "${UPD_RESPONSE}" | jq .
         echo
         exit 1
@@ -126,15 +132,15 @@ updateApplication () {
 #==========================================
 echo ""
 echo "***********************************"
-echo "***** WfPS Update Application *****"
+echo -e "***** ${_CLR_YELLOW}WfPS Update Application${_CLR_NC} *****"
 echo "***********************************"
-echo "Using config file: "${_CFG}
+echo -e "Using config file '${_CLR_YELLOW}${_CFG}${_CLR_NC}'"
 
 
 echo ""
 
 verifyAllParams
-echo -n "Working on application acronym ["${_APP}"] branch ["${_BRANCH}"]... "
+echo -n -e "Working on application acronym '${_CLR_YELLOW}${_APP}${_CLR_NC}' branch '${_CLR_YELLOW}${_BRANCH}${_CLR_NC}'... "
 getAdminInfo
 updateApplication
 exit 0

@@ -47,7 +47,7 @@ if [[ -z "${_CFG}" ]] || [[ -z "${_ENV_CFG}" ]] || [[ -z "${_APP}" ]] || [[ -z "
 fi
 
 if [[ ! -f "${_CFG}" || ! -f "${_ENV_CFG}" ]]; then
-  echo "Configuration file not found -c [${_CFG}] -e [${_ENV_CFG}]"
+  echo -e "${_CLR_RED}ERROR, Configuration file not found -c '${_CLR_YELLOW}${_CFG}${_CLR_RED}' -e '${_CLR_YELLOW}${_ENV_CFG}${_CLR_RED}'${_CLR_NC}"
   usage
   exit 1
 fi
@@ -81,7 +81,7 @@ removeApplication () {
 
   if [[ "${REMOVE_RESPONSE}" == *"error_"* ]]; then
     echo ""
-    echo "ERROR deleting '${_APP}/${_BRANCH}' details:"
+    echo -e "${_CLR_RED}ERROR deleting '${_CLR_YELLOW}${_APP}/${_BRANCH}${_CLR_RED}' details:${_CLR_NC}"
     echo "${REMOVE_RESPONSE}" | jq .
     echo
     exit 1
@@ -90,9 +90,9 @@ removeApplication () {
   REMOVE_DESCR=$(echo ${REMOVE_RESPONSE} | jq .description | sed 's/"//g')
   REMOVE_URL=$(echo ${REMOVE_RESPONSE} | jq .url | sed 's/"//g')
 
-  echo "Request result: "${REMOVE_DESCR}
+  echo -e "Request result '${_CLR_YELLOW}${REMOVE_DESCR}${_CLR_NC}'"
   sleep 2
-  echo "Get deletion status at url: "${REMOVE_URL}
+  echo -e "Get deletion status at url '${_CLR_YELLOW}${REMOVE_URL}${_CLR_NC}'"
   while true 
   do
     echo -n "."
@@ -105,7 +105,7 @@ removeApplication () {
         echo ${REMOVE_RESPONSE} | jq .
       fi
       echo ""
-      echo "Final deletion state: "${REMOVE_STATE}
+      echo -e "Final deletion state '${_CLR_YELLOW}${REMOVE_STATE}${_CLR_NC}'"
       break
     fi
   done
@@ -116,15 +116,15 @@ removeApplication () {
 #==========================================
 echo ""
 echo "***********************************"
-echo "***** WfPS Remove Application *****"
+echo -e "***** ${_CLR_YELLOW}WfPS Remove Application${_CLR_NC} *****"
 echo "***********************************"
-echo "Using config file: "${_CFG}
+echo -e "Using config file '${_CLR_YELLOW}${_CFG}${_CLR_NC}'"
 
 
 echo ""
 
 verifyAllParams
-echo -n "Working on application acronym ["${_APP}"] branch ["${_BRANCH}"]... "
+echo -e "Working on application acronym '${_CLR_YELLOW}${_APP}${_CLR_NC}' branch '${_CLR_YELLOW}${_BRANCH}${_CLR_NC}'... "
 getAdminInfo
 removeApplication
 exit 0

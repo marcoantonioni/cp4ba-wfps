@@ -94,7 +94,7 @@ spec:
       lombardiXML: |-
         "${_PROPS}
 
-  echo -e "$_CUSTOMIZE" > $_PATCH_FILE
+  echo "$_CUSTOMIZE" > $_PATCH_FILE
   oc patch -n ${WFPS_NAMESPACE} wfps ${WFPS_NAME} --type='merge' --patch-file ${_PATCH_FILE} 1>/dev/null
   rm $_PATCH_FILE
 
@@ -106,14 +106,14 @@ federateWfPSServer () {
     WFPS_FEDERATE=false
   fi
   if [[ "${WFPS_FEDERATE}" = "true" ]]; then
-    echo "Federate ${WFPS_NAME}..."
+    echo -e "Federate '${_CLR_YELLOW}${WFPS_NAME}${_CLR_NC}'..."
   else
-    echo "Unfederate ${WFPS_NAME}..."
+    echo -e "Unfederate '${_CLR_YELLOW}${WFPS_NAME}'${_CLR_NC}'..."
   fi
   
   if [[ -z "${WFPS_NAME}" ]] || [[ -z "${WFPS_FEDERATE}" ]] || [[ -z "${WFPS_FEDERATE_TEXTSEARCH}" ]] || 
     [[ -z "${WFPS_FEDERATE_TEXTSEARCH_SIZE}" ]] || [[ -z "${WFPS_FEDERATE_TEXTSEARCHSIZE_SNAP}" ]]; then
-      echo "Error, some vars WFPS_... not set."
+      echo -e "${_CLR_RED}[✗] ERROR, some WFPS_ variables are not set.${_CLR_NC}"
       exit 1
   fi
 
@@ -128,9 +128,9 @@ federateWfPSServer () {
 #==========================================
 echo ""
 echo "**********************************************"
-echo "****** WfPS Runtime Deployment Federation ****"
+echo -e "****** ${_CLR_YELLOW}WfPS Runtime Deployment Federation${_CLR_NC} ****"
 echo "**********************************************"
-echo "Using config file: "${CONFIG_FILE}
+echo -e "Using config file '${_CLR_YELLOW}${CONFIG_FILE}${_CLR_NC}'"
 
 # Read target environment configuration, ignore error for IDP/LDAP configuration properties 
 source ${TARGET_ENV_CONFIG_FILE} 2> /dev/null 1> /dev/null
@@ -140,13 +140,13 @@ verifyAllParams
 
 storageClassExist ${WFPS_STORAGE_CLASS}
 if [ $? -eq 0 ]; then
-    echo "ERROR: Storage class '${WFPS_STORAGE_CLASS}' not found"
+    echo -e "${_CLR_RED}ERROR: Storage class '${_CLR_YELLOW}${WFPS_STORAGE_CLASS}${_CLR_RED}' not found${_CLR_NC}"
     exit
 fi
 
 storageClassExist ${WFPS_STORAGE_CLASS_BLOCK}
 if [ $? -eq 0 ]; then
-    echo "ERROR: Storage class '${WFPS_STORAGE_CLASS_BLOCK}' not found"
+    echo -e "${_CLR_RED}ERROR: Storage class '${_CLR_YELLOW}${WFPS_STORAGE_CLASS_BLOCK}${_CLR_RED}' not found${_CLR_NC}"
     exit
 fi
 
@@ -159,7 +159,7 @@ if [ $? -eq 1 ]; then
   fi
   federateWfPSServer
 else
-  echo ERROR, ${WFPS_NAME}" not found"
+  echo -e "${_CLR_RED}ERROR, CR named '${_CLR_YELLOW}${WFPS_NAME}${_CLR_RED}' not found.${_CLR_NC}"
 fi
 
 exit 0

@@ -8,6 +8,14 @@ _me=$(basename "$0")
 _ENV_CFG=""
 
 #--------------------------------------------------------
+_CLR_RED="\033[0;31m"   #'0;31' is Red's ANSI color code
+_CLR_GREEN="\033[0;32m"   #'0;32' is Green's ANSI color code
+_CLR_YELLOW="\033[1;33m"   #'1;32' is Yellow's ANSI color code
+_CLR_BLUE="\033[0;34m"   #'0;34' is Blue's ANSI color code
+_CLR_NC="\033[0m"
+
+
+#--------------------------------------------------------
 # read command line params
 while getopts c:e:a: flag
 do
@@ -55,15 +63,15 @@ installApplication () {
 # $4 csrf token
 # $5 fullpath app file
 
-  echo "Installing application: "$5
+  echo -e "Installing application '${_CLR_YELLOW}$5${_CLR_NC}'"
   CRED="-u $1:$2"
   INST_RESPONSE=$(curl -sk ${CRED} -H 'accept: application/json' -H 'BPMCSRFToken: '$4 -H 'Content-Type: multipart/form-data' -F 'install_file=@'$5';type=application/x-zip-compressed' -X POST $3/std/bpm/containers/install?inactive=false%26caseOverwrite=false)
   INST_DESCR=$(echo ${INST_RESPONSE} | jq .description | sed 's/"//g')
   INST_URL=$(echo ${INST_RESPONSE} | jq .url | sed 's/"//g')
 
-  echo "Request result: "${INST_DESCR}
+  echo -e "Request result '${_CLR_YELLOW}${INST_DESCR}${_CLR_NC}'"
   sleep 2
-  echo "Get installation status at url: "${INST_URL}
+  echo -e "Get installation status at url '${_CLR_YELLOW}${INST_URL}${_CLR_NC}'"
   while true 
   do
     echo -n "."
@@ -72,7 +80,7 @@ installApplication () {
       sleep 5
     else
       echo ""
-      echo "Final installation state: "${INST_STATE}
+      echo -e "Final installation state '${_CLR_YELLOW}${INST_STATE}${_CLR_NC}'"
       break
     fi
   done
@@ -93,9 +101,9 @@ verifyInstalledApplication () {
 
 #==========================================
 echo "*************************************"
-echo "*** WfPS Application Installation ***"
+echo -e "*** ${_CLR_YELLOW}WfPS Application Installation${_CLR_NC} ***"
 echo "*************************************"
-echo "Using config file: "${CONFIG_FILE}" for application: "${APPLICATION_FILE}
+echo -e "Using config file '${_CLR_YELLOW}${CONFIG_FILE}${_CLR_NC}' for application '${_CLR_YELLOW}${APPLICATION_FILE}${_CLR_NC}'"
 
 # Read target environment configuration, ignore error for IDP/LDAP configuration properties 
 source ${TARGET_ENV_CONFIG_FILE} 2> /dev/null 1> /dev/null
@@ -105,7 +113,7 @@ verifyAllParams
 
 if [[ ! -f ${APPLICATION_FILE} ]]; then
   echo ""
-  echo "ERROR: file "${APPLICATION_FILE}" not found."
+  echo -e "${_CLR_RED}ERROR, file '${_CLR_YELLOW}${APPLICATION_FILE}${_CLR_RED}' not found.${_CLR_NC}"
   exit 1
 fi
 

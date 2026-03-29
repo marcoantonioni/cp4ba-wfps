@@ -12,13 +12,23 @@ _ALL=false
 
 _UN=""
 _UP=""
+_ENV_CFG=""
+
+#--------------------------------------------------------
+_CLR_RED="\033[0;31m"   #'0;31' is Red's ANSI color code
+_CLR_GREEN="\033[0;32m"   #'0;32' is Green's ANSI color code
+_CLR_YELLOW="\033[1;33m"   #'1;32' is Yellow's ANSI color code
+_CLR_BLUE="\033[0;34m"   #'0;34' is Blue's ANSI color code
+_CLR_NC="\033[0m"
+
 
 #--------------------------------------------------------
 # read command line params
-while getopts c:u:w:tpla flag
+while getopts c:e:u:w:tpla flag
 do
     case "${flag}" in
         c) _CFG=${OPTARG};;
+        e) _ENV_CFG=${OPTARG};;
         t) _TSK=true;;
         p) _PRO=true;;
         l) _LAU=true;;
@@ -38,12 +48,13 @@ if [[ "${_ALL}" = "true" ]]; then
   _LAU=true
 fi
 
-if [[ -z "${_CFG}" ]]; then
-  echo "usage: $_me -c path-of-config-file -t [display task list] -p [display process list] -l [display launchable entities] -a [display all]"
+if [[ -z "${_CFG}" ]] || [[ -z "${_ENV_CFG}" ]]; then
+  echo "usage: $_me -c path-of-config-file -e target-environment-config-file -t [display task list] -p [display process list] -l [display launchable entities] -a [display all]"
   exit 1
 fi
 
 export CONFIG_FILE=${_CFG}
+export TARGET_ENV_CONFIG_FILE=${_ENV_CFG}
 
 _SCRIPT_PATH="${BASH_SOURCE}"
 while [ -L "${_SCRIPT_PATH}" ]; do
@@ -60,14 +71,13 @@ source $_SCRIPT_DIR/oc-utils.sh
 #--------------------------------------------------------
 showTasks () {
   echo "--------------------------------------------------------------"
-  echo "Task list from WFPS '${WFPS_NAME}'"
-echo "WFPS_CSRF_TOKEN="$WFPS_CSRF_TOKEN
+  echo -e "Task list from WFPS '${_CLR_YELLOW}${WFPS_NAME}${_CLR_NC}'"
   _CRED="-u ${_UN}:${_UP}"
   _DATA='{"size":0,"id":0,"name":"","fields":[],"organization":"byTask","shared":false,"teams":[],"interaction":"claimed_and_available","conditions":[],"sort":[],"aliases":[]}'
   RESPONSE=$(curl -sk ${_CRED} -H "BPMCSRFToken: "${WFPS_CSRF_TOKEN} -H 'accept: application/json' -X PUT "${WFPS_EXTERNAL_BASE_URL}/rest/bpm/federated/v1/tasks?calcStats=true&usersFullName=true&size=0" -d $_DATA)
 
   if [[ "${RESPONSE}" == *"401"* ]] || [[ "${RESPONSE}" == *"403"* ]] || [[ "${RESPONSE}" == *"errorMessage"* ]]; then
-    echo "ERROR"
+    echo -e "${_CLR_RED}ERROR${_CLR_NC}"
     echo "${RESPONSE}"
     exit 1
   else
@@ -80,7 +90,7 @@ echo "WFPS_CSRF_TOKEN="$WFPS_CSRF_TOKEN
 #--------------------------------------------------------
 showProcesses () {
   echo "--------------------------------------------------------------"
-  echo "Process list from WFPS '${WFPS_NAME}'"
+  echo -e "Process list from WFPS '${_CLR_YELLOW}${WFPS_NAME}${_CLR_NC}'"
 
   _CRED="-u ${_UN}:${_UP}"
   RESPONSE=$(curl -sk ${_CRED} -X 'PUT' ${WFPS_EXTERNAL_BASE_URL}/rest/bpm/federated/v1/instances \
@@ -88,7 +98,7 @@ showProcesses () {
       -d '{ "shared": true, "teams": [ ], "interaction": "all", "size": 25, "name": "MySavedSearch", "sort": [ { "field": "instanceDueDate", "order": "ASC" } ], "conditions": [ ], "fields": [ "instanceDueDate", "instanceName", "instanceId", "instanceStatus", "instanceProcessApp", "instanceSnapshot", "bpdName" ]}')
 
   if [[ "${RESPONSE}" == *"401"* ]] || [[ "${RESPONSE}" == *"403"* ]] || [[ "${RESPONSE}" == *"errorMessage"* ]]; then
-    echo "ERROR"
+    echo -e "${_CLR_RED}ERROR${_CLR_NC}"
     echo "${RESPONSE}"
     exit 1
   else
@@ -101,13 +111,13 @@ showProcesses () {
 #--------------------------------------------------------
 showLaunchableEntities () {
   echo "--------------------------------------------------------------"
-  echo "Launchable entities from WFPS '${WFPS_NAME}'"
+  echo -e "Launchable entities from WFPS '${_CLR_YELLOW}${WFPS_NAME}${_CLR_NC}'"
 
   _CRED="-u ${_UN}:${_UP}"
   RESPONSE=$(curl -sk ${_CRED} -H "BPMCSRFToken: ${WFPS_CSRF_TOKEN}" -H 'accept: application/json'  -X GET "${WFPS_EXTERNAL_BASE_URL}/rest/bpm/federated/v1/launchableEntities")
 
   if [[ "${RESPONSE}" == *"401"* ]] || [[ "${RESPONSE}" == *"403"* ]] || [[ "${RESPONSE}" == *"errorMessage"* ]]; then
-    echo "ERROR"
+    echo -e "${_CLR_RED}ERROR${_CLR_NC}"
     echo "${RESPONSE}"
     exit 1
   else
@@ -135,11 +145,13 @@ showContents () {
 #==========================================
 echo ""
 echo "****************************************"
-echo "****** WFPS Show Federated Contents ******"
+echo -e "**** ${_CLR_YELLOW}WFPS Show Federated Contents${_CLR_NC} ******"
 echo "****************************************"
-echo "Using config file: "${CONFIG_FILE}
+echo -e "Using config file '${_CLR_YELLOW}${CONFIG_FILE}${_CLR_NC}'"
 
-source ${CONFIG_FILE}
+# Read target environment configuration, ignore error for IDP/LDAP configuration properties 
+source ${TARGET_ENV_CONFIG_FILE} 2> /dev/null 1> /dev/null
+source "${CONFIG_FILE}"
 
 verifyAllParams
 
@@ -150,14 +162,14 @@ if [[ -z "${_UN}" ]]; then
   _UP="${WFPS_ADMINPASSWORD}"
 fi
 
-echo "User: "$_UN
+# echo "User: "$_UN
 
 getCsrfToken ${_UN} ${_UP} ${WFPS_URL_OPS}
 
 showContents
 
 if [[ "${_TSK}" = "false" ]] && [[ "${_PRO}" = "false" ]] && [[ "${_LAU}" = "false" ]] && [[ "${_ALL}" = "false" ]]; then
-  echo "ERROR: add one of the following params:"
+  echo -e "${_CLR_RED}ERROR: add one of the following params:${_CLR_NC}"
   echo "  -t [display task list]"
   echo "  -p [display process list]"
   echo "  -l [display launchable entities]"

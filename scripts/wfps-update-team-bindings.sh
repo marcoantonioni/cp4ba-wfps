@@ -5,6 +5,13 @@
 
 _me=$(basename "$0")
 
+#--------------------------------------------------------
+_CLR_RED="\033[0;31m"   #'0;31' is Red's ANSI color code
+_CLR_GREEN="\033[0;32m"   #'0;32' is Green's ANSI color code
+_CLR_YELLOW="\033[1;33m"   #'1;32' is Yellow's ANSI color code
+_CLR_BLUE="\033[0;34m"   #'0;34' is Blue's ANSI color code
+_CLR_NC="\033[0m"
+
 _ENV_CFG=""
 
 #--------------------------------------------------------
@@ -33,7 +40,7 @@ if [[ -z "${_CFG}" || -z "${_ENV_CFG}" || -z "${_TB}" ]]; then
   exit 1
 fi
 if [[ ! -f "${_TB}" ]]; then
-  echo "ERROR: file not found: ${_TB}"
+  echo -e "${_CLR_RED}ERROR: file not found '${_CLR_YELLOW}${_TB}${_CLR_NC}'"
   exit 1
 fi
 
@@ -86,7 +93,7 @@ updateTB () {
   fi
 
   if [[ ! -z "${_CONTENT_TO_SET}" ]]; then
-    echo -n "Updating team binding '${TB_NAME}' for '${TB_WHAT}' operation ..."
+    echo -n -e "Updating team binding '${_CLR_YELLOW}${TB_NAME}${_CLR_NC}' for '${_CLR_YELLOW}${TB_WHAT}${_CLR_NC}' operation ..."
     _URI="/std/bpm/containers/${WFPS_TB_APP_ACRONYM}/versions/${WFPS_TB_SNAP_NAME}/team_bindings/${TB_NAME}"
 
     if [[ "${TB_WHAT}" = "add_manager" ]]; then
@@ -102,7 +109,7 @@ updateTB () {
     
     if [[ "${UPD_RESPONSE}" == *"error_"* ]]; then
       echo ""
-      echo "ERROR configuring '${TB_NAME}' details:"
+      echo -e "${_CLR_RED}ERROR configuring '${_CLR_YELLOW}${TB_NAME}${_CLR_RED}' details:${_CLR_NC}"
       echo "${UPD_RESPONSE}"
       echo
       exit
@@ -117,7 +124,7 @@ updateTB () {
 removeTBContent () {
   TB_NAME=$1
 
-  echo -n "Removing content from TeamBinding: "${TB_NAME}" ..."
+  echo -n -e "Removing content from TeamBinding '${_CLR_YELLOW}${TB_NAME}${_CLR_NC}' ..."
 
   _URI="/std/bpm/containers/${WFPS_TB_APP_ACRONYM}/versions/${WFPS_TB_SNAP_NAME}/team_bindings"
   CRED="-u ${WFPS_ADMINUSER}:${WFPS_ADMINPASSWORD}"
@@ -145,7 +152,7 @@ removeTBContent () {
 
   if [[ "${TB_RESPONSE}" == *"error_"* ]]; then
     echo ""
-    echo "ERROR configuring '${TB_NAME}' details:"
+    echo -e "${_CLR_RED}ERROR configuring '${_CLR_YELLOW}${TB_NAME}${_CLR_RED}' details:${_CLR_NC}"
     echo "${TB_RESPONSE}"
     echo
     exit
@@ -174,7 +181,7 @@ updateTeamBindings () {
 
     if [[ ! -z "${!_TB_NAME}" ]]; then
       echo "---------------------"
-      echo "Working on TeamBinding: "${!_TB_NAME}
+      echo -e "Working on TeamBinding '${_CLR_YELLOW}${!_TB_NAME}${_CLR_NC}'"
 
       if [ "${_REMOVE}" = true ]; then
         removeTBContent ${!_TB_NAME}
@@ -194,10 +201,10 @@ updateTeamBindings () {
 #==========================================
 echo ""
 echo "*************************************"
-echo "***** WfPS Team Bindings Update *****"
+echo -e "***** ${_CLR_YELLOW}WfPS Team Bindings Update${_CLR_NC} *****"
 echo "*************************************"
-echo "Using config file: "${CONFIG_FILE}
-echo "Using team bindings file: "${TEAM_BINDINGS_FILE}
+echo -e "Using config file '${_CLR_YELLOW}${CONFIG_FILE}${_CLR_NC}'"
+echo -e "Using team bindings file '${_CLR_YELLOW}${TEAM_BINDINGS_FILE}${_CLR_NC}'"
 
 # Read target environment configuration, ignore error for IDP/LDAP configuration properties 
 source ${TARGET_ENV_CONFIG_FILE} 2> /dev/null 1> /dev/null
@@ -205,7 +212,7 @@ source ${CONFIG_FILE}
 source ${TEAM_BINDINGS_FILE}
 
 echo ""
-echo "Working on acronym ["${WFPS_TB_APP_ACRONYM}"] snapshot["${WFPS_TB_SNAP_NAME}"]"
+echo -e "Working on acronym '${_CLR_YELLOW}${WFPS_TB_APP_ACRONYM}${_CLR_NC}' snapshot '${_CLR_YELLOW}${WFPS_TB_SNAP_NAME}${_CLR_NC}'"
 echo ""
 
 verifyAllParams

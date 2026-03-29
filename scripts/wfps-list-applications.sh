@@ -5,25 +5,37 @@
 
 _me=$(basename "$0")
 
+#--------------------------------------------------------
+_CLR_RED="\033[0;31m"   #'0;31' is Red's ANSI color code
+_CLR_GREEN="\033[0;32m"   #'0;32' is Green's ANSI color code
+_CLR_YELLOW="\033[1;33m"   #'1;32' is Yellow's ANSI color code
+_CLR_BLUE="\033[0;34m"   #'0;34' is Blue's ANSI color code
+_CLR_NC="\033[0m"
+
+
 _APP=""
 _DETAILS=false
+_ENV_CFG""
+
 #--------------------------------------------------------
 # read command line params
-while getopts c:a:d flag
+while getopts c:e:a:d flag
 do
     case "${flag}" in
         c) _CFG=${OPTARG};;
+        e) _ENV_CFG=${OPTARG};;
         a) _APP=${OPTARG};;
         d) _DETAILS=true;;
     esac
 done
 
 if [[ -z "${_CFG}" ]]; then
-  echo "usage: $_me -c path-of-config-file -a [optional] app-name -d [optional] app-details"
+  echo "usage: $_me -c path-of-config-file -e full-path-to-target-environment-config-file -a [optional] app-name -d [optional] app-details"
   exit 1
-fi
+fi     
 
 export CONFIG_FILE=${_CFG}
+export TARGET_ENV_CONFIG_FILE=${_ENV_CFG}
 export APPLICATION_NAME=${_APP}
 
 _SCRIPT_PATH="${BASH_SOURCE}"
@@ -92,10 +104,11 @@ applicationInfo () {
 
 #==========================================
 echo "*************************************"
-echo "*** WfPS Application Informations ***"
+echo -e "*** ${_CLR_YELLOW}WfPS Application Informations${_CLR_NC} ***"
 echo "*************************************"
-echo "Using config file: "${CONFIG_FILE}
+echo -e "Using config file '${_CLR_YELLOW}${CONFIG_FILE}${_CLR_NC}'"
 
+source ${TARGET_ENV_CONFIG_FILE} 2>/dev/null 1>/dev/null  
 source ${CONFIG_FILE}
 
 verifyAllParams
