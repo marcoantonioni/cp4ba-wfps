@@ -25,7 +25,7 @@ spec:
         size: "2Gi"
 
   tls:
-    serverTrustCertificateList: ['my-trusted-certs']
+    serverTrustCertificateList: ['wfps-trusted-cert1']
   persistent:
     storageClassName: ocs-external-storagecluster-cephfs
   image:
