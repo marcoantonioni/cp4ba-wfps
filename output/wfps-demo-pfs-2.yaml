@@ -2,12 +2,14 @@ apiVersion: icp4a.ibm.com/v1
 kind: WfPSRuntime
 metadata:
   name: wfps-demo-pfs-2
-  namespace: cp4ba-wfps-pfs-case
+  namespace: cp4ba-wfps-pfs-production
 spec:
-  admin:
-    username: cp4admin
+  appVersion: "25.0.1"
   license:
     accept: true
+  deploymentLicense: "production"
+  admin:
+    username: cp4admin
 
   capabilities: 
     federate:
@@ -17,19 +19,19 @@ spec:
       enable: true
       esStorage:
         storageClassName: ocs-external-storagecluster-ceph-rbd
-        size: 10Gi
+        size: "10Gi"
       esSnapshotStorage:
         storageClassName: ocs-external-storagecluster-ceph-rbd
-        size: 2Gi
+        size: "2Gi"
 
+  tls:
+    serverTrustCertificateList: ['my-trusted-certs']
   persistent:
     storageClassName: ocs-external-storagecluster-cephfs
-  appVersion: "25.0.1"
   image:
     imagePullPolicy: IfNotPresent
-    repository: "cp.icr.io/cp/cp4a/workflow-ps/workflow-ps-server"
-    tag: "25.0.1"
-  deploymentLicense: production
+    #repository: "${WFPS_PATCHED_IMG:-cp.icr.io/cp/cp4a/workflow-ps/workflow-ps-server}"
+    #tag: ""
   node:
     resources:
       limits:
@@ -41,7 +43,7 @@ spec:
 
   database:
     external:
-      serverName: my-postgres-1-for-cp4ba-rw.cp4ba-wfps-pfs-case.svc.cluster.local
+      serverName: my-postgres-1-for-cp4ba-rw.cp4ba-wfps-pfs-production.svc.cluster.local
       port: 5432
       type: postgresql
       databaseName:	wfpsdb2
@@ -52,4 +54,3 @@ spec:
     client:
       maxConnectionPoolSize: 200
       minConnectionPoolSize: 50
-

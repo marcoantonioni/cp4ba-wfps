@@ -9,7 +9,7 @@ spec:
     accept: true
   deploymentLicense: "production"
   admin:
-    username: cp4admin
+    username: cpadmin
 
   capabilities: 
     federate:
@@ -25,7 +25,7 @@ spec:
         size: "2Gi"
 
   tls:
-    serverTrustCertificateList: []
+    serverTrustCertificateList: ['wfps-trusted-cert1']
   persistent:
     storageClassName: ocs-external-storagecluster-cephfs
   image:

@@ -173,7 +173,7 @@ verifyAllParams () {
 #--------------------------------------------------------
 getAdminInfo () {
   # $1: boolean skip urls 
-  if [[ -z "${WFPS_ADMINUSER}" ]]; then
+  if [[ -z "${WFPS_ADMINUSER}" || "${WFPS_ADMINUSER}" = "cpadmin" ]]; then
     WFPS_ADMINUSER=$(oc get secrets -n ${WFPS_NAMESPACE} platform-auth-idp-credentials -o jsonpath='{.data.admin_username}' | base64 -d)
     WFPS_ADMINPASSWORD=$(oc get secrets -n ${WFPS_NAMESPACE} platform-auth-idp-credentials -o jsonpath='{.data.admin_password}' | base64 -d)
     if [[ -z "${WFPS_ADMINUSER}" ]]; then
@@ -185,6 +185,7 @@ getAdminInfo () {
       exit 1
     fi
   fi
+
   if [[ ! "$1" = "true" ]]; then
     resourceExist ${WFPS_NAMESPACE} wfps ${WFPS_NAME}
     if [ $? -eq 1 ]; then
