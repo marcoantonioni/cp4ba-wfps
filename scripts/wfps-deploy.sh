@@ -38,19 +38,18 @@ setTemporaryFolder () {
     fi
 
     if [[ $_OK -lt 1 ]]; then
-      echo -e "${_CLR_RED}[✗] ERROR '${_CLR_YELLOW}${CP4BA_INST_TMP_FOLDER}${_CLR_RED}' is not a valid temporary folder, check if it is a folder or if you have write permissions !${_CLR_NC}"
-      echo -e "${_CLR_RED}'${_CLR_YELLOW}${CP4BA_INST_TMP_FOLDER}${_CLR_RED}' ${_ERR_MSG_FOLDER}${_ERR_MSG_PERMISSIONS}${_CLR_NC}"
+      log_error "[✗] ERROR '${_CLR_YELLOW}${CP4BA_INST_TMP_FOLDER}${_CLR_RED}' is not a valid temporary folder, check if it is a folder or if you have write permissions !${_CLR_NC}"
+      log_error "'${_CLR_YELLOW}${CP4BA_INST_TMP_FOLDER}${_CLR_RED}' ${_ERR_MSG_FOLDER}${_ERR_MSG_PERMISSIONS}${_CLR_NC}"
       exit 1
     fi
     export _INST_TMP_FOLDER="${CP4BA_INST_TMP_FOLDER}"
   fi
-  echo -e "${_CLR_GREEN}Running with temporary folder '${_CLR_YELLOW}${_INST_TMP_FOLDER}${_CLR_GREEN}'${_CLR_NC}"
+  log_info "${_CLR_GREEN}Running with temporary folder '${_CLR_YELLOW}${_INST_TMP_FOLDER}${_CLR_GREEN}'${_CLR_NC}"
 
 }
 
 usage () {
-  echo ""
-  echo -e "${_CLR_GREEN}usage: $_me
+  log_info "${_CLR_GREEN}usage: $_me
     -c full-path-to-wfps-config-file 
        (eg: '../configs/env1.properties')
     -e full-path-to-target-environment-config-file 
@@ -80,6 +79,7 @@ fi
 export CONFIG_FILE=${_CFG}
 export TARGET_ENV_CONFIG_FILE=${_ENV_CFG}
 
+#----------------------------------------------------
 _SCRIPT_PATH="${BASH_SOURCE}"
 while [ -L "${_SCRIPT_PATH}" ]; do
   _SCRIPT_DIR="$(cd -P "$(dirname "${_SCRIPT_PATH}")" >/dev/null 2>&1 && pwd)"
@@ -89,12 +89,42 @@ done
 _SCRIPT_PATH="$(readlink -f "${_SCRIPT_PATH}")"
 _SCRIPT_DIR="$(cd -P "$(dirname -- "${_SCRIPT_PATH}")" >/dev/null 2>&1 && pwd)"
 
+#----------------------------------------------------
+if [[ ! -f "$_SCRIPT_DIR/../../cp4ba-logger/scripts/logger.sh" ]]; then
+  echo "Error, log package not found !"
+  echo "Clone it alongside with other cp4ba-..."
+  echo "use the command: git clone https://github.com/marcoantonioni/cp4ba-logger"
+  exit 1
+fi
+source $_SCRIPT_DIR/../../cp4ba-logger/scripts/logger.sh
+if [[ -z "${CP4BA_LOGGING_ENABLED}" ]]; then 
+  export CP4BA_LOGGING_ENABLED=true
+fi
+if [[ -z "${CP4BA_LOG_LEVEL}" ]]; then 
+  export CP4BA_LOG_LEVEL="INFO"
+fi
+if [[ -z "${CP4BA_LOG_TO_CONSOLE}" ]]; then 
+  export CP4BA_LOG_TO_CONSOLE=true
+fi
+if [[ -z "${CP4BA_LOG_TO_FILE}" ]]; then 
+  export CP4BA_LOG_TO_FILE=false
+fi
+if [[ -z "${CP4BA_LOG_FILE}" ]]; then 
+  export CP4BA_LOG_FILE=""
+fi
+if [[ -z "${CP4BA_LOG_MAX_SIZE}" ]]; then 
+  export CP4BA_LOG_MAX_SIZE=$((10 * 1024 * 1024))
+fi
+if [[ -z "${CP4BA_LOG_BACKUP_COUNT}" ]]; then 
+  export CP4BA_LOG_BACKUP_COUNT=5
+fi
+
 source $_SCRIPT_DIR/oc-utils.sh
 
 #--------------------------------------------------------
 
 createSecrets () {
-  [[ "${_VERBOSE}" = "true" ]] && echo -e "Secret '${_CLR_YELLOW}${WFPS_EXT_DB_CREDENTIAL_SECRET}${_CLR_NC}'"
+  log_debug "Secret '${_CLR_YELLOW}${WFPS_EXT_DB_CREDENTIAL_SECRET}${_CLR_NC}'"
   oc delete secret -n ${WFPS_NAMESPACE} ${WFPS_EXT_DB_CREDENTIAL_SECRET} 2> /dev/null 1> /dev/null
   oc create secret -n ${WFPS_NAMESPACE} generic ${WFPS_EXT_DB_CREDENTIAL_SECRET} \
     --from-literal=username="${WFPS_EXT_DB_USER_NAME}" \
@@ -107,7 +137,7 @@ generateCR () {
 
   envsubst < ${WFPS_RUNTIME_TEMPLATE} > ${_CR_YAML}
   if [[ $? -ne 0 ]]; then
-    echo -e "${_CLR_RED}[✗] Error, CP4BA CR not generated.${_CLR_NC}"
+    log_error "[✗] Error, CP4BA CR not generated.${_CLR_NC}"
     exit 1
   fi
 
@@ -115,17 +145,17 @@ generateCR () {
     yq ${_CR_YAML} 2>/dev/null 1>/dev/null
     YAML_ERROR=$?
     if [ $YAML_ERROR -gt 0 ]; then
-      echo -e "${_CLR_RED}[✗] Error, wrong yaml format in '${_CLR_YELLOW}${_CR_YAML}${_CLR_RED}'${_CLR_NC}"
-      echo "++++++++++++++++++++++++++++++++++++++++"
+      log_error "[✗] Error, wrong yaml format in '${_CLR_YELLOW}${_CR_YAML}${_CLR_RED}'${_CLR_NC}"
+      log_error "----------------------------------------"
       yq ${_CR_YAML}
-      echo "++++++++++++++++++++++++++++++++++++++++"
+      log_error "----------------------------------------"
       exit 1
     fi
   else
-    echo -e "${_CLR_GREEN}[✗] Error, file not found '${_CLR_YELLOW}${_CR_YAML}${_CLR_RED}'${_CLR_NC}"
+    log_info "${_CLR_GREEN}[✗] Error, file not found '${_CLR_YELLOW}${_CR_YAML}${_CLR_RED}'${_CLR_NC}"
     exit 1
   fi 
-  echo -e "${_CLR_GREEN}CR '${_CLR_YELLOW}${CP4BA_INST_CR_NAME}${_CLR_GREEN}' saved in file '${_CLR_YELLOW}${_CR_YAML}${_CLR_YELLOW}'${_CLR_NC}"
+  log_info "${_CLR_GREEN}CR '${_CLR_YELLOW}${CP4BA_INST_CR_NAME}${_CLR_GREEN}' saved in file '${_CLR_YELLOW}${_CR_YAML}${_CLR_YELLOW}'${_CLR_NC}"
 }
 
 
@@ -145,41 +175,41 @@ _createDatabases () {
   _KO=0
 
   _MAX_WAIT_READY=600
-  echo -e "${_CLR_GREEN}Wait for pod '${_CLR_YELLOW}"${_DB_CR_NAME}-${_DB_CR_NAME_SUFFIX}"${_CLR_GREEN}' ready (may take minutes)${_CLR_NC}"
+  log_info "${_CLR_GREEN}Wait for pod '${_CLR_YELLOW}"${_DB_CR_NAME}-${_DB_CR_NAME_SUFFIX}"${_CLR_GREEN}' ready (may take minutes)${_CLR_NC}"
   _RES=$(oc wait -n ${CP4BA_INST_SUPPORT_NAMESPACE} pod/${_DB_CR_NAME}-${_DB_CR_NAME_SUFFIX} --for condition=Ready --timeout="${_MAX_WAIT_READY}"s 2>/dev/null)
   _IS_READY=$(echo $_RES | grep "condition met" | wc -l)
   if [ $_IS_READY -eq 1 ]; then
-    echo -e "${_CLR_GREEN}Database pod is ready, load and execute sql statements in '${_CLR_YELLOW}${_DB_CR_NAME}-${_DB_CR_NAME_SUFFIX}${_CLR_GREEN}' db server${_CLR_NC}"
+    log_info "${_CLR_GREEN}Database pod is ready, load and execute sql statements in '${_CLR_YELLOW}${_DB_CR_NAME}-${_DB_CR_NAME_SUFFIX}${_CLR_GREEN}' db server${_CLR_NC}"
 
     # wait for container ready
     while true 
     do
       oc rsh -n ${CP4BA_INST_SUPPORT_NAMESPACE} -c='postgres' ${_DB_CR_NAME}-${_DB_CR_NAME_SUFFIX} mkdir -p /${_PG_BASE_FOLDER}/setupdb 2>/dev/null 1>/dev/null
       if [ $? -gt 0 ]; then
-        echo -e -n "${_CLR_GREEN}container '${_CLR_YELLOW}postgres${_CLR_GREEN}' not ready in pod '${_CLR_YELLOW}${_DB_CR_NAME}-${_DB_CR_NAME_SUFFIX}${_CLR_GREEN}'\033[0K\r"
+        log_warning "${_CLR_GREEN}container '${_CLR_YELLOW}postgres${_CLR_GREEN}' not ready in pod '${_CLR_YELLOW}${_DB_CR_NAME}-${_DB_CR_NAME_SUFFIX}${_CLR_GREEN}'" #\033[0K\r"
         sleep 5
-        echo -e -n "                                                            \033[0K\r"
+        # echo -e -n "                                                            \033[0K\r"
       else
         break
       fi
     done
 
     if [ $_KO -eq 0 ]; then
-      # echo -e "${_CLR_GREEN}... create folders for tablespaces${_CLR_NC}"
+      # log_info "${_CLR_GREEN}... create folders for tablespaces${_CLR_NC}"
 
       oc rsh -n ${CP4BA_INST_SUPPORT_NAMESPACE} -c='postgres' ${_DB_CR_NAME}-${_DB_CR_NAME_SUFFIX} mkdir -p /${_PG_BASE_FOLDER}/setupdb 2>/dev/null 1>/dev/null
       if [ $? -gt 0 ]; then
         _KO=1
-        echo -e "${_CLR_RED}Error creating folders in pod '${_CLR_YELLOW}${_DB_CR_NAME}-${_DB_CR_NAME_SUFFIX}${_CLR_RED}'${_CLR_NC}"        
+        log_error "Error creating folders in pod '${_CLR_YELLOW}${_DB_CR_NAME}-${_DB_CR_NAME_SUFFIX}${_CLR_RED}'${_CLR_NC}"        
       fi
     fi
 
     if [ $_KO -eq 0 ]; then
-      # echo -e "${_CLR_GREEN}... copy sql statements file into pod's f.s. (${_PG_BASE_FOLDER}/setupdb/${WFPS_EXT_DB_TEMPLATE}) ${_CLR_NC}"
+      # log_info "${_CLR_GREEN}... copy sql statements file into pod's f.s. (${_PG_BASE_FOLDER}/setupdb/${WFPS_EXT_DB_TEMPLATE}) ${_CLR_NC}"
       oc cp ${WFPS_EXT_DB_TEMPLATE} ${CP4BA_INST_SUPPORT_NAMESPACE}/${_DB_CR_NAME}-${_DB_CR_NAME_SUFFIX}:/${_PG_BASE_FOLDER}/setupdb/${WFPS_EXT_DB_NAME}.sql -c='postgres' 2>/dev/null 1>/dev/null
       if [ $? -gt 0 ]; then
         _KO=1
-        echo -e "${_CLR_RED}Error copying SQL statements file if f.s. of pod '${_CLR_YELLOW}${_DB_CR_NAME}-${_DB_CR_NAME_SUFFIX}${_CLR_RED}'${_CLR_NC}"        
+        log_error "Error copying SQL statements file if f.s. of pod '${_CLR_YELLOW}${_DB_CR_NAME}-${_DB_CR_NAME_SUFFIX}${_CLR_RED}'${_CLR_NC}"        
       fi
     fi
 
@@ -191,17 +221,17 @@ _createDatabases () {
       _retry=0
       while [[ $_retry -le 10 ]]
       do
-        # echo -e "${_CLR_GREEN}... execute sql statements${_CLR_NC}"
+        # log_info "${_CLR_GREEN}... execute sql statements${_CLR_NC}"
         
         oc rsh -n ${CP4BA_INST_SUPPORT_NAMESPACE} -c='postgres' ${_DB_CR_NAME}-${_DB_CR_NAME_SUFFIX} psql -U postgres -f /${_PG_BASE_FOLDER}/setupdb/${WFPS_EXT_DB_NAME}.sql 2>/dev/null 1>/dev/null
         
         if [ $? -gt 0 ]; then
           _KO=1
-          echo -e "${_CLR_RED}Error executing SQL statements in pod '${_CLR_YELLOW}${_DB_CR_NAME}-${_DB_CR_NAME_SUFFIX}${_CLR_RED}', retry...${_CLR_NC}" 
+          log_error "Error executing SQL statements in pod '${_CLR_YELLOW}${_DB_CR_NAME}-${_DB_CR_NAME_SUFFIX}${_CLR_RED}', retry...${_CLR_NC}" 
           sleep 10
         else
           _KO=0
-          echo -e "${_CLR_GREEN}The SQL statements were executed successfully.${_CLR_NC}" 
+          log_info "${_CLR_GREEN}The SQL statements were executed successfully.${_CLR_NC}" 
           break  
         fi
         ((_retry = _retry + 1))
@@ -210,17 +240,15 @@ _createDatabases () {
 
     if [ $_KO -eq 0 ]; then
       _NUM_DB=$(cat ${WFPS_EXT_DB_TEMPLATE} | grep "CREATE DATABASE" | wc -l)
-      echo -e "${_CLR_GREEN}Created '${_CLR_YELLOW}${_NUM_DB}${_CLR_GREEN}' databases.${_CLR_NC}"
+      log_info "${_CLR_GREEN}Created '${_CLR_YELLOW}${_NUM_DB}${_CLR_GREEN}' databases.${_CLR_NC}"
       _DONE=1
     fi
   fi
 
   if [[ "$_DONE" = "0" ]]; then
-    echo ""
-    echo -e "${_CLR_RED}[✗] DBs NOT configured, check status of pod '${_CLR_YELLOW}${_DB_CR_NAME}-${_DB_CR_NAME_SUFFIX}${_CLR_RED}'${_CLR_NC}"
-    oc get pod -n ${CP4BA_INST_SUPPORT_NAMESPACE} ${_DB_CR_NAME}-${_DB_CR_NAME_SUFFIX} -o wide
-    echo -e ">>> ${_CLR_RED}\x1b[5mERROR\x1b[25m${_CLR_NC} <<< DB configuration terminated in error."
-    echo ""
+    log_error "[✗] DBs not configured or not exists, check status of pod '${_CLR_YELLOW}${_DB_CR_NAME}-${_DB_CR_NAME_SUFFIX}${_CLR_RED}'${_CLR_NC}"
+    # oc get pod -n ${CP4BA_INST_SUPPORT_NAMESPACE} ${_DB_CR_NAME}-${_DB_CR_NAME_SUFFIX} -o wide
+    log_error ">>> ${_CLR_RED}\x1b[5mERROR\x1b[25m${_CLR_NC} <<< DB configuration terminated in error."
     exit 1
   fi
 
@@ -243,21 +271,20 @@ createDatabases () {
     _INST_DB_CR_NAME_SSL="CP4BA_INST_DB_"$i"_CR_NAME_SSL"
 
     if [[ "${!_INST_ITEM}" = "true" ]]; then
-      echo -e "Installing '${_CLR_YELLOW}${_INST_ITEM}${_CLR_NC}' "
+      log_info "Installing '${_CLR_YELLOW}${_INST_ITEM}${_CLR_NC}' "
       if [[ ! -z "${!_INST_DB_CR_NAME}" ]]; then
         _createDatabases ${!_INST_DB_CR_NAME} ${_DB_CR_NAME_SUFFIX}
         if [[ ! -z "${!_INST_DB_CR_NAME_SSL}" ]]; then
-          # echo -e "${_CLR_GREEN}Installing databases into server '${_CLR_YELLOW}${!_INST_DB_CR_NAME_SSL}${_CLR_GREEN}'${_CLR_NC}"
+          # log_info "${_CLR_GREEN}Installing databases into server '${_CLR_YELLOW}${!_INST_DB_CR_NAME_SSL}${_CLR_GREEN}'${_CLR_NC}"
           _createDatabases ${!_INST_DB_CR_NAME_SSL} ${_DB_CR_NAME_SUFFIX}
         fi
       else
-        echo -e "${_CLR_RED}ERROR, env var '${_CLR_GREEN}${_INST_DB_CR_NAME}${_CLR_RED}' not defined, verify CP4BA_INST_DB_INSTANCES value.${_CLR_NC}"
-        echo -e ">>> ${_CLR_RED}\x1b[5mERROR\x1b[25m${_CLR_NC} <<< env var '${_CLR_GREEN}${_INST_DB_CR_NAME}${_CLR_RED}' not defined, verify CP4BA_INST_DB_INSTANCES value.${_CLR_NC}"
-        echo ""
+        log_error "ERROR, env var '${_CLR_GREEN}${_INST_DB_CR_NAME}${_CLR_RED}' not defined, verify CP4BA_INST_DB_INSTANCES value.${_CLR_NC}"
+        log_error ">>> ${_CLR_RED}\x1b[5mERROR\x1b[25m${_CLR_NC} <<< env var '${_CLR_GREEN}${_INST_DB_CR_NAME}${_CLR_RED}' not defined, verify CP4BA_INST_DB_INSTANCES value.${_CLR_NC}"
         exit 1
       fi
     else
-      echo -e "Warning '${_CLR_YELLOW}${_INST_ITEM}${_CLR_NC}' for db '${_CLR_YELLOW}${!_INST_DB_CR_NAME}${_CLR_NC}' is disabled, skipping configuration."
+      log_warning "Warning '${_CLR_YELLOW}${_INST_ITEM}${_CLR_NC}' for db '${_CLR_YELLOW}${!_INST_DB_CR_NAME}${_CLR_NC}' is disabled, skipping configuration."
     fi
     ((i = i + 1))
   done  
@@ -288,11 +315,11 @@ deployWfPSRuntime () {
 
     _CR_YAML="../output/${WFPS_NAME}.yaml"
     if [[ -f "${_CR_YAML}" ]]; then
-      oc create -f ${_CR_YAML}
+      oc create -f ${_CR_YAML} 2>/dev/null 1>/dev/null
     fi
   fi
 
-  echo -e "WfPS CR generated in '${_CLR_YELLOW}${_CR_YAML}${_CLR_NC}'"
+  log_info "WfPS CR generated in '${_CLR_YELLOW}${_CR_YAML}${_CLR_NC}'"
 
   if [[ "${_YAML_ONLY}" = "false" ]]; then
     oc create -f ${_CR_YAML} 2> /dev/null 1>/dev/null
@@ -334,7 +361,7 @@ startWfPSDeployment () {
   setTemporaryFolder
 
   if [[ ! -f "${_CFG}" || ! -f "${_ENV_CFG}" ]]; then
-    echo -e "${_CLR_RED}ERROR: Configuration file not found -c [${_CFG}] -e [${_ENV_CFG}]${_CLR_NC}"
+    log_error "ERROR: Configuration file not found -c [${_CFG}] -e [${_ENV_CFG}]${_CLR_NC}"
     usage
     exit 1
   fi
@@ -353,7 +380,7 @@ startWfPSDeployment () {
 
   storageClassExist ${WFPS_STORAGE_CLASS}
   if [ $? -eq 0 ]; then
-      echo -e "${_CLR_RED}ERROR: Storage class '${WFPS_STORAGE_CLASS}' not found${_CLR_NC}"
+      log_error "ERROR: Storage class '${WFPS_STORAGE_CLASS}' not found${_CLR_NC}"
       exit 1
   fi
 
@@ -372,7 +399,7 @@ startWfPSDeployment () {
 
     waitForResourceCreated ${WFPS_NAMESPACE} wfps ${WFPS_NAME} 5
   else
-    echo -e "Warning: '${_CLR_YELLOW}${WFPS_NAME}${_CLR_NC}' already installed"
+    log_warning "Warning: '${_CLR_YELLOW}${WFPS_NAME}${_CLR_NC}' already installed"
     if [[ "${_YAML_ONLY}" = "true" ]]; then
       deployWfPSRuntime
     fi
@@ -382,24 +409,23 @@ startWfPSDeployment () {
     if [[ "${_NOWAIT}" = "false" ]]; then
       waitForWfPSReady ${WFPS_NAMESPACE} ${WFPS_NAME} 5
       if [ $? -eq 0 ]; then
-        echo -e "'${_CLR_YELLOW}${WFPS_NAME}${_CLR_NC}' is not ready"
+        log_info "'${_CLR_YELLOW}${WFPS_NAME}${_CLR_NC}' is not ready"
       else
-        echo -e "Success, '${_CLR_YELLOW}${WFPS_NAME}${_CLR_NC}' is operated through the folowing URLs using '${_CLR_YELLOW}${WFPS_ADMINUSER}${_CLR_NC}' credentials"
+        log_info "Success, '${_CLR_YELLOW}${WFPS_NAME}${_CLR_NC}' is operated through the folowing URLs using '${_CLR_YELLOW}${WFPS_ADMINUSER}${_CLR_NC}' credentials"
         #showWfPSUrls ${WFPS_NAMESPACE} ${WFPS_NAME}
         executeExportVars
       fi
     else
-      echo -e "Success, '${_CLR_YELLOW}${WFPS_NAME}${_CLR_NC}' is building, you may check its status rerunning this command without -n parameter"
+       log_info "Success, '${_CLR_YELLOW}${WFPS_NAME}${_CLR_NC}' is building, you may check its status rerunning this command without -n parameter"
     fi
   fi
 }
 
 #==========================================
-echo ""
-echo "*************************************"
-echo -e "****** ${_CLR_YELLOW}WfPS Runtime Deployment${_CLR_NC} ******"
-echo "*************************************"
-echo -e "Using config file: '${_CLR_YELLOW}${CONFIG_FILE}${_CLR_NC}'"
+log_info "*************************************"
+log_info "****** ${_CLR_YELLOW}WfPS Runtime Deployment${_CLR_NC} ******"
+log_info "*************************************"
+log_info "Using config file: '${_CLR_YELLOW}${CONFIG_FILE}${_CLR_NC}'"
 
 startWfPSDeployment
 exit 0

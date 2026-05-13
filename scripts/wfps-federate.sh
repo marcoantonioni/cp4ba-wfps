@@ -14,6 +14,46 @@ _CLR_YELLOW="\033[1;33m"   #'1;32' is Yellow's ANSI color code
 _CLR_BLUE="\033[0;34m"   #'0;34' is Blue's ANSI color code
 _CLR_NC="\033[0m"
 
+#----------------------------------------------------
+_SCRIPT_PATH="${BASH_SOURCE}"
+while [ -L "${_SCRIPT_PATH}" ]; do
+  _SCRIPT_DIR="$(cd -P "$(dirname "${_SCRIPT_PATH}")" >/dev/null 2>&1 && pwd)"
+  _SCRIPT_PATH="$(readlink "${_SCRIPT_PATH}")"
+  [[ ${_SCRIPT_PATH} != /* ]] && _SCRIPT_PATH="${_SCRIPT_DIR}/${_SCRIPT_PATH}"
+done
+_SCRIPT_PATH="$(readlink -f "${_SCRIPT_PATH}")"
+_SCRIPT_DIR="$(cd -P "$(dirname -- "${_SCRIPT_PATH}")" >/dev/null 2>&1 && pwd)"
+
+#----------------------------------------------------
+if [[ ! -f "$_SCRIPT_DIR/../../cp4ba-logger/scripts/logger.sh" ]]; then
+  echo "Error, log package not found !"
+  echo "Clone it alongside with other cp4ba-..."
+  echo "use the command: git clone https://github.com/marcoantonioni/cp4ba-logger"
+  exit 1
+fi
+source $_SCRIPT_DIR/../../cp4ba-logger/scripts/logger.sh
+if [[ -z "${CP4BA_LOGGING_ENABLED}" ]]; then 
+  export CP4BA_LOGGING_ENABLED=true
+fi
+if [[ -z "${CP4BA_LOG_LEVEL}" ]]; then 
+  export CP4BA_LOG_LEVEL="INFO"
+fi
+if [[ -z "${CP4BA_LOG_TO_CONSOLE}" ]]; then 
+  export CP4BA_LOG_TO_CONSOLE=true
+fi
+if [[ -z "${CP4BA_LOG_TO_FILE}" ]]; then 
+  export CP4BA_LOG_TO_FILE=false
+fi
+if [[ -z "${CP4BA_LOG_FILE}" ]]; then 
+  export CP4BA_LOG_FILE=""
+fi
+if [[ -z "${CP4BA_LOG_MAX_SIZE}" ]]; then 
+  export CP4BA_LOG_MAX_SIZE=$((10 * 1024 * 1024))
+fi
+if [[ -z "${CP4BA_LOG_BACKUP_COUNT}" ]]; then 
+  export CP4BA_LOG_BACKUP_COUNT=5
+fi
+
 #--------------------------------------------------------
 _INST_TMP_FOLDER="/tmp"
 setTemporaryFolder () {
@@ -33,13 +73,13 @@ setTemporaryFolder () {
     fi
 
     if [[ $_OK -lt 1 ]]; then
-      echo -e "${_CLR_RED}[✗] ERROR '${_CLR_YELLOW}${CP4BA_INST_TMP_FOLDER}${_CLR_RED}' is not a valid temporary folder, check if it is a folder or if you have write permissions !${_CLR_NC}"
-      echo -e "${_CLR_RED}'${_CLR_YELLOW}${CP4BA_INST_TMP_FOLDER}${_CLR_RED}' ${_ERR_MSG_FOLDER}${_ERR_MSG_PERMISSIONS}${_CLR_NC}"
+      log_error "${_CLR_RED}[✗] ERROR '${_CLR_YELLOW}${CP4BA_INST_TMP_FOLDER}${_CLR_RED}' is not a valid temporary folder, check if it is a folder or if you have write permissions !${_CLR_NC}"
+      log_error "${_CLR_RED}'${_CLR_YELLOW}${CP4BA_INST_TMP_FOLDER}${_CLR_RED}' ${_ERR_MSG_FOLDER}${_ERR_MSG_PERMISSIONS}${_CLR_NC}"
       exit 1
     fi
     export _INST_TMP_FOLDER="${CP4BA_INST_TMP_FOLDER}"
   fi
-  echo -e "${_CLR_GREEN}Running with temporary folder '${_CLR_YELLOW}${_INST_TMP_FOLDER}${_CLR_GREEN}'${_CLR_NC}"
+  log_info "${_CLR_GREEN}Running with temporary folder '${_CLR_YELLOW}${_INST_TMP_FOLDER}${_CLR_GREEN}'${_CLR_NC}"
 
 }
 
@@ -64,15 +104,6 @@ fi
 
 export CONFIG_FILE=${_CFG}
 export TARGET_ENV_CONFIG_FILE=${_ENV_CFG}
-
-_SCRIPT_PATH="${BASH_SOURCE}"
-while [ -L "${_SCRIPT_PATH}" ]; do
-  _SCRIPT_DIR="$(cd -P "$(dirname "${_SCRIPT_PATH}")" >/dev/null 2>&1 && pwd)"
-  _SCRIPT_PATH="$(readlink "${_SCRIPT_PATH}")"
-  [[ ${_SCRIPT_PATH} != /* ]] && _SCRIPT_PATH="${_SCRIPT_DIR}/${_SCRIPT_PATH}"
-done
-_SCRIPT_PATH="$(readlink -f "${_SCRIPT_PATH}")"
-_SCRIPT_DIR="$(cd -P "$(dirname -- "${_SCRIPT_PATH}")" >/dev/null 2>&1 && pwd)"
 
 source $_SCRIPT_DIR/oc-utils.sh
 
@@ -106,14 +137,14 @@ federateWfPSServer () {
     WFPS_FEDERATE=false
   fi
   if [[ "${WFPS_FEDERATE}" = "true" ]]; then
-    echo -e "Federate '${_CLR_YELLOW}${WFPS_NAME}${_CLR_NC}'..."
+    log_info "${_CLR_GREEN}Federate '${_CLR_YELLOW}${WFPS_NAME}${_CLR_GREEN}'..."
   else
-    echo -e "Unfederate '${_CLR_YELLOW}${WFPS_NAME}'${_CLR_NC}'..."
+    log_info "${_CLR_GREEN}Unfederate '${_CLR_YELLOW}${WFPS_NAME}${_CLR_GREEN}'..."
   fi
   
   if [[ -z "${WFPS_NAME}" ]] || [[ -z "${WFPS_FEDERATE}" ]] || [[ -z "${WFPS_FEDERATE_TEXTSEARCH}" ]] || 
     [[ -z "${WFPS_FEDERATE_TEXTSEARCH_SIZE}" ]] || [[ -z "${WFPS_FEDERATE_TEXTSEARCHSIZE_SNAP}" ]]; then
-      echo -e "${_CLR_RED}[✗] ERROR, some WFPS_ variables are not set.${_CLR_NC}"
+      log_error "${_CLR_RED}[✗] ERROR, some WFPS_ variables are not set.${_CLR_NC}"
       exit 1
   fi
 
@@ -126,11 +157,10 @@ federateWfPSServer () {
 }
 
 #==========================================
-echo ""
-echo "**********************************************"
-echo -e "****** ${_CLR_YELLOW}WfPS Runtime Deployment Federation${_CLR_NC} ****"
-echo "**********************************************"
-echo -e "Using config file '${_CLR_YELLOW}${CONFIG_FILE}${_CLR_NC}'"
+log_info "${_CLR_GREEN}**********************************************"
+log_info "${_CLR_GREEN}****** ${_CLR_YELLOW}WfPS Runtime Deployment Federation${_CLR_GREEN} ****"
+log_info "${_CLR_GREEN}**********************************************"
+log_info "${_CLR_GREEN}Using config file '${_CLR_YELLOW}${CONFIG_FILE}${_CLR_GREEN}'"
 
 # Read target environment configuration, ignore error for IDP/LDAP configuration properties 
 source ${TARGET_ENV_CONFIG_FILE} 2> /dev/null 1> /dev/null
@@ -140,26 +170,26 @@ verifyAllParams
 
 storageClassExist ${WFPS_STORAGE_CLASS}
 if [ $? -eq 0 ]; then
-    echo -e "${_CLR_RED}ERROR: Storage class '${_CLR_YELLOW}${WFPS_STORAGE_CLASS}${_CLR_RED}' not found${_CLR_NC}"
-    exit
+    log_error "${_CLR_RED}ERROR: Storage class '${_CLR_YELLOW}${WFPS_STORAGE_CLASS}${_CLR_RED}' not found${_CLR_NC}"
+    exit 1
 fi
 
 storageClassExist ${WFPS_STORAGE_CLASS_BLOCK}
 if [ $? -eq 0 ]; then
-    echo -e "${_CLR_RED}ERROR: Storage class '${_CLR_YELLOW}${WFPS_STORAGE_CLASS_BLOCK}${_CLR_RED}' not found${_CLR_NC}"
-    exit
+    log_error "${_CLR_RED}ERROR: Storage class '${_CLR_YELLOW}${WFPS_STORAGE_CLASS_BLOCK}${_CLR_RED}' not found${_CLR_NC}"
+    exit 1
 fi
 
 resourceExist ${WFPS_NAMESPACE} wfps ${WFPS_NAME}
 if [ $? -eq 1 ]; then
-  echo "Ready to federate/unfederate..."
   getAdminInfo true
   if [[ -z "${WFPS_ADMINUSER}" ]]; then
     WFPS_ADMINUSER=cpadmin
   fi
   federateWfPSServer
+  log_info "${_CLR_GREEN}Done."
 else
-  echo -e "${_CLR_RED}ERROR, CR named '${_CLR_YELLOW}${WFPS_NAME}${_CLR_RED}' not found.${_CLR_NC}"
+  log_error "${_CLR_RED}ERROR, CR named '${_CLR_YELLOW}${WFPS_NAME}${_CLR_RED}' not found.${_CLR_NC}"
 fi
 
 exit 0

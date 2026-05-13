@@ -21,6 +21,46 @@ _CLR_YELLOW="\033[1;33m"   #'1;32' is Yellow's ANSI color code
 _CLR_BLUE="\033[0;34m"   #'0;34' is Blue's ANSI color code
 _CLR_NC="\033[0m"
 
+#----------------------------------------------------
+_SCRIPT_PATH="${BASH_SOURCE}"
+while [ -L "${_SCRIPT_PATH}" ]; do
+  _SCRIPT_DIR="$(cd -P "$(dirname "${_SCRIPT_PATH}")" >/dev/null 2>&1 && pwd)"
+  _SCRIPT_PATH="$(readlink "${_SCRIPT_PATH}")"
+  [[ ${_SCRIPT_PATH} != /* ]] && _SCRIPT_PATH="${_SCRIPT_DIR}/${_SCRIPT_PATH}"
+done
+_SCRIPT_PATH="$(readlink -f "${_SCRIPT_PATH}")"
+_SCRIPT_DIR="$(cd -P "$(dirname -- "${_SCRIPT_PATH}")" >/dev/null 2>&1 && pwd)"
+
+#----------------------------------------------------
+if [[ ! -f "$_SCRIPT_DIR/../../cp4ba-logger/scripts/logger.sh" ]]; then
+  echo "Error, log package not found !"
+  echo "Clone it alongside with other cp4ba-..."
+  echo "use the command: git clone https://github.com/marcoantonioni/cp4ba-logger"
+  exit 1
+fi
+source $_SCRIPT_DIR/../../cp4ba-logger/scripts/logger.sh
+if [[ -z "${CP4BA_LOGGING_ENABLED}" ]]; then 
+  export CP4BA_LOGGING_ENABLED=true
+fi
+if [[ -z "${CP4BA_LOG_LEVEL}" ]]; then 
+  export CP4BA_LOG_LEVEL="INFO"
+fi
+if [[ -z "${CP4BA_LOG_TO_CONSOLE}" ]]; then 
+  export CP4BA_LOG_TO_CONSOLE=true
+fi
+if [[ -z "${CP4BA_LOG_TO_FILE}" ]]; then 
+  export CP4BA_LOG_TO_FILE=false
+fi
+if [[ -z "${CP4BA_LOG_FILE}" ]]; then 
+  export CP4BA_LOG_FILE=""
+fi
+if [[ -z "${CP4BA_LOG_MAX_SIZE}" ]]; then 
+  export CP4BA_LOG_MAX_SIZE=$((10 * 1024 * 1024))
+fi
+if [[ -z "${CP4BA_LOG_BACKUP_COUNT}" ]]; then 
+  export CP4BA_LOG_BACKUP_COUNT=5
+fi
+
 
 #--------------------------------------------------------
 # read command line params
@@ -49,48 +89,39 @@ if [[ "${_ALL}" = "true" ]]; then
 fi
 
 if [[ -z "${_CFG}" ]] || [[ -z "${_ENV_CFG}" ]]; then
-  echo "usage: $_me -c path-of-config-file -e target-environment-config-file -t [display task list] -p [display process list] -l [display launchable entities] -a [display all]"
+  log_msg "usage: $_me -c path-of-config-file -e target-environment-config-file -t [display task list] -p [display process list] -l [display launchable entities] -a [display all]"
   exit 1
 fi
 
 export CONFIG_FILE=${_CFG}
 export TARGET_ENV_CONFIG_FILE=${_ENV_CFG}
 
-_SCRIPT_PATH="${BASH_SOURCE}"
-while [ -L "${_SCRIPT_PATH}" ]; do
-  _SCRIPT_DIR="$(cd -P "$(dirname "${_SCRIPT_PATH}")" >/dev/null 2>&1 && pwd)"
-  _SCRIPT_PATH="$(readlink "${_SCRIPT_PATH}")"
-  [[ ${_SCRIPT_PATH} != /* ]] && _SCRIPT_PATH="${_SCRIPT_DIR}/${_SCRIPT_PATH}"
-done
-_SCRIPT_PATH="$(readlink -f "${_SCRIPT_PATH}")"
-_SCRIPT_DIR="$(cd -P "$(dirname -- "${_SCRIPT_PATH}")" >/dev/null 2>&1 && pwd)"
-
 source $_SCRIPT_DIR/oc-utils.sh
 
 
 #--------------------------------------------------------
 showTasks () {
-  echo "--------------------------------------------------------------"
-  echo -e "Task list from WFPS '${_CLR_YELLOW}${WFPS_NAME}${_CLR_NC}'"
+  log_info "${_CLR_GREEN}--------------------------------------------------------------"
+  log_info "${_CLR_GREEN}Task list from WFPS '${_CLR_YELLOW}${WFPS_NAME}${_CLR_GREEN}'"
   _CRED="-u ${_UN}:${_UP}"
   _DATA='{"size":0,"id":0,"name":"","fields":[],"organization":"byTask","shared":false,"teams":[],"interaction":"claimed_and_available","conditions":[],"sort":[],"aliases":[]}'
   RESPONSE=$(curl -sk ${_CRED} -H "BPMCSRFToken: "${WFPS_CSRF_TOKEN} -H 'accept: application/json' -X PUT "${WFPS_EXTERNAL_BASE_URL}/rest/bpm/federated/v1/tasks?calcStats=true&usersFullName=true&size=0" -d $_DATA)
 
   if [[ "${RESPONSE}" == *"401"* ]] || [[ "${RESPONSE}" == *"403"* ]] || [[ "${RESPONSE}" == *"errorMessage"* ]]; then
-    echo -e "${_CLR_RED}ERROR${_CLR_NC}"
+    log_error "${_CLR_RED}ERROR${_CLR_NC}"
     echo "${RESPONSE}"
     exit 1
   else
     echo ${RESPONSE} | jq .items
     _NUM_TASKS=$(echo $RESPONSE | jq .size)
-    echo "Total tasks: "${_NUM_TASKS}
+    log_msg "${_CLR_GREEN}Total tasks: ${_CLR_YELLOW}${_NUM_TASKS}"
   fi
 }
 
 #--------------------------------------------------------
 showProcesses () {
-  echo "--------------------------------------------------------------"
-  echo -e "Process list from WFPS '${_CLR_YELLOW}${WFPS_NAME}${_CLR_NC}'"
+  log_info "${_CLR_GREEN}--------------------------------------------------------------"
+  log_info "${_CLR_GREEN}Process list from WFPS '${_CLR_YELLOW}${WFPS_NAME}${_CLR_GREEN}'"
 
   _CRED="-u ${_UN}:${_UP}"
   RESPONSE=$(curl -sk ${_CRED} -X 'PUT' ${WFPS_EXTERNAL_BASE_URL}/rest/bpm/federated/v1/instances \
@@ -98,32 +129,32 @@ showProcesses () {
       -d '{ "shared": true, "teams": [ ], "interaction": "all", "size": 25, "name": "MySavedSearch", "sort": [ { "field": "instanceDueDate", "order": "ASC" } ], "conditions": [ ], "fields": [ "instanceDueDate", "instanceName", "instanceId", "instanceStatus", "instanceProcessApp", "instanceSnapshot", "bpdName" ]}')
 
   if [[ "${RESPONSE}" == *"401"* ]] || [[ "${RESPONSE}" == *"403"* ]] || [[ "${RESPONSE}" == *"errorMessage"* ]]; then
-    echo -e "${_CLR_RED}ERROR${_CLR_NC}"
+    log_error "${_CLR_RED}ERROR${_CLR_NC}"
     echo "${RESPONSE}"
     exit 1
   else
     echo ${RESPONSE} | jq .items
     _NUM_PROCESSES=$(echo $RESPONSE | jq .size)
-    echo "Total processes: "${_NUM_PROCESSES}
+    log_msg "${_CLR_GREEN}Total processes: ${_CLR_YELLOW}${_NUM_PROCESSES}"
   fi
 }
 
 #--------------------------------------------------------
 showLaunchableEntities () {
-  echo "--------------------------------------------------------------"
-  echo -e "Launchable entities from WFPS '${_CLR_YELLOW}${WFPS_NAME}${_CLR_NC}'"
+  log_info "${_CLR_GREEN}--------------------------------------------------------------"
+  log_info "${_CLR_GREEN}Launchable entities from WFPS '${_CLR_YELLOW}${WFPS_NAME}${_CLR_GREEN}'"
 
   _CRED="-u ${_UN}:${_UP}"
   RESPONSE=$(curl -sk ${_CRED} -H "BPMCSRFToken: ${WFPS_CSRF_TOKEN}" -H 'accept: application/json'  -X GET "${WFPS_EXTERNAL_BASE_URL}/rest/bpm/federated/v1/launchableEntities")
 
   if [[ "${RESPONSE}" == *"401"* ]] || [[ "${RESPONSE}" == *"403"* ]] || [[ "${RESPONSE}" == *"errorMessage"* ]]; then
-    echo -e "${_CLR_RED}ERROR${_CLR_NC}"
+    log_error "${_CLR_RED}ERROR${_CLR_NC}"
     echo "${RESPONSE}"
     exit 1
   else
     echo ${RESPONSE} | jq .items
     _NUM_ENTS=$(echo ${RESPONSE} | jq '.items | length')
-    echo "Total launchable entities: "${_NUM_ENTS}
+    log_msg "${_CLR_GREEN}Total launchable entities: ${_CLR_YELLOW}${_NUM_ENTS}"
   fi
 }
 
@@ -139,15 +170,13 @@ showContents () {
   if [[ "${_LAU}" = "true" ]]; then
     showLaunchableEntities
   fi
-  echo ""
 }
 
 #==========================================
-echo ""
-echo "****************************************"
-echo -e "**** ${_CLR_YELLOW}WFPS Show Federated Contents${_CLR_NC} ******"
-echo "****************************************"
-echo -e "Using config file '${_CLR_YELLOW}${CONFIG_FILE}${_CLR_NC}'"
+log_info "${_CLR_GREEN}****************************************"
+log_info "${_CLR_GREEN}**** ${_CLR_YELLOW}WFPS Show Federated Contents${_CLR_GREEN} ******"
+log_info "${_CLR_GREEN}****************************************"
+log_info "${_CLR_GREEN}Using config file '${_CLR_YELLOW}${CONFIG_FILE}${_CLR_GREEN}'"
 
 # Read target environment configuration, ignore error for IDP/LDAP configuration properties 
 source ${TARGET_ENV_CONFIG_FILE} 2> /dev/null 1> /dev/null
@@ -169,10 +198,10 @@ getCsrfToken ${_UN} ${_UP} ${WFPS_URL_OPS}
 showContents
 
 if [[ "${_TSK}" = "false" ]] && [[ "${_PRO}" = "false" ]] && [[ "${_LAU}" = "false" ]] && [[ "${_ALL}" = "false" ]]; then
-  echo -e "${_CLR_RED}ERROR: add one of the following params:${_CLR_NC}"
-  echo "  -t [display task list]"
-  echo "  -p [display process list]"
-  echo "  -l [display launchable entities]"
-  echo "  -a [display all]"
+  log_error "${_CLR_RED}ERROR: add one of the following params:${_CLR_NC}"
+  log_error "  -t [display task list]"
+  log_error "  -p [display process list]"
+  log_error "  -l [display launchable entities]"
+  log_error "  -a [display all]"
   exit 1
 fi

@@ -24,6 +24,8 @@ spec:
         storageClassName: ocs-external-storagecluster-ceph-rbd
         size: "2Gi"
 
+  tls:
+    serverTrustCertificateList: []
   persistent:
     storageClassName: ocs-external-storagecluster-cephfs
   image:

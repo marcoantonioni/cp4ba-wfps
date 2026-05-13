@@ -12,6 +12,46 @@ _CLR_YELLOW="\033[1;33m"   #'1;32' is Yellow's ANSI color code
 _CLR_BLUE="\033[0;34m"   #'0;34' is Blue's ANSI color code
 _CLR_NC="\033[0m"
 
+#----------------------------------------------------
+_SCRIPT_PATH="${BASH_SOURCE}"
+while [ -L "${_SCRIPT_PATH}" ]; do
+  _SCRIPT_DIR="$(cd -P "$(dirname "${_SCRIPT_PATH}")" >/dev/null 2>&1 && pwd)"
+  _SCRIPT_PATH="$(readlink "${_SCRIPT_PATH}")"
+  [[ ${_SCRIPT_PATH} != /* ]] && _SCRIPT_PATH="${_SCRIPT_DIR}/${_SCRIPT_PATH}"
+done
+_SCRIPT_PATH="$(readlink -f "${_SCRIPT_PATH}")"
+_SCRIPT_DIR="$(cd -P "$(dirname -- "${_SCRIPT_PATH}")" >/dev/null 2>&1 && pwd)"
+
+#----------------------------------------------------
+if [[ ! -f "$_SCRIPT_DIR/../../cp4ba-logger/scripts/logger.sh" ]]; then
+  echo "Error, log package not found !"
+  echo "Clone it alongside with other cp4ba-..."
+  echo "use the command: git clone https://github.com/marcoantonioni/cp4ba-logger"
+  exit 1
+fi
+source $_SCRIPT_DIR/../../cp4ba-logger/scripts/logger.sh
+if [[ -z "${CP4BA_LOGGING_ENABLED}" ]]; then 
+  export CP4BA_LOGGING_ENABLED=true
+fi
+if [[ -z "${CP4BA_LOG_LEVEL}" ]]; then 
+  export CP4BA_LOG_LEVEL="INFO"
+fi
+if [[ -z "${CP4BA_LOG_TO_CONSOLE}" ]]; then 
+  export CP4BA_LOG_TO_CONSOLE=true
+fi
+if [[ -z "${CP4BA_LOG_TO_FILE}" ]]; then 
+  export CP4BA_LOG_TO_FILE=false
+fi
+if [[ -z "${CP4BA_LOG_FILE}" ]]; then 
+  export CP4BA_LOG_FILE=""
+fi
+if [[ -z "${CP4BA_LOG_MAX_SIZE}" ]]; then 
+  export CP4BA_LOG_MAX_SIZE=$((10 * 1024 * 1024))
+fi
+if [[ -z "${CP4BA_LOG_BACKUP_COUNT}" ]]; then 
+  export CP4BA_LOG_BACKUP_COUNT=5
+fi
+
 _ENV_CFG=""
 
 #--------------------------------------------------------
@@ -27,8 +67,7 @@ do
 done
 
 usage () {
-  echo ""
-  echo -e "${_CLR_GREEN}usage: $_me
+  log_msg "${_CLR_GREEN}usage: $_me
     -c full-path-to-wfps-config-file 
        (eg: '../configs/env1.properties')
     -e full-path-to-target-environment-config-file 
@@ -40,7 +79,7 @@ if [[ -z "${_CFG}" || -z "${_ENV_CFG}" || -z "${_TB}" ]]; then
   exit 1
 fi
 if [[ ! -f "${_TB}" ]]; then
-  echo -e "${_CLR_RED}ERROR: file not found '${_CLR_YELLOW}${_TB}${_CLR_NC}'"
+  log_error "${_CLR_RED}ERROR file not found '${_CLR_YELLOW}${_TB}${_CLR_NC}'"
   exit 1
 fi
 
@@ -93,7 +132,7 @@ updateTB () {
   fi
 
   if [[ ! -z "${_CONTENT_TO_SET}" ]]; then
-    echo -n -e "Updating team binding '${_CLR_YELLOW}${TB_NAME}${_CLR_NC}' for '${_CLR_YELLOW}${TB_WHAT}${_CLR_NC}' operation ..."
+    log_info "${_CLR_GREEN}Updating team binding '${_CLR_YELLOW}${TB_NAME}${_CLR_NC}' for '${_CLR_YELLOW}${TB_WHAT}${_CLR_GREEN}' operation"
     _URI="/std/bpm/containers/${WFPS_TB_APP_ACRONYM}/versions/${WFPS_TB_SNAP_NAME}/team_bindings/${TB_NAME}"
 
     if [[ "${TB_WHAT}" = "add_manager" ]]; then
@@ -108,13 +147,9 @@ updateTB () {
     UPD_RESPONSE=$(curl -sk ${CRED} -H 'accept: application/json' -H 'BPMCSRFToken: '${WFPS_CSRF_TOKEN} -H 'Content-Type: application/json' -d "${_DATA}" -X POST ${WFPS_URL_OPS}/${_URI})
     
     if [[ "${UPD_RESPONSE}" == *"error_"* ]]; then
-      echo ""
-      echo -e "${_CLR_RED}ERROR configuring '${_CLR_YELLOW}${TB_NAME}${_CLR_RED}' details:${_CLR_NC}"
+      log_error "${_CLR_RED}ERROR configuring '${_CLR_YELLOW}${TB_NAME}${_CLR_RED}' details:"
       echo "${UPD_RESPONSE}"
-      echo
-      exit
-    else
-      echo " configured !"
+      exit 1
     fi
   fi
 }
@@ -124,7 +159,7 @@ updateTB () {
 removeTBContent () {
   TB_NAME=$1
 
-  echo -n -e "Removing content from TeamBinding '${_CLR_YELLOW}${TB_NAME}${_CLR_NC}' ..."
+  log_info "${_CLR_GREEN}Removing content from TeamBinding '${_CLR_YELLOW}${TB_NAME}${_CLR_GREEN}'"
 
   _URI="/std/bpm/containers/${WFPS_TB_APP_ACRONYM}/versions/${WFPS_TB_SNAP_NAME}/team_bindings"
   CRED="-u ${WFPS_ADMINUSER}:${WFPS_ADMINPASSWORD}"
@@ -151,13 +186,9 @@ removeTBContent () {
   TB_RESPONSE=$(curl -sk ${CRED} -H 'accept: application/json' -H 'BPMCSRFToken: '${WFPS_CSRF_TOKEN} -H 'Content-Type: application/json' -d "${_DATA}" -X DELETE ${WFPS_URL_OPS}/${_URI})
 
   if [[ "${TB_RESPONSE}" == *"error_"* ]]; then
-    echo ""
-    echo -e "${_CLR_RED}ERROR configuring '${_CLR_YELLOW}${TB_NAME}${_CLR_RED}' details:${_CLR_NC}"
+    log_error "${_CLR_RED}ERROR configuring '${_CLR_YELLOW}${TB_NAME}${_CLR_RED}' details:${_CLR_NC}"
     echo "${TB_RESPONSE}"
-    echo
-    exit
-  else
-    echo " done !"
+    exit 1
   fi
 
 }
@@ -180,8 +211,8 @@ updateTeamBindings () {
     _TB_MGR_GROUP="WFPS_TB_NAME_"$i"_MGR_GROUP"
 
     if [[ ! -z "${!_TB_NAME}" ]]; then
-      echo "---------------------"
-      echo -e "Working on TeamBinding '${_CLR_YELLOW}${!_TB_NAME}${_CLR_NC}'"
+      log_info "${_CLR_GREEN}--------------------------"
+      log_info "${_CLR_GREEN}Working on TeamBinding '${_CLR_YELLOW}${!_TB_NAME}${_CLR_GREEN}'"
 
       if [ "${_REMOVE}" = true ]; then
         removeTBContent ${!_TB_NAME}
@@ -192,28 +223,23 @@ updateTeamBindings () {
       updateTB "add_manager" ${!_TB_NAME} "${!_TB_MGR_GROUP}"
     fi
   done
-
-  echo ""
 }
 
 #--------------------------------------------------------
 
 #==========================================
-echo ""
-echo "*************************************"
-echo -e "***** ${_CLR_YELLOW}WfPS Team Bindings Update${_CLR_NC} *****"
-echo "*************************************"
-echo -e "Using config file '${_CLR_YELLOW}${CONFIG_FILE}${_CLR_NC}'"
-echo -e "Using team bindings file '${_CLR_YELLOW}${TEAM_BINDINGS_FILE}${_CLR_NC}'"
+log_info "${_CLR_GREEN}*************************************"
+log_info "${_CLR_GREEN}***** ${_CLR_YELLOW}WfPS Team Bindings Update${_CLR_GREEN} *****"
+log_info "${_CLR_GREEN}*************************************"
+log_info "${_CLR_GREEN}Using config file '${_CLR_YELLOW}${CONFIG_FILE}${_CLR_GREEN}'"
+log_info "${_CLR_GREEN}Using team bindings file '${_CLR_YELLOW}${TEAM_BINDINGS_FILE}${_CLR_GREEN}'"
 
 # Read target environment configuration, ignore error for IDP/LDAP configuration properties 
 source ${TARGET_ENV_CONFIG_FILE} 2> /dev/null 1> /dev/null
 source ${CONFIG_FILE}
 source ${TEAM_BINDINGS_FILE}
 
-echo ""
-echo -e "Working on acronym '${_CLR_YELLOW}${WFPS_TB_APP_ACRONYM}${_CLR_NC}' snapshot '${_CLR_YELLOW}${WFPS_TB_SNAP_NAME}${_CLR_NC}'"
-echo ""
+log_info "${_CLR_GREEN}Working on acronym '${_CLR_YELLOW}${WFPS_TB_APP_ACRONYM}${_CLR_NC}' snapshot '${_CLR_YELLOW}${WFPS_TB_SNAP_NAME}${_CLR_GREEN}'"
 
 verifyAllParams
 updateTeamBindings
