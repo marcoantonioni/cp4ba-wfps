@@ -2,7 +2,7 @@
 
 Utilities for IBM Cloud Pak® for Business Automation
 
-<i>Last update: 2026-03-20</i> use '<b>main</b>' for latest update (see changelog.md for details)
+<i>Last update: 2026-05-27</i> use '<b>main</b>' for latest update (see changelog.md for details)
 
 
 This repository contains a series of examples and tools for creating and configuring Workflow Process Service (WFPS) in IBM Cloud Pak for Business Automation deployment.
@@ -133,6 +133,25 @@ Examples for WFPS server deployments.
 # REMEMBER: adapt the properties file to your environment
 
 # 1. deploy WFPS (no PFS)
+
+# WfPS 1
+WFPS_CONFIG=../configs/25.0.1/wfps-wfps-demo-1.properties
+TARGET_ENV_CONFIG=../../cp4ba-installations/configs25.0.1/env1-runtime-wfps.properties
+time ./wfps-deploy.sh -c ${WFPS_CONFIG} -e ${TARGET_ENV_CONFIG}
+
+# WfPS 2
+WFPS_CONFIG=../configs/25.0.1/wfps-wfps-demo-2.properties
+TARGET_ENV_CONFIG=../../cp4ba-installations/configs25.0.1/env1-runtime-wfps.properties
+time ./wfps-deploy.sh -c ${WFPS_CONFIG} -e ${TARGET_ENV_CONFIG}
+
+# WfPS 3
+WFPS_CONFIG=../configs/25.0.1/wfps-wfps-demo-3.properties
+TARGET_ENV_CONFIG=../../cp4ba-installations/configs25.0.1/env1-runtime-wfps.properties
+time ./wfps-deploy.sh -c ${WFPS_CONFIG} -e ${TARGET_ENV_CONFIG}
+
+```
+
+# 1. deploy WFPS (with PFS)
 
 # WfPS 1
 WFPS_CONFIG=../configs/25.0.1/wfps-wfps-demo-1.properties

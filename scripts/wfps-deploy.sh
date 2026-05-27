@@ -161,6 +161,7 @@ generateCR () {
 
 
 #-------------------------------
+# MUST BE aligned with cp4ba-create-databases.sh (to be refactored for single source...)
 _createDatabases () {
 # $1 CP4BA_INST_DB_CR_NAME
 # $3 _CR_SUFFIX
@@ -174,7 +175,7 @@ _createDatabases () {
   _DONE=0
   _KO=0
 
-  _MAX_WAIT_READY=600
+  _MAX_WAIT_READY=1800
   log_info "${_CLR_GREEN}Wait for pod '${_CLR_YELLOW}"${_DB_CR_NAME}-${_DB_CR_NAME_SUFFIX}"${_CLR_GREEN}' ready (may take minutes)${_CLR_NC}"
   _RES=$(oc wait -n ${CP4BA_INST_SUPPORT_NAMESPACE} pod/${_DB_CR_NAME}-${_DB_CR_NAME_SUFFIX} --for condition=Ready --timeout="${_MAX_WAIT_READY}"s 2>/dev/null)
   _IS_READY=$(echo $_RES | grep "condition met" | wc -l)
@@ -227,7 +228,7 @@ _createDatabases () {
         
         if [ $? -gt 0 ]; then
           _KO=1
-          log_error "Error executing SQL statements in pod '${_CLR_YELLOW}${_DB_CR_NAME}-${_DB_CR_NAME_SUFFIX}${_CLR_RED}', retry...${_CLR_NC}" 
+          log_warning "Error executing SQL statements in pod '${_CLR_YELLOW}${_DB_CR_NAME}-${_DB_CR_NAME_SUFFIX}${_CLR_RED}', retry...${_CLR_NC}" 
           sleep 10
         else
           _KO=0
@@ -254,6 +255,7 @@ _createDatabases () {
 
 }
 
+# MUST BE aligned with cp4ba-create-databases.sh (to be refactored for single source...)
 createDatabases () {
 # $1: prefix key
 
@@ -284,7 +286,7 @@ createDatabases () {
         exit 1
       fi
     else
-      log_warning "Warning '${_CLR_YELLOW}${_INST_ITEM}${_CLR_NC}' for db '${_CLR_YELLOW}${!_INST_DB_CR_NAME}${_CLR_NC}' is disabled, skipping configuration."
+      log_debug "${_CLR_GREEN}'${_CLR_YELLOW}${_INST_ITEM}${_CLR_GREEN}' for db '${_CLR_YELLOW}${!_INST_DB_CR_NAME}${_CLR_GREEN}' is disabled, skipping configuration."
     fi
     ((i = i + 1))
   done  
