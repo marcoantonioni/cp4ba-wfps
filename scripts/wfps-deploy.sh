@@ -159,7 +159,6 @@ generateCR () {
 }
 
 
-
 #-------------------------------
 # MUST BE aligned with cp4ba-create-databases.sh (to be refactored for single source...)
 _createDatabases () {
