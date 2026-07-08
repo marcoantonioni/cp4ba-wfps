@@ -1,0 +1,57 @@
+apiVersion: icp4a.ibm.com/v1
+kind: WfPSRuntime
+metadata:
+  name: ${WFPS_NAME}
+  namespace: ${WFPS_NAMESPACE}
+spec:
+  appVersion: "${WFPS_APP_VER}"
+  license:
+    accept: true
+  deploymentLicense: "${WFPS_LICENSE_TYPE}"
+  admin:
+    username: ${WFPS_ADMINUSER}
+
+  replicas: ${WFPS_REPLICAS}
+
+  capabilities: 
+    federate:
+      enable: ${WFPS_FEDERATE}
+
+    fullTextSearch:
+      enable: ${WFPS_FEDERATE_TEXTSEARCH}
+      esStorage:
+        storageClassName: ${WFPS_STORAGE_CLASS_BLOCK}
+        size: "${WFPS_FEDERATE_TEXTSEARCH_SIZE}"
+      esSnapshotStorage:
+        storageClassName: ${WFPS_STORAGE_CLASS_BLOCK}
+        size: "${WFPS_FEDERATE_TEXTSEARCHSIZE_SNAP}"
+
+  tls:
+    serverTrustCertificateList: [${WFPS_TLS_SECRET_NAMES}]
+  persistent:
+    storageClassName: ${WFPS_STORAGE_CLASS}
+  image:
+    imagePullPolicy: IfNotPresent
+  node:
+    resources:
+      limits:
+        cpu: ${WFPS_LIMITS_CPU}
+        memory: ${WFPS_LIMITS_MEMORY}
+      requests:
+        cpu: ${WFPS_REQS_CPU}
+        memory: ${WFPS_REQS_MEMORY}
+
+  database:
+    external:
+      serverName: ${WFPS_EXT_DB_SERVER}
+      port: ${WFPS_EXT_DB_PORT}
+      type: postgresql
+      databaseName:	${WFPS_EXT_DB_NAME}
+      current_schema: wfpsdb
+      dbCredentialSecret:	${WFPS_EXT_DB_CREDENTIAL_SECRET} # The secret key must include the username and password      
+      enableSSL: ${WFPS_EXT_DB_ENABLE_SSL}
+      dbServerCertSecret: ${WFPS_EXT_DB_CERT_SSL}
+      sslMode: require
+    client:
+      maxConnectionPoolSize: ${WFPS_EXT_DB_CONN_POOL_MAX}
+      minConnectionPoolSize: ${WFPS_EXT_DB_CONN_POOL_MIN}

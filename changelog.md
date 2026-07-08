@@ -1,6 +1,19 @@
 
 # Change Log
 
+## [1.3.0] - 2026-07-8
+
+### Added
+
+CP4BA v26 configurations
+
+### Changed
+
+Use SSL or non-SSL for DB connections 
+
+### Fixed
+
+
 ## [1.2.1] - 2026-05-27
 
 ### Added

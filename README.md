@@ -2,7 +2,7 @@
 
 Utilities for IBM Cloud Pak® for Business Automation
 
-<i>Last update: 2026-05-27</i> use '<b>main</b>' for latest update (see changelog.md for details)
+<i>Last update: 2026-07-08</i> use '<b>main</b>' for latest update (see changelog.md for details)
 
 
 This repository contains a series of examples and tools for creating and configuring Workflow Process Service (WFPS) in IBM Cloud Pak for Business Automation deployment.

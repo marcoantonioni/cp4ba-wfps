@@ -246,10 +246,7 @@ _createDatabases () {
   fi
 
   if [[ "$_DONE" = "0" ]]; then
-    log_error "[✗] DBs not configured or not exists, check status of pod '${_CLR_YELLOW}${_DB_CR_NAME}-${_DB_CR_NAME_SUFFIX}${_CLR_RED}'${_CLR_NC}"
-    # oc get pod -n ${CP4BA_INST_SUPPORT_NAMESPACE} ${_DB_CR_NAME}-${_DB_CR_NAME_SUFFIX} -o wide
-    log_error ">>> ${_CLR_RED}\x1b[5mERROR\x1b[25m${_CLR_NC} <<< DB configuration terminated in error."
-    exit 1
+    log_warning "[✗] DBs not configured or not exists, check status of pod '${_CLR_YELLOW}${_DB_CR_NAME}-${_DB_CR_NAME_SUFFIX}${_CLR_RED}'${_CLR_NC}"
   fi
 
 }
@@ -276,7 +273,7 @@ createDatabases () {
       if [[ ! -z "${!_INST_DB_CR_NAME}" ]]; then
         _createDatabases ${!_INST_DB_CR_NAME} ${_DB_CR_NAME_SUFFIX}
         if [[ ! -z "${!_INST_DB_CR_NAME_SSL}" ]]; then
-          # log_info "${_CLR_GREEN}Installing databases into server '${_CLR_YELLOW}${!_INST_DB_CR_NAME_SSL}${_CLR_GREEN}'${_CLR_NC}"
+          log_info "${_CLR_GREEN}Installing databases into server '${_CLR_YELLOW}${!_INST_DB_CR_NAME_SSL}${_CLR_GREEN}'${_CLR_NC}"
           _createDatabases ${!_INST_DB_CR_NAME_SSL} ${_DB_CR_NAME_SUFFIX}
         fi
       else
