@@ -1,6 +1,17 @@
 
 # Change Log
 
+## [1.3.0] - 2026-07-9
+
+### Added
+
+### Changed
+
+Wait for WfPS ready not has timeout.
+
+### Fixed
+
+
 ## [1.3.0] - 2026-07-8
 
 ### Added
