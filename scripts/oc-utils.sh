@@ -83,15 +83,23 @@ waitForWfPSReady () {
 #    echo "time to wait: $3"
 
     log_info "${_CLR_GREEN}Wait for WfPS '${_CLR_YELLOW}$2${_CLR_GREEN}' in namespace '${_CLR_YELLOW}$1${_CLR_GREEN}' to be ready${_CLR_NC}"
+
+    _maxAttempts=60
+    counter=0
     while true 
     do
-        _READY=$(oc get wfps -n $1 $2 --no-headers 2>/dev/null | awk '{print $2}')
-        if [ "${_READY}" = "True" ]; then
-            log_info "${_CLR_GREEN}WfPS '${_CLR_YELLOW}$2${_CLR_GREEN}' in namespace '${_CLR_YELLOW}$1${_CLR_GREEN}' is ready${_CLR_NC}"
-            return 1
-        else
-            sleep $3
-        fi
+      _READY=$(oc get wfps -n $1 $2 --no-headers 2>/dev/null | awk '{print $2}')
+      if [ "${_READY}" = "True" ]; then
+          log_info "${_CLR_GREEN}WfPS '${_CLR_YELLOW}$2${_CLR_GREEN}' in namespace '${_CLR_YELLOW}$1${_CLR_GREEN}' is ready${_CLR_NC}"
+          return 1
+      else
+          sleep $3
+      fi
+      counter=$((counter + 1))
+      if [[ $counter -ge $_maxAttempts ]]; then
+        log_warning "${_CLR_GREEN}WfPS '${_CLR_YELLOW}$2${_CLR_GREEN}' in namespace '${_CLR_YELLOW}$1${_CLR_GREEN}' not yet ready, the operator will complete the setup.${_CLR_NC}"
+        return 2
+      fi
     done
     return 0
 }

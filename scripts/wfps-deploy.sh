@@ -406,15 +406,23 @@ startWfPSDeployment () {
   if [[ "${_YAML_ONLY}" = "false" ]]; then
     if [[ "${_NOWAIT}" = "false" ]]; then
       waitForWfPSReady ${WFPS_NAMESPACE} ${WFPS_NAME} 5
-      if [ $? -eq 0 ]; then
-        log_info "'${_CLR_YELLOW}${WFPS_NAME}${_CLR_NC}' is not ready"
+      _IS_READY=$?
+      if [ $_IS_READY -eq 0 ]; then
+        log_warning "'${WFPS_NAME}' is not ready"
       else
-        log_info "Success, '${_CLR_YELLOW}${WFPS_NAME}${_CLR_NC}' is operated through the folowing URLs using '${_CLR_YELLOW}${WFPS_ADMINUSER}${_CLR_NC}' credentials"
-        #showWfPSUrls ${WFPS_NAMESPACE} ${WFPS_NAME}
-        executeExportVars
+        if [ $_IS_READY -eq 1 ]; then
+          log_info "Success, '${_CLR_YELLOW}${WFPS_NAME}${_CLR_NC}' is operated through the folowing URLs using '${_CLR_YELLOW}${WFPS_ADMINUSER}${_CLR_NC}' credentials"
+          #showWfPSUrls ${WFPS_NAMESPACE} ${WFPS_NAME}
+          executeExportVars
+        else
+          log_info "WfPS server not yet started, use the following command to export server configuration details"
+          log_info "./wfps-export-env-vars-to-file.sh -c ${_CFG} -e ${_ENV_CFG}"
+        fi
       fi
     else
-       log_info "Success, '${_CLR_YELLOW}${WFPS_NAME}${_CLR_NC}' is building, you may check its status rerunning this command without -n parameter"
+      log_info "'${_CLR_YELLOW}${WFPS_NAME}${_CLR_NC}' is building, you may check its status rerunning this command without -n parameter"
+      log_info "Use the following command to export server configuration details"
+      log_info "./wfps-export-env-vars-to-file.sh -c ${_CFG} -e ${_ENV_CFG}"
     fi
   fi
 }

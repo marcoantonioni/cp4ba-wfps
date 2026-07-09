@@ -11,8 +11,6 @@ spec:
   admin:
     username: ${WFPS_ADMINUSER}
 
-  replicas: ${WFPS_REPLICAS}
-
   capabilities: 
     federate:
       enable: ${WFPS_FEDERATE}
@@ -33,6 +31,7 @@ spec:
   image:
     imagePullPolicy: IfNotPresent
   node:
+    replicas: ${WFPS_REPLICAS}
     resources:
       limits:
         cpu: ${WFPS_LIMITS_CPU}
