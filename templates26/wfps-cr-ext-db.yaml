@@ -1,3 +1,7 @@
+# https://www.ibm.com/docs/en/cloud-paks/cp-biz-automation/26.0.0?topic=icpd-installing-cp4ba-workflow-process-service-runtime-production-deployment
+# https://www.ibm.com/docs/en/cloud-paks/cp-biz-automation/26.0.0?topic=deployment-customizing-workflow-process-service-runtime#tsk_customize_wfps__liberty
+# https://www.ibm.com/docs/en/cloud-paks/cp-biz-automation/26.0.0?topic=reference-cp4ba-workflow-process-service-runtime-parameters
+
 apiVersion: icp4a.ibm.com/v1
 kind: WfPSRuntime
 metadata:
@@ -10,11 +14,9 @@ spec:
   deploymentLicense: "${WFPS_LICENSE_TYPE}"
   admin:
     username: ${WFPS_ADMINUSER}
-
   capabilities: 
     federate:
       enable: ${WFPS_FEDERATE}
-
     fullTextSearch:
       enable: ${WFPS_FEDERATE_TEXTSEARCH}
       esStorage:
@@ -23,10 +25,12 @@ spec:
       esSnapshotStorage:
         storageClassName: ${WFPS_STORAGE_CLASS_BLOCK}
         size: "${WFPS_FEDERATE_TEXTSEARCHSIZE_SNAP}"
-
   tls:
     serverTrustCertificateList: [${WFPS_TLS_SECRET_NAMES}]
   persistent:
+    data:
+      enable: ${WFPS_PERS_DATA_ENABLE}
+      size: ${WFPS_PERS_DATA_SIZE}
     storageClassName: ${WFPS_STORAGE_CLASS}
   image:
     imagePullPolicy: IfNotPresent
@@ -39,7 +43,24 @@ spec:
       requests:
         cpu: ${WFPS_REQS_CPU}
         memory: ${WFPS_REQS_MEMORY}
-
+    logging:
+      maxFileSize: 50
+      consoleFormat: json
+      consoleSource: 'message,trace,accessLog,ffdc,audit'
+      maxFiles: 10
+      enableFilebeat: false
+      consoleLogLevel: INFO
+      traceFormat: ENHANCED
+      messageFormat: simple
+      traceSpecification: '${WFPS_TRACE_LEVEL}'
+    processAppsLogging:
+      baseFilePath: /logs/process-apps
+      customProcessAppsLogPVC: ''
+      customProcessAppsLogPVCSize: 1Gi
+      defaultLogName: ProcessApps.log
+      enableGlobal: false
+      logFileSize: 80
+      logNumberOfRollovers: 5
   database:
     external:
       serverName: ${WFPS_EXT_DB_SERVER}
