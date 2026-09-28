@@ -1,6 +1,16 @@
 
 # Change Log
 
+## [1.3.1] - 2026-09-28
+
+### Added
+
+### Changed
+
+### Fixed
+
+Minor fixes
+
 ## [1.3.0] - 2026-07-9
 
 ### Added

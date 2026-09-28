@@ -317,12 +317,11 @@ deployWfPSRuntime () {
     fi
   fi
 
-  log_info "WfPS CR generated in '${_CLR_YELLOW}${_CR_YAML}${_CLR_NC}'"
-
   if [[ "${_YAML_ONLY}" = "false" ]]; then
     oc create -f ${_CR_YAML} 2> /dev/null 1>/dev/null
   fi
 
+  log_info "WfPS CR generated in '${_CLR_YELLOW}${_CR_YAML}${_CLR_NC}'"
 }
 
 executeExportVars () {
